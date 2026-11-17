@@ -1690,7 +1690,7 @@ const SimA = {
     <div class="a-right"><div class="a-ctl">
       <button class="a-btn a-gear" data-a="cfg" aria-label="réglages" data-tip="Réglages : démarrer / pause / arrêter, stratégie, son, export CSV, mise, risque, coûts.">⚙</button>
       </div>
-    <div class="a-tasks" data-tip="À chaque relevé de prix réel, les six agents jugent le token. Ce compteur additionne ces évaluations depuis le début de la session."><span data-r="clock"></span> · <b data-r="tasks">0</b> <span>ÉVALUATIONS DES AGENTS</span></div></div>
+</div>
   </div>
   <div class="a-stats">
     <div class="glass a-stat" data-tip="Liquidités + positions ouvertes évaluées au dernier prix réel, moins les frais et le slippage qu’une vente coûterait."><div class="a-lbl">SOLDE</div><div class="a-val" data-r="bal"></div><div class="a-sub" data-r="started"></div></div>
@@ -1744,7 +1744,7 @@ const SimA = {
       SimUI.refresh(); SimStore.save();
     });
     r.recap.addEventListener('click', e => { const c = e.target.closest('[data-rc]'); if (c && c.dataset.rc === 'csv') { exportCSV(['A']); return; } if (c && c.dataset.rc === 'new') { Sim.s.A.reset(); this.reset(); SimApp.toggle(); return; } r.recap.classList.remove('show'); this.recapHidden = true; });
-    this.n = { bal: new Num(r.bal, (e, v) => U.text(e, U.usd(v)), { thr: .002 }), pnl: new Num(r.pnl, (e, v) => U.text(e, U.sUsd(v)), { thr: .002 }), tasks: new Num(r.tasks, (e, v) => U.text(e, U.int(v)), { flash: false }) };
+    this.n = { bal: new Num(r.bal, (e, v) => U.text(e, U.usd(v)), { thr: .002 }), pnl: new Num(r.pnl, (e, v) => U.text(e, U.sUsd(v)), { thr: .002 }) };
   },
   reset() { this.lines.forEach(l => l.el.remove()); this.lines = []; this.pend = []; this.pipe.forEach(p => p.el.remove()); this.pipe = []; this.lastSeq = 0; this.feedSeq = Feed.seq; this.r.recap.classList.remove('show'); this.feat = null; this.lastFeatId = 0; },
   addLine(tag, text, big) {
@@ -1912,7 +1912,7 @@ const SimA = {
     const x = Sim.s.A, r = this.r, c = x.cfg;
     this.consume(x);
     const eq = x.equity(), pnl = eq - c.stake, w = x.wins(), l = x.losses(), cl = w + l;
-    this.n.bal.set(eq); this.n.pnl.set(pnl); this.n.tasks.set(x.evals);
+    this.n.bal.set(eq); this.n.pnl.set(pnl);
     U.text(r.started, `départ ${U.usd(c.stake)} · repli max -${x.maxDD.toFixed(1)}%`);
     U.text(r.pnlp, fmtP(pnl / c.stake * 100, 2) + ' sur la mise de départ'); U.cls(r.pnl, 'green', pnl >= 0); U.cls(r.pnl, 'red', pnl < 0);
     U.text(r.fees, U.usd(x.fees + x.slipCost)); U.text(r.feesub, `frais ${U.usd(x.fees)} · slippage ${U.usd(x.slipCost)}`);
@@ -1958,7 +1958,6 @@ const SimA = {
   },
   renderHead(x, now) {
     const r = this.r;
-    U.text(r.clock, x.state === 'idle' ? 'PRÊT' : `${STFR[x.state]} · ${U.hms(x.elapsed / 1000)} / ${durTxt(x.cfg.dur * 60000)}`);
     U.text(r.tpn, String(x.pos.length)); U.text(r.ttn, String(x.closed.length));
     if (this.tab === 'log' || now < (this.listAt || 0)) return; this.listAt = now + 700;
     if (this.tab === 'pos') {
