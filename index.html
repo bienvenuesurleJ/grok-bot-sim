@@ -904,6 +904,92 @@ body.mobile .a-vol{width:110rem}
 #panel .pseg button.act{background:#5b3a9b;border-color:#b66dff}
 #panel .btns button{padding:8px 12px}
 @media (min-width:760px){body.panel-open #toasts{right:356px}}
+/* =========================================================
+   v5 : effets live (transform / opacity uniquement)
+   ========================================================= */
+.aurora{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden;opacity:.55}
+.aurora i{position:absolute;width:70vmax;height:70vmax;border-radius:50%;will-change:transform}
+.aurora i:nth-child(1){left:-20vmax;top:-30vmax;background:radial-gradient(closest-side,rgba(120,80,255,.28),transparent);animation:au1 38s ease-in-out infinite}
+.aurora i:nth-child(2){right:-25vmax;top:10vmax;background:radial-gradient(closest-side,rgba(45,212,191,.20),transparent);animation:au2 46s ease-in-out infinite}
+.aurora i:nth-child(3){left:20vmax;bottom:-40vmax;background:radial-gradient(closest-side,rgba(90,165,255,.18),transparent);animation:au3 54s ease-in-out infinite}
+@keyframes au1{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(18vmax,10vmax) scale(1.15)}}
+@keyframes au2{0%,100%{transform:translate(0,0) scale(1.1)}50%{transform:translate(-16vmax,8vmax) scale(.95)}}
+@keyframes au3{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(10vmax,-14vmax) scale(1.2)}}
+body.fx-calm .aurora i{animation:none}
+#sceneA .a-board{position:relative;z-index:1}
+/* point de pulsation (aucun mot de statut) */
+.ldot{position:relative;display:inline-block;width:8px;height:8px;border-radius:50%;background:#4b5263;margin-right:9px;vertical-align:middle}
+.ldot.on{background:#34e8a0}
+.ldot.on::after{content:'';position:absolute;inset:0;border-radius:50%;background:#34e8a0;animation:ldp 1.8s ease-out infinite}
+@keyframes ldp{0%{transform:scale(1);opacity:.7}100%{transform:scale(3.2);opacity:0}}
+/* bandeau défilant des prix réels */
+body.has-ticker{padding-bottom:46px}
+#ticker{position:fixed;left:0;right:0;bottom:0;height:38px;z-index:1002;display:flex;align-items:center;background:rgba(8,10,18,.94);border-top:1px solid rgba(255,255,255,.08);font:500 12.5px var(--mono);color:#c9cfdb}
+#ticker .tk-l{flex:none;display:flex;align-items:center;gap:6px;padding:0 16px;height:100%;border-right:1px solid rgba(255,255,255,.08);background:rgba(18,14,34,.95);z-index:2}
+#ticker .tk-l b{color:#fff;font-variant-numeric:tabular-nums}#ticker .tk-l small{color:#7d8597;margin-right:8px;font-size:11px}
+#ticker .tk-w{flex:1;overflow:hidden;position:relative;height:100%}
+#ticker .tk-w::after{content:'';position:absolute;right:0;top:0;bottom:0;width:60px;background:linear-gradient(90deg,transparent,rgba(8,10,18,.95));pointer-events:none}
+#ticker .tk-m{display:flex;width:max-content;height:100%;align-items:center;animation:tks 40s linear infinite;will-change:transform}
+#ticker .tk-m>div{display:flex}
+#ticker .ti{margin-right:30px;white-space:nowrap}#ticker .ti b{color:#e9dcff;font-weight:600}
+#ticker .ti em{font-style:normal}#ticker .ti em.g{color:#34e8a0}#ticker .ti em.r{color:#ff5c75}
+@keyframes tks{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+#sndHint{bottom:52px}
+@media (max-width:759px){#toasts{bottom:50px!important}#ticker{height:34px;font-size:11px}#ticker .tk-l{padding:0 10px}body.has-ticker{padding-bottom:40px}}
+/* célébration de clôture réelle */
+#celeb{position:fixed;inset:0;pointer-events:none;z-index:1006}
+#celeb canvas{position:absolute;inset:0;width:100%;height:100%}
+#celeb .cb-glow{position:absolute;left:50%;top:44%;width:80vmin;height:80vmin;margin:-40vmin 0 0 -40vmin;border-radius:50%;opacity:0;will-change:transform,opacity}
+#celeb.win .cb-glow{background:radial-gradient(closest-side,rgba(52,232,160,.45),rgba(52,232,160,.12) 55%,transparent)}
+#celeb.loss .cb-glow{background:radial-gradient(closest-side,rgba(255,92,117,.30),transparent)}
+#celeb .cb-box{position:absolute;left:50%;top:44%;transform:translate(-50%,-50%);opacity:0;text-align:center;white-space:nowrap;will-change:transform,opacity}
+#celeb .cb-n{font:800 clamp(56px,9vw,120px)/1 var(--outfit);letter-spacing:-.02em}
+#celeb.win .cb-n{color:#34e8a0;text-shadow:0 0 40px rgba(52,232,160,.55),0 4px 0 rgba(0,0,0,.35)}
+#celeb.loss .cb-n{color:#ff6b81;font-size:clamp(42px,6vw,76px);text-shadow:0 0 30px rgba(255,92,117,.4)}
+#celeb .cb-s{margin-top:12px;font:600 clamp(13px,1.4vw,18px) var(--mono);color:#e6e9f2;text-shadow:0 2px 10px rgba(0,0,0,.8)}
+#celeb .cb-k{display:inline-block;margin-top:12px;padding:6px 14px;border-radius:999px;font:700 13px var(--inter);background:rgba(10,12,22,.85);border:1px solid rgba(255,255,255,.15);color:#ffd166}
+#celeb.loss .cb-k{color:#ffb3bf}
+/* carte « Trade du moment » */
+#spot{position:fixed;left:20px;bottom:54px;width:330px;z-index:1004;pointer-events:none;opacity:0;transform:translateX(-110%);padding:14px 16px;border-radius:16px;background:linear-gradient(180deg,rgba(28,22,52,.97),rgba(12,14,28,.97));border:1px solid rgba(182,109,255,.45);box-shadow:0 18px 50px rgba(0,0,0,.5),0 0 30px rgba(182,109,255,.18);color:#e6e9f2;font-family:var(--inter);will-change:transform,opacity}
+#spot .sp-h{display:flex;justify-content:space-between;font:700 10.5px var(--mono);letter-spacing:.16em;color:#b66dff}
+#spot .sp-x{color:#7d8597;letter-spacing:0}
+#spot .sp-sym{margin:8px 0 2px;font:800 26px var(--outfit)}#spot .sp-sym em{font-style:normal;font-size:16px;color:#5aa5ff;margin-left:6px}
+#spot .sp-p{font:12px var(--mono);color:#9aa3b8;margin-bottom:8px}
+#spot .sp-r{display:flex;gap:8px;font:11.5px/1.45 var(--mono);padding:3px 0;border-top:1px solid rgba(255,255,255,.06)}
+#spot .sp-r b{flex:none;width:42px;color:#34e8a0}#spot .sp-r span{color:#c9cfdb;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+@media (max-width:759px){#spot{left:8px;right:8px;width:auto;bottom:46px}#spot .sp-r:nth-of-type(n+4){display:none}}
+/* animations « réflexion » des agents (en pause hors activité) */
+.viz{margin-left:auto;margin-right:8rem;width:30rem;height:18rem;position:relative;display:inline-flex;align-items:flex-end;gap:2rem;opacity:.35;transition:opacity .4s}
+.cr-card.thinking .viz,.cr-card.working .viz{opacity:1}
+.viz b{display:block;flex:1;height:100%;background:var(--c);border-radius:2rem;transform-origin:bottom;will-change:transform;animation-play-state:paused!important}
+.cr-card.thinking .viz b,.cr-card.working .viz b{animation-play-state:running!important}
+.viz.v0 b,.viz.v1 b{display:none}
+.viz.v0 b:first-child{display:block;position:absolute;left:6rem;top:0;width:18rem;height:18rem;flex:none;border-radius:50%;background:conic-gradient(from 0deg,transparent 0 270deg,var(--c));transform-origin:center;animation:spin 1.4s linear infinite;box-shadow:inset 0 0 0 1px var(--c)}
+.viz.v1 b:nth-child(-n+2){display:block;position:absolute;left:7rem;top:1rem;width:16rem;height:16rem;flex:none;border-radius:50%;background:none;border:1.5px solid var(--c);transform-origin:center;animation:vring 1.8s ease-out infinite}
+.viz.v1 b:nth-child(2){animation-delay:-.9s}
+@keyframes vring{0%{transform:scale(.3);opacity:1}100%{transform:scale(1.1);opacity:0}}
+.viz.v2 b{animation:vup 1.3s ease-in-out infinite}.viz.v2 b:nth-child(1){height:30%}.viz.v2 b:nth-child(2){height:45%}.viz.v2 b:nth-child(3){height:60%}.viz.v2 b:nth-child(4){height:80%}.viz.v2 b:nth-child(5){height:100%}
+.viz.v2 b:nth-child(2){animation-delay:.1s}.viz.v2 b:nth-child(3){animation-delay:.2s}.viz.v2 b:nth-child(4){animation-delay:.3s}.viz.v2 b:nth-child(5){animation-delay:.4s}
+@keyframes vup{0%,100%{transform:scaleY(.5)}50%{transform:scaleY(1)}}
+.viz.v3 b{animation:vwave .7s ease-in-out infinite alternate}
+.viz.v3 b:nth-child(2){animation-delay:-.15s}.viz.v3 b:nth-child(3){animation-delay:-.3s}.viz.v3 b:nth-child(4){animation-delay:-.45s}.viz.v3 b:nth-child(5){animation-delay:-.6s}
+@keyframes vwave{from{transform:scaleY(.15)}to{transform:scaleY(1)}}
+.viz.v4 b{display:none}.viz.v4 b:first-child{display:block;position:absolute;left:2rem;right:2rem;top:8rem;height:2.5rem;flex:none;transform-origin:center;animation:vsaw 2s ease-in-out infinite}
+.viz.v4 b:nth-child(2){display:block;position:absolute;left:13rem;top:10rem;width:4rem;height:7rem;flex:none;border-radius:1rem;animation:none}
+@keyframes vsaw{0%,100%{transform:rotate(-14deg)}50%{transform:rotate(14deg)}}
+.viz.v5 b{height:4rem;flex:none;width:4rem;border-radius:50%;position:absolute;left:0;top:7rem;animation:vshot 1.1s linear infinite}
+.viz.v5 b:nth-child(2){animation-delay:-.22s}.viz.v5 b:nth-child(3){animation-delay:-.44s}.viz.v5 b:nth-child(4){animation-delay:-.66s}.viz.v5 b:nth-child(5){animation-delay:-.88s}
+@keyframes vshot{0%{transform:translateX(0) scale(.4);opacity:0}30%{opacity:1}100%{transform:translateX(26rem) scale(1);opacity:0}}
+/* radar d'ODEN dans le graphe */
+.cr-graph .radar circle{fill:none;stroke:rgba(59,130,246,.45);stroke-width:1}
+.cr-graph .radar .sw{fill:rgba(59,130,246,.55);transform-origin:0 0;animation:spin 1.6s linear infinite;animation-play-state:paused;opacity:.3}
+.cr-graph .radar.on .sw{animation-play-state:running;opacity:1}
+/* traînées lumineuses */
+.cr-graph .trail{fill:none;stroke:#fff;stroke-width:2.6;stroke-linecap:round;opacity:0;pointer-events:none}
+body.fx-calm .cr-graph .trail{display:none}
+/* série */
+.a-streak{font:600 11rem var(--mono);color:#9aa3b8;min-height:14rem;margin-top:2rem}.a-streak.hot{color:#ffd166}
+@media (prefers-reduced-motion:reduce){.aurora i,.viz b,.ldot.on::after,#ticker .tk-m{animation:none!important}}
 </style>
 </head>
 <body data-scene="trading">
@@ -1139,20 +1225,20 @@ const T2 = {
 const AGN = { scan: 'ODEN', safety: 'VIRA', flow: 'NOLU', mom: 'KESH', analyst: 'score', risk: 'TAMB' };
 const SRCFR = { 'boosts/latest': 'boosts récents', 'profiles/latest': 'profils récents', 'boosts/top': 'top boosts', 'takeovers/latest': 'reprises communautaires' };
 const PRESETS = {
-  prudent: { maxPct: 5, maxPos: 3, stop: 6, tp: 12, trailOn: false, trailAct: 8, trailPct: 5, timeExit: 20, cooldown: 15,
-    f: { minLiq: 40000, minVol5: 4000, minTx5: 40, minBuy: 0.55, minChg5: 0.5, maxChg5: 15, maxChg1h: 80, maxAgeH: 0, minScore: 0.6, maxImpact: 1, early: false } },
-  equilibre: { maxPct: 10, maxPos: 5, stop: 8, tp: 20, trailOn: true, trailAct: 8, trailPct: 6, timeExit: 30, cooldown: 10,
-    f: { minLiq: 20000, minVol5: 2000, minTx5: 25, minBuy: 0.52, minChg5: 0.3, maxChg5: 25, maxChg1h: 150, maxAgeH: 0, minScore: 0.5, maxImpact: 1.5, early: false } },
-  agressif: { maxPct: 25, maxPos: 8, stop: 12, tp: 30, trailOn: true, trailAct: 6, trailPct: 8, timeExit: 45, cooldown: 5,
-    f: { minLiq: 8000, minVol5: 800, minTx5: 15, minBuy: 0.5, minChg5: 0.2, maxChg5: 40, maxChg1h: 300, maxAgeH: 0, minScore: 0.4, maxImpact: 3, early: true } },
+  prudent: { maxPct: 4, maxPos: 2, maxPerHour: 3, stop: 7, stopMin: 3, volK: 2.5, rr: 2, tp: 25, trailOn: true, trailAct: 6, trailPct: 3, beAt: 3, beLock: 0.5, flatMin: 12, flatBand: 1.5, timeExit: 40, cooldown: 30, cooldownLoss: 120,
+    f: { minLiq: 80000, minVol5: 5000, minTx5: 60, minBuy: 0.55, minBuy1h: 0.52, minChg5: 0.5, maxChg5: 6, minChg1h: -5, maxChg1h: 25, minAgeH: 12, maxAgeH: 0, minObsS: 90, minMom60: 0, minScore: 0.6, maxImpact: 0.5, costMult: 3, early: false } },
+  equilibre: { maxPct: 6, maxPos: 3, maxPerHour: 5, stop: 8, stopMin: 3, volK: 2.5, rr: 2, tp: 30, trailOn: true, trailAct: 5, trailPct: 3.5, beAt: 3, beLock: 0.5, flatMin: 15, flatBand: 1.5, timeExit: 45, cooldown: 20, cooldownLoss: 90,
+    f: { minLiq: 50000, minVol5: 3000, minTx5: 40, minBuy: 0.53, minBuy1h: 0.5, minChg5: 0.3, maxChg5: 8, minChg1h: -8, maxChg1h: 40, minAgeH: 6, maxAgeH: 0, minObsS: 60, minMom60: 0, minScore: 0.55, maxImpact: 0.8, costMult: 2.5, early: false } },
+  agressif: { maxPct: 8, maxPos: 4, maxPerHour: 8, stop: 10, stopMin: 4, volK: 2.5, rr: 2, tp: 40, trailOn: true, trailAct: 6, trailPct: 4, beAt: 4, beLock: 0.5, flatMin: 15, flatBand: 2, timeExit: 60, cooldown: 15, cooldownLoss: 60,
+    f: { minLiq: 50000, minVol5: 2000, minTx5: 30, minBuy: 0.52, minBuy1h: 0.5, minChg5: 0.2, maxChg5: 12, minChg1h: -10, maxChg1h: 60, minAgeH: 3, maxAgeH: 0, minObsS: 45, minMom60: -0.2, minScore: 0.5, maxImpact: 1, costMult: 2, early: false } },
 };
 /* coûts réalistes par défaut : frais DEX par côté, frais réseau + priorité par swap, glissement de base */
 const COSTS = { feePct: 0.30, netFee: 0.01, baseSlip: 0.40 };
 const SCENE_DEFAULTS = { A: { stake: 38, dur: 120 }, B: { stake: 110, dur: 120 }, C: { stake: 81, dur: 120 } };
-function defaultCfg(key, preset = 'agressif') {
+function defaultCfg(key, preset = 'equilibre') {
   const p = JSON.parse(JSON.stringify(PRESETS[preset]));
   const d = SCENE_DEFAULTS[key];
-  return Object.assign({ stake: d.stake, dur: d.dur, target: d.stake * 2, preset }, p, COSTS);
+  return Object.assign({ ver: 2, stake: d.stake, dur: d.dur, target: d.stake * 2, preset }, p, COSTS);
 }
 
 /* ========================= FEED : DexScreener (lecture seule) ========================= */
@@ -1257,13 +1343,14 @@ const Feed = {
       pair: p.pairAddress, dex: p.dexId || null, url: p.url || null, price,
       liq: g(p.liquidity, 'usd'), vol5: g(p.volume, 'm5'), vol1h: g(p.volume, 'h1'),
       b5: p.txns && p.txns.m5 ? this.num(p.txns.m5.buys) : null, s5: p.txns && p.txns.m5 ? this.num(p.txns.m5.sells) : null,
+      b1h: p.txns && p.txns.h1 ? this.num(p.txns.h1.buys) : null, s1h: p.txns && p.txns.h1 ? this.num(p.txns.h1.sells) : null, c6h: g(p.priceChange, 'h6'),
       c5: g(p.priceChange, 'm5'), c1h: g(p.priceChange, 'h1'), c24: g(p.priceChange, 'h24'),
       mcap: this.num(p.marketCap ?? p.fdv), created: this.num(p.pairCreatedAt), boosts: p.boosts ? this.num(p.boosts.active) : null,
       upd: Date.now(), noPair: 0,
     });
     const last = t.snaps[t.snaps.length - 1];
     if (!last || last.p !== price || Date.now() - last.t > 20000) {
-      t.snaps.push({ t: Date.now(), p: price, liq: t.liq, vol5: t.vol5, b5: t.b5, s5: t.s5, c5: t.c5, c1h: t.c1h, created: t.created });
+      t.snaps.push({ t: Date.now(), p: price, liq: t.liq, vol5: t.vol5, vol1h: t.vol1h, b5: t.b5, s5: t.s5, b1h: t.b1h, s1h: t.s1h, c5: t.c5, c1h: t.c1h, c6h: t.c6h, created: t.created });
       if (t.snaps.length > 1500) t.snaps.splice(0, t.snaps.length - 1500);
     }
     return t;
@@ -1318,24 +1405,41 @@ const Rules = {
   },
   impactPct(size, liq) { return liq ? 2 * size / liq * 100 : null; },
   /* évalue un candidat : renvoie les verdicts de chaque module avec les vraies valeurs */
+  /* volatilité réalisée : écart-type des rendements entre relevés sur ~5 min, ramené à 5 min (en %) */
+  vol5(snaps, i = snaps.length - 1) {
+    if (i < 3) return null; const t = snaps[i].t; let j = i, rs = [], gap = 0;
+    while (j > 0 && t - snaps[j - 1].t <= 300000) { const a = snaps[j - 1], b = snaps[j]; if (a.p > 0 && b.p > 0) { rs.push(Math.log(b.p / a.p)); gap += b.t - a.t; } j--; }
+    if (rs.length < 3 || gap < 60000) return null;
+    const m = rs.reduce((x, y) => x + y, 0) / rs.length, sd = Math.sqrt(rs.reduce((x, y) => x + (y - m) * (y - m), 0) / (rs.length - 1));
+    return sd * Math.sqrt(300000 / (gap / rs.length)) * 100;
+  },
+  /* stop et objectif dérivés de la volatilité, bornés par la configuration */
+  levels(vol, s, cfg) {
+    const v = vol !== null ? vol : (s.c5 !== null ? Math.abs(s.c5) : cfg.stop);
+    const stopD = U.clamp(cfg.volK * v, cfg.stopMin, cfg.stop);
+    return { stopD, tpD: Math.min(cfg.tp, stopD * cfg.rr), vol: v };
+  },
+  /* évalue un candidat : renvoie les verdicts de chaque module avec les vraies valeurs */
   entry(s, mom, cfg, ctx) {
     const f = cfg.f, now = s.t;
     const ageH = s.created ? (now - s.created) / 3600e3 : null;
     const tx = s.b5 !== null && s.s5 !== null ? s.b5 + s.s5 : null;
     const buyR = tx ? s.b5 / tx : null;
+    const tx1 = s.b1h != null && s.s1h != null ? s.b1h + s.s1h : null, buyR1 = tx1 ? s.b1h / tx1 : null;
     const M = {};
-    /* SCANNER : données présentes, âge de la paire */
-    const ageOk = !f.maxAgeH || (ageH !== null && ageH <= f.maxAgeH);
-    M.scan = { ok: s.p > 0 && ageOk, txt: `âge ${ageH === null ? 'n.d.' : ageH.toFixed(1) + ' h'}${f.maxAgeH ? ' ≤ ' + f.maxAgeH + ' h' : ''}` };
-    /* SAFETY : liquidité ; verrou LP et wallet dev : aucune donnée publique → n/a */
+    /* ODEN · SCANNER : paire assez ancienne, token observé assez longtemps par nos relevés */
+    const obs = ctx.obsS == null ? 1e9 : ctx.obsS;
+    const ageOk = ageH !== null && ageH >= (f.minAgeH || 0) && (!f.maxAgeH || ageH <= f.maxAgeH);
+    M.scan = { ok: s.p > 0 && ageOk && obs >= (f.minObsS || 0), txt: `âge ${ageH === null ? 'n.d.' : ageH.toFixed(1) + ' h'} ${ageOk ? '≥' : '<'} ${f.minAgeH || 0} h · observé ${Math.min(999, Math.round(obs))} s` };
+    /* VIRA · SÉCURITÉ : liquidité ; verrou LP et wallet dev : aucune donnée publique → n.d. */
     M.safety = { ok: s.liq !== null && s.liq >= f.minLiq, txt: `liquidité ${fmtK(s.liq)} ${s.liq !== null && s.liq >= f.minLiq ? '≥' : '<'} ${fmtK(f.minLiq)} · verrou n.d. · dev n.d.`, lock: 'na', dev: 'na' };
-    /* FLOW (smart money / acheteurs) */
-    M.flow = { ok: buyR !== null && buyR >= f.minBuy && tx >= f.minTx5 && s.vol5 !== null && s.vol5 >= f.minVol5,
-      txt: `achats ${buyR === null ? 'n.d.' : Math.round(buyR * 100) + '%'} sur ${tx ?? 'n.d.'} tx/5 min · vol. 5 min ${fmtK(s.vol5)}` };
-    /* MOMENTUM (tendance) */
-    M.mom = { ok: s.c5 !== null && s.c5 >= f.minChg5 && s.c5 <= f.maxChg5 && (s.c1h === null || s.c1h <= f.maxChg1h) && (mom === null || mom >= -0.5),
-      txt: `5 min ${fmtP(s.c5)} · 1 h ${fmtP(s.c1h, 0)} · 60 s ${fmtP(mom, 2)}` };
-    /* ANALYST / DEBATE : score pondéré + votes bull/bear sur des faits */
+    /* NOLU · FLUX : pression acheteuse 5 min ET 1 h, activité minimum */
+    M.flow = { ok: buyR !== null && buyR >= f.minBuy && tx >= f.minTx5 && s.vol5 !== null && s.vol5 >= f.minVol5 && (buyR1 === null || buyR1 >= (f.minBuy1h || 0)),
+      txt: `achats ${buyR === null ? 'n.d.' : Math.round(buyR * 100) + '%'} sur ${tx ?? 'n.d.'} tx/5 min · 1 h ${buyR1 === null ? 'n.d.' : Math.round(buyR1 * 100) + '%'} · vol. 5 min ${fmtK(s.vol5)}` };
+    /* KESH · MOMENTUM : hausse modérée, pas après un gros dump ni une pompe déjà étirée */
+    M.mom = { ok: s.c5 !== null && s.c5 >= f.minChg5 && s.c5 <= f.maxChg5 && s.c1h !== null && s.c1h >= (f.minChg1h ?? -1e9) && s.c1h <= f.maxChg1h && (mom === null || mom >= (f.minMom60 ?? -0.5)),
+      txt: `5 min ${fmtP(s.c5)} · 1 h ${fmtP(s.c1h, 0)} (${f.minChg1h ?? '…'}…+${f.maxChg1h}) · 60 s ${fmtP(mom, 2)}` };
+    /* score pondéré + votes haussier/baissier sur des faits */
     let sc = 0;
     sc += .30 * (buyR === null ? 0 : U.clamp((buyR - .45) / .25));
     sc += .25 * (s.c5 === null ? 0 : U.clamp(s.c5 / 5));
@@ -1346,11 +1450,16 @@ const Rules = {
     const votes = [buyR !== null && buyR > .5, s.c5 !== null && s.c5 > 0, mom !== null && mom > 0, s.vol5 !== null && s.vol5 >= f.minVol5, s.liq !== null && s.liq >= f.minLiq];
     const bull = votes.filter(Boolean).length;
     M.analyst = { ok: sc >= f.minScore, score: sc, bull, bear: 5 - bull, txt: `score ${sc.toFixed(2)} ${sc >= f.minScore ? '≥' : '<'} ${f.minScore} · haussier ${bull} / baissier ${5 - bull}` };
-    /* RISK : taille ≤ max % ; impact de prix estimé (2 × taille / liquidité) */
-    const size = Math.min(ctx.equity * cfg.maxPct / 100, ctx.cash);
+    /* TAMB · RISQUE : taille plafonnée pour que l'impact reste ≤ max ; l'objectif doit couvrir plusieurs fois le coût aller-retour */
+    const L = this.levels(ctx.vol ?? null, s, cfg);
+    let size = Math.min(ctx.equity * cfg.maxPct / 100, ctx.cash);
+    if (s.liq) size = Math.min(size, f.maxImpact / 100 * s.liq / 2);
     const imp = this.impactPct(size, s.liq);
-    M.risk = { ok: size >= 1 && ctx.open < cfg.maxPos && imp !== null && imp <= f.maxImpact, size, imp,
-      txt: `taille ${U.usd(size)} (${cfg.maxPct}%) · impact ${imp === null ? 'n.d.' : imp.toFixed(2) + '%'} · ${ctx.open}/${cfg.maxPos} ouvertes` };
+    const rt = size > 0 && imp !== null ? 2 * (cfg.feePct + cfg.baseSlip + imp) + 2 * cfg.netFee / size * 100 : null;
+    const hr = ctx.perHour || 0;
+    const okR = size >= 1 && ctx.open < cfg.maxPos && hr < (cfg.maxPerHour || 99) && imp !== null && rt !== null && L.tpD >= (f.costMult || 0) * rt;
+    M.risk = { ok: okR, size, imp, rt, stopD: L.stopD, tpD: L.tpD, vol: L.vol,
+      txt: `taille ${U.usd(size)} · impact ${imp === null ? 'n.d.' : imp.toFixed(2) + '%'} · coût A/R ${rt === null ? 'n.d.' : rt.toFixed(1) + '%'} · stop -${L.stopD.toFixed(1)}% / obj. +${L.tpD.toFixed(1)}% · ${ctx.open}/${cfg.maxPos} ouvertes · ${hr}/${cfg.maxPerHour || '∞'} par h` };
     const order = ['scan', 'safety', 'flow', 'mom', 'analyst', 'risk'];
     const fail = order.find(k => !M[k].ok);
     return { ok: !fail, fail, M, size, buyR, ageH, score: sc };
@@ -1361,14 +1470,19 @@ const Rules = {
   /* sortie : stop, take profit fixe ou trailing, sortie temporelle, liquidité retirée */
   exit(pos, s, cfg) {
     const val = this.fillSell(s.p, pos.qty, s.liq, cfg).net;
-    const r = (val / pos.size - 1) * 100;
+    const r = (val / pos.size - 1) * 100; /* résultat net (frais et slippage inclus) */
     pos.peakP = Math.max(pos.peakP || pos.entryP, s.p);
-    const peakR = (pos.peakP / pos.entryP - 1) * 100;
+    const rp = (s.p / pos.entryP - 1) * 100, peakR = (pos.peakP / pos.entryP - 1) * 100;
     const ageMin = (s.t - pos.openMs) / 60000;
-    if (r <= -cfg.stop) return { why: `stop loss -${cfg.stop}%`, r };
+    const stopD = pos.stopD || cfg.stop, tpD = pos.tpD || cfg.tp;
+    /* stop remonté au prix d'entrée + marge une fois le gain atteint (couvre les frais) */
+    const floor = cfg.beAt && peakR >= cfg.beAt ? cfg.beLock : -stopD;
+    if (rp <= floor) return { why: floor > -stopD ? `stop relevé (sommet ${fmtP(peakR)})` : `stop loss -${stopD.toFixed(1)}%`, r, stop: floor <= -stopD };
     if (s.liq !== null && pos.entryLiq && s.liq < pos.entryLiq * .5) return { why: `liquidité retirée ${fmtK(s.liq)}`, r };
-    if (cfg.trailOn) { if (peakR >= cfg.trailAct && s.p <= pos.peakP * (1 - cfg.trailPct / 100)) return { why: `TP suiveur (sommet ${fmtP(peakR)}, -${cfg.trailPct}% depuis le sommet)`, r }; }
-    else if (r >= cfg.tp) return { why: `prise de profit +${cfg.tp}%`, r };
+    if (cfg.trailOn && peakR >= Math.max(cfg.trailAct, tpD * .6)) { if (s.p <= pos.peakP * (1 - cfg.trailPct / 100)) return { why: `TP suiveur (sommet ${fmtP(peakR)}, -${cfg.trailPct}% depuis le sommet)`, r }; }
+    else if (rp >= tpD) return { why: `prise de profit +${tpD.toFixed(1)}%`, r };
+    if (rp >= tpD * 2.5) return { why: `prise de profit +${rp.toFixed(1)}%`, r };
+    if (cfg.flatMin && ageMin >= cfg.flatMin && Math.abs(rp) < cfg.flatBand) return { why: `trade plat après ${cfg.flatMin} min`, r };
     if (cfg.timeExit && ageMin >= cfg.timeExit) return { why: `sortie temporelle ${cfg.timeExit} min`, r };
     return null;
   },
@@ -1382,7 +1496,7 @@ class PaperSession {
     Object.assign(this, {
       state: 'idle', reason: '', cash: c.stake, pos: [], closed: [], hist: [[0, c.stake]], log: [], events: [], seq: 0,
       elapsed: 0, fees: 0, slipCost: 0, evals: 0, rejects: 0, calls: { scan: 0, safety: 0, flow: 0, mom: 0, analyst: 0, risk: 0, exec: 0, exit: 0 },
-      peak: c.stake, minEq: c.stake, maxDD: 0, cooldown: {}, lastSkip: {}, startMs: null, endMs: null, uid: 0, sampleAt: 0, lastMod: 'scan', mode: Feed.mode,
+      peak: c.stake, minEq: c.stake, maxDD: 0, cooldown: {}, entries: [], lastSkip: {}, startMs: null, endMs: null, uid: 0, sampleAt: 0, lastMod: 'scan', mode: Feed.mode,
       ag: PaperSession.blankAg(), traces: [], trSeq: 0, lastBatchMs: 0,
     });
   }
@@ -1432,12 +1546,13 @@ class PaperSession {
       if (held) {
         held.lastP = t.price; this.calls.exit++;
         const ex0 = this.ag.exec; ex0.checks++; ex0.lastMs = now; ex0.sym = t.sym; ex0.last = `${t.sym} évalué à ${fmtPrice(s.p)} · ${fmtP((this.posValue(held) / held.size - 1) * 100)} · règles de sortie vérifiées`;
-        const ex = Rules.exit(held, s, this.cfg); if (ex) this.close(held, s, ex.why);
+        const ex = Rules.exit(held, s, this.cfg); if (ex) this.close(held, s, ex.why, ex.stop);
         return;
       }
       if (this.cooldown[t.addr] && now < this.cooldown[t.addr]) return;
       const eq = this.equity();
-      const res = Rules.entry(s, Rules.mom60(t.snaps), this.cfg, { equity: eq, cash: this.cash, open: this.pos.length });
+      this.entries = (this.entries || []).filter(m => s.t - m < 3600e3);
+      const res = Rules.entry(s, Rules.mom60(t.snaps), this.cfg, { equity: eq, cash: this.cash, open: this.pos.length, obsS: (s.t - (t.snaps[0] ? t.snaps[0].t : s.t)) / 1000, vol: Rules.vol5(t.snaps), perHour: this.entries.length });
       this.evals++;
       /* les 6 modules jugent chaque candidat en parallèle (valeurs réelles) ; TAMB = consensus + risque */
       ['scan', 'safety', 'flow', 'mom'].forEach(k => this.agSet(k, t.sym, `${t.sym} · ${res.M[k].txt}`, res.M[k].ok, now));
@@ -1465,20 +1580,21 @@ class PaperSession {
   open(t, s, res) {
     const f = Rules.fillBuy(s.p, res.size, s.liq, this.cfg);
     this.cash -= res.size; this.fees += f.fee; this.slipCost += res.size * f.slip / 100; this.calls.exec++;
-    const p = { id: ++this.uid, addr: t.addr, sym: t.sym, pair: t.pair, dex: t.dex, url: t.url, openMs: s.t, entryP: s.p, fillP: f.px, qty: f.qty, size: res.size, feeIn: f.fee, slipIn: f.slip, entryLiq: s.liq, peakP: s.p, lastP: s.p,
+    (this.entries = this.entries || []).push(s.t);
+    const p = { id: ++this.uid, addr: t.addr, sym: t.sym, pair: t.pair, dex: t.dex, url: t.url, openMs: s.t, entryP: s.p, fillP: f.px, qty: f.qty, size: res.size, feeIn: f.fee, slipIn: f.slip, entryLiq: s.liq, peakP: s.p, lastP: s.p, stopD: res.M.risk.stopD, tpD: res.M.risk.tpD,
       reasons: ['scan', 'safety', 'flow', 'mom', 'analyst', 'risk'].map(k => res.M[k].txt).join(' | '), score: res.score, bull: res.M.analyst.bull, bear: res.M.analyst.bear, buyR: res.buyR };
     this.pos.push(p);
     const ex = this.ag.exec; ex.fills++; ex.n++; ex.ok++; ex.lastMs = Date.now(); ex.sym = t.sym; ex.last = `ACHAT ${t.sym} ${U.usd(res.size)} exécuté à ${fmtPrice(f.px)} · slippage ${f.slip.toFixed(2)}% · frais ${U.usd(f.fee)}`;
     this.emit({ kind: 'buy', sym: t.sym, addr: t.addr, size: res.size, price: s.p, fill: f.px, slip: f.slip, fee: f.fee, res, txt: `ACHAT ${t.sym} ${U.usd(res.size)} à ${fmtPrice(f.px)} (marché ${fmtPrice(s.p)}, slippage ${f.slip.toFixed(2)}%)` });
   }
-  close(p, s, why) {
+  close(p, s, why, stopped) {
     const f = Rules.fillSell(s.p, p.qty, s.liq, this.cfg);
     this.cash += f.net; this.fees += f.fee; this.slipCost += p.qty * s.p * f.slip / 100; this.calls.exec++;
     this.pos.splice(this.pos.indexOf(p), 1);
     const pnl = f.net - p.size;
     const tr = Object.assign({}, p, { closeEl: this.elapsed, closeMs: s.t || Date.now(), exitP: s.p, exitFill: f.px, feeOut: f.fee, slipOut: f.slip, proceeds: f.net, pnl, pnlPct: pnl / p.size * 100, why });
     this.closed.push(tr); if (this.closed.length > 1000) this.closed.shift();
-    this.cooldown[p.addr] = Date.now() + this.cfg.cooldown * 60000;
+    this.cooldown[p.addr] = Date.now() + ((pnl < 0 || stopped) && this.cfg.cooldownLoss ? this.cfg.cooldownLoss : this.cfg.cooldown) * 60000;
     if (this.ag && this.ag.exec) { const ex = this.ag.exec; ex.fills++; ex.n++; ex.lastMs = Date.now(); ex.sym = p.sym; ex.last = `VENTE ${p.sym} ${U.sUsd(pnl)} (${fmtP(pnl / p.size * 100)}) · ${why}`; }
     this.emit({ kind: 'sell', sym: p.sym, addr: p.addr, pnl, pnlPct: tr.pnlPct, why, price: s.p, txt: `VENDU ${p.sym} ${U.sUsd(pnl)} (${fmtP(tr.pnlPct)}) · ${why}` });
   }
@@ -1490,7 +1606,7 @@ class PaperSession {
       coins: new Set(cl.map(t => t.addr)).size, best: best ? [best.sym, best.pnl] : null, worst: worst ? [worst.sym, worst.pnl] : null, minutes: this.elapsed / 60000 };
   }
   serialize() { const o = {}; ['key', 'cfg', 'state', 'reason', 'cash', 'pos', 'closed', 'hist', 'elapsed', 'fees', 'slipCost', 'evals', 'rejects', 'calls', 'peak', 'minEq', 'maxDD', 'cooldown', 'startMs', 'endMs', 'uid', 'mode', 'ag'].forEach(k => { o[k] = this[k]; }); o.log = this.log.slice(0, 60).map(e => ({ kind: e.kind, sym: e.sym, txt: e.txt, pnl: e.pnl, ms: e.ms, mod: e.mod })); return o; }
-  restore(o) { Object.assign(this, o); const b = PaperSession.blankAg(); this.ag = Object.assign(b, o.ag || {}); this.traces = []; this.trSeq = 0; this.events = []; this.seq = 0; this.lastSkip = {}; this.sampleAt = this.elapsed; if (this.state === 'running') { this.state = 'paused'; this.reason = 'restaurée après rechargement — appuie sur Reprendre'; } }
+  restore(o) { Object.assign(this, o); if (!this.cfg || this.cfg.ver !== 2) { const old = this.cfg || {}; const pr = PRESETS[old.preset] ? old.preset : 'equilibre'; this.cfg = Object.assign(defaultCfg(this.key, pr), { stake: old.stake ?? SCENE_DEFAULTS[this.key].stake, dur: old.dur ?? SCENE_DEFAULTS[this.key].dur, target: old.target ?? (old.stake || 38) * 2 }); } const b = PaperSession.blankAg(); this.ag = Object.assign(b, o.ag || {}); this.traces = []; this.trSeq = 0; this.events = []; this.seq = 0; this.lastSkip = {}; this.sampleAt = this.elapsed; if (this.state === 'running') { this.state = 'paused'; this.reason = 'restaurée après rechargement — appuie sur Reprendre'; } }
 }
 
 /* ========================= SIM : gestionnaire des 3 sessions ========================= */
@@ -1537,34 +1653,38 @@ const Backtest = {
     ev.sort((a, b) => a[0] - b[0]);
     return { toks, ev, span: ev.length ? (ev[ev.length - 1][0] - ev[0][0]) / 60000 : 0, snaps: ev.length };
   },
-  run(cfg, D) {
-    let cash = cfg.stake, peak = cfg.stake, maxDD = 0, fees = 0; const pos = new Map(), cd = new Map(), closed = [], lastP = new Map();
+  /* rejoue exactement la logique de la session (entrée, taille, niveaux, sorties, délais, plafond horaire) */
+  run(cfg, D, opt = {}) {
+    let cash = cfg.stake, peak = cfg.stake, maxDD = 0, fees = 0, slip = 0; const pos = new Map(), cd = new Map(), closed = [], lastP = new Map(), seen = new Map(), entries = [];
     const val = (ti, p) => { const s = lastP.get(ti); return Rules.fillSell(s.p, p.qty, s.liq, cfg).net; };
     const eqf = () => cash + [...pos.entries()].reduce((a, [ti, p]) => a + val(ti, p), 0);
-    let k = 0;
+    const t0 = opt.from || 0, t1 = opt.to || Infinity; let k = 0;
+    const sell = (ti, p, s, why, stopped) => { const f = Rules.fillSell(s.p, p.qty, s.liq, cfg); cash += f.net; fees += f.fee; slip += p.qty * s.p * f.slip / 100; const pnl = f.net - p.size; closed.push({ pnl, pct: pnl / p.size * 100, why, sym: D.toks[ti].sym, mins: (s.t - p.openMs) / 60000 }); pos.delete(ti); cd.set(ti, s.t + ((pnl < 0 || stopped) && cfg.cooldownLoss ? cfg.cooldownLoss : cfg.cooldown) * 60000); };
     for (const [t, ti, si] of D.ev) {
-      const tok = D.toks[ti], s = tok.snaps[si]; lastP.set(ti, s);
+      const tok = D.toks[ti], s = tok.snaps[si]; lastP.set(ti, s); if (!seen.has(ti)) seen.set(ti, t);
+      if (t < t0 || t > t1) { if (t > t1 && !pos.size) break; if (t > t1) { const p = pos.get(ti); if (p) sell(ti, p, s, 'fin de fenêtre'); } continue; }
       const p = pos.get(ti);
-      if (p) { const ex = Rules.exit(p, s, cfg); if (ex) { const f = Rules.fillSell(s.p, p.qty, s.liq, cfg); cash += f.net; fees += f.fee; closed.push(f.net - p.size); pos.delete(ti); cd.set(ti, t + cfg.cooldown * 60000); } }
+      if (p) { const ex = Rules.exit(p, s, cfg); if (ex) sell(ti, p, s, ex.why, ex.stop); }
       else if (!(cd.get(ti) > t)) {
-        const eq = eqf();
-        const r = Rules.entry(s, Rules.mom60(tok.snaps, si), cfg, { equity: eq, cash, open: pos.size });
-        if (r.ok) { const f = Rules.fillBuy(s.p, r.size, s.liq, cfg); cash -= r.size; fees += f.fee; pos.set(ti, { qty: f.qty, size: r.size, entryP: s.p, peakP: s.p, openMs: t, entryLiq: s.liq }); }
+        while (entries.length && t - entries[0] >= 3600e3) entries.shift();
+        const r = Rules.entry(s, Rules.mom60(tok.snaps, si), cfg, { equity: eqf(), cash, open: pos.size, obsS: (t - seen.get(ti)) / 1000, vol: Rules.vol5(tok.snaps, si), perHour: entries.length });
+        if (r.ok) { const f = Rules.fillBuy(s.p, r.size, s.liq, cfg); cash -= r.size; fees += f.fee; slip += r.size * f.slip / 100; entries.push(t); pos.set(ti, { qty: f.qty, size: r.size, entryP: s.p, peakP: s.p, openMs: t, entryLiq: s.liq, stopD: r.M.risk.stopD, tpD: r.M.risk.tpD }); }
       }
-      if (++k % 25 === 0) { const e = eqf(); peak = Math.max(peak, e); maxDD = Math.max(maxDD, (peak - e) / peak * 100); }
+      if (++k % 10 === 0) { const e = eqf(); peak = Math.max(peak, e); maxDD = Math.max(maxDD, (peak - e) / peak * 100); }
     }
-    pos.forEach((p, ti) => { const s = lastP.get(ti); const f = Rules.fillSell(s.p, p.qty, s.liq, cfg); cash += f.net; fees += f.fee; closed.push(f.net - p.size); });
-    const w = closed.filter(x => x >= 0).length;
-    return { ret: (cash / cfg.stake - 1) * 100, final: cash, trades: closed.length, winRate: closed.length ? w / closed.length * 100 : null, maxDD, fees };
+    pos.forEach((p, ti) => sell(ti, p, lastP.get(ti), 'fin des données'));
+    peak = Math.max(peak, cash); maxDD = Math.max(maxDD, (peak - cash) / peak * 100);
+    const w = closed.filter(x => x.pnl >= 0).length;
+    return { ret: (cash / cfg.stake - 1) * 100, final: cash, trades: closed.length, wins: w, winRate: closed.length ? w / closed.length * 100 : null, maxDD, fees, slip, closed };
   },
   grid(key, base) {
     const D = this.data(Feed.mode); const out = [];
     if (D.snaps < 50) return { D, out };
-    ['prudent', 'equilibre', 'agressif'].forEach(pr => [6, 8, 12, 16].forEach(stop => [[false, 0, 0], [true, 6, 5], [true, 6, 8], [true, 10, 12]].forEach(([tr, act, pct]) => [10, 25].forEach(size => {
-      const c = defaultCfg(key, pr); Object.assign(c, { stake: base.stake, stop, trailOn: tr, trailAct: act || c.trailAct, trailPct: pct || c.trailPct, maxPct: size, feePct: base.feePct, netFee: base.netFee, baseSlip: base.baseSlip });
-      out.push({ label: `${T2.presets[pr]} · taille ${size}% · stop -${stop}% · ${tr ? `suiveur ${pct}% après +${act}%` : 'TP +' + c.tp + '%'}`, cfg: c, r: this.run(c, D) });
-    }))));
-    out.sort((a, b) => b.r.ret - a.r.ret);
+    ['prudent', 'equilibre', 'agressif'].forEach(pr => [3, 5, 8].forEach(size => [2, 3].forEach(volK => [50000, 100000].forEach(liq => [true, false].forEach(tr => {
+      const c = defaultCfg(key, pr); Object.assign(c, { stake: base.stake, maxPct: size, volK, trailOn: tr, feePct: base.feePct, netFee: base.netFee, baseSlip: base.baseSlip }); c.f.minLiq = liq;
+      out.push({ label: `${T2.presets[pr]} · taille ${size}% · stop ${volK}×vol · liq. ≥ ${fmtK(liq)} · ${tr ? 'suiveur' : 'objectif fixe'}`, cfg: c, r: this.run(c, D) });
+    })))));
+    out.sort((a, b) => (b.r.ret - .5 * b.r.maxDD) - (a.r.ret - .5 * a.r.maxDD));
     return { D, out, presets: ['prudent', 'equilibre', 'agressif'].map(pr => { const c = defaultCfg(key, pr); Object.assign(c, { stake: base.stake }); return { label: T2.presets[pr] + ' (par défaut)', r: this.run(c, D) }; }) };
   },
 };
@@ -1607,7 +1727,7 @@ VIS.logoAt = (x, y, s) => VIS.logo().replace('<svg class="logo ', `<svg x="${x}"
 const bez = (p0, p1, p2, p3, u) => { const v = 1 - u; return [v * v * v * p0[0] + 3 * v * v * u * p1[0] + 3 * v * u * u * p2[0] + u * u * u * p3[0], v * v * v * p0[1] + 3 * v * v * u * p1[1] + 3 * v * u * u * p2[1] + u * u * u * p3[1]]; };
 /* Compteur animé (roule 400 ms, clignote 600 ms vert/rouge) */
 class Num {
-  constructor(el, paint, opts = {}) { this.el = el; this.paint = paint; this.cur = null; this.to = 0; this.from = 0; this.t0 = 0; this.fl = 0; this.thr = opts.thr ?? 0; this.flash = opts.flash ?? true; Num.all.push(this); }
+  constructor(el, paint, opts = {}) { this.el = el; this.paint = paint; this.cur = null; this.to = 0; this.from = 0; this.t0 = 0; this.fl = 0; this.thr = opts.thr ?? 0; this.flash = opts.flash ?? true; this.dur = opts.dur || 400; Num.all.push(this); }
   set(v) {
     if (this.cur === null) { this.cur = this.to = this.from = v; this.paint(this.el, v); return; }
     if (v === this.to) return; const now = performance.now();
@@ -1615,7 +1735,7 @@ class Num {
     this.from = this.cur; this.to = v; this.t0 = now;
   }
   step(now) {
-    if (this.cur !== null && this.cur !== this.to) { const f = U.clamp((now - this.t0) / 400); this.cur = f >= 1 ? this.to : U.lerp(this.from, this.to, U.easeOut(f)); this.paint(this.el, this.cur); }
+    if (this.cur !== null && this.cur !== this.to) { const f = U.clamp((now - this.t0) / this.dur); this.cur = f >= 1 ? this.to : U.lerp(this.from, this.to, U.easeOut(f)); this.paint(this.el, this.cur); }
     if (this.fl && now > this.fl) { this.fl = 0; this.el.classList.remove('flash-up', 'flash-down'); }
   }
 }
@@ -1675,9 +1795,10 @@ const SimA = {
         <text x="${x + 23}" y="${y + 18}" class="gname">${a.n}</text><text x="${x + 10}" y="${y + 32}" class="grole">${a.role.split(' · ')[0]}</text>
         <g class="badge" data-r="gb-${a.n}" transform="translate(${x + w - 2},${y + 2})" opacity="0"><circle r="8"/><text y="3.5" text-anchor="middle" data-r="gbt-${a.n}">✓</text></g><title>${U.esc(a.tip)}</title></g>`;
     });
+    g += `<g class="radar" data-r="radar" transform="translate(105,95)"><circle r="9"/><circle r="4.5"/><path d="M0 0 L9 0 A9 9 0 0 0 6.36 -6.36 Z" class="sw"/></g>`;
     for (let i = 0; i < 3; i++) g += `<g class="chip" data-r="chip${i}" opacity="0"><rect x="-30" y="-8" width="60" height="16" rx="8"/><text y="3.5" text-anchor="middle" data-r="chipt${i}"></text></g>`;
     const cards = CREW.map((a, i) => `<div class="cr-card" style="--c:${a.c}" data-r="cc${i}" data-tip="${U.esc(a.tip)}">
-      <div class="cc-h"><div class="orb"></div><div class="cc-nm"><div class="cc-n">${a.n}</div><div class="cc-r">${a.role}</div></div><span class="hb" data-r="hb${i}"></span></div>
+      <div class="cc-h"><div class="orb"></div><i class="viz v${i}"><b></b><b></b><b></b><b></b><b></b></i><div class="cc-nm"><div class="cc-n">${a.n}</div><div class="cc-r">${a.role}</div></div><span class="hb" data-r="hb${i}"></span></div>
       <div class="cc-st" data-r="st${i}">EN VEILLE</div>
       <div class="cc-tk">sur <b data-r="tk${i}">—</b></div>
       <div class="cc-d" data-r="d${i}">en attente du démarrage de la session</div>
@@ -1686,7 +1807,7 @@ const SimA = {
 <div class="glows"><div class="glow g1"></div><div class="glow g2"></div><div class="glow g3"></div></div>
 <div class="a-board">
   <div class="a-head">
-    <div class="a-brand"><div class="a-pill">${VIS.logo('', false)}<div class="a-word">GROK <b>BOT</b></div></div><div class="a-mode">6 AGENTS IA · DONNÉES DE MARCHÉ RÉELLES</div></div>
+    <div class="a-brand"><div class="a-pill">${VIS.logo('', false)}<div class="a-word">GROK <b>BOT</b></div></div><div class="a-mode"><span class="ldot" data-r="ldot"></span>6 AGENTS IA · DONNÉES DE MARCHÉ RÉELLES</div></div>
     <div class="a-right"><div class="a-ctl">
       <button class="a-btn a-gear" data-a="cfg" aria-label="réglages" data-tip="Réglages : démarrer / pause / arrêter, stratégie, son, export CSV, mise, risque, coûts.">⚙</button>
       </div>
@@ -1697,7 +1818,7 @@ const SimA = {
     <div class="glass a-stat bar" style="--bc:#34e8a0" data-tip="Solde moins la mise de départ. Ne vient que des vrais mouvements de prix, après frais et slippage."><div class="a-lbl">GAIN / PERTE</div><div class="a-val green" data-r="pnl"></div><div class="a-sub" data-r="pnlp"></div></div>
     <div class="glass a-stat bar" style="--bc:#b66dff" data-tip="Frais DEX par côté + frais réseau par swap + slippage (base + impact de prix 2×taille/liquidité) payés sur chaque ordre."><div class="a-lbl">FRAIS &amp; SLIPPAGE</div><div class="a-val" data-r="fees"></div><div class="a-sub" data-r="feesub"></div></div>
     <div class="glass a-stat a-wr" data-tip="Part des trades clôturés avec un résultat ≥ 0 après coûts."><div class="a-ring"><svg viewBox="0 0 50 50"><defs><linearGradient id="wrg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2dd4bf"/><stop offset="1" stop-color="#34e8a0"/></linearGradient></defs><circle cx="25" cy="25" r="22" fill="none" stroke="rgba(255,255,255,.10)" stroke-width="6"/><circle data-r="ring" cx="25" cy="25" r="22" fill="none" stroke="url(#wrg)" stroke-width="6" stroke-linecap="round" stroke-dasharray="138.23" stroke-dashoffset="138.23"/></svg><div class="pct" data-r="wr"></div></div>
-      <div class="a-wrtext"><div class="a-lbl">TAUX DE RÉUSSITE</div><div class="w" data-r="wins"></div><div class="l" data-r="losses"></div></div><div class="a-closed" data-r="closed"></div></div>
+      <div class="a-wrtext"><div class="a-lbl">TAUX DE RÉUSSITE</div><div class="w" data-r="wins"></div><div class="l" data-r="losses"></div><div class="a-streak" data-r="streak"></div></div><div class="a-closed" data-r="closed"></div></div>
   </div>
   <div class="a-mid">
     <div class="glass a-card"><div class="a-ch"><div class="a-title">ÉVOLUTION DU SOLDE</div><div class="a-meta" data-r="el"></div></div>
@@ -1744,7 +1865,7 @@ const SimA = {
       SimUI.refresh(); SimStore.save();
     });
     r.recap.addEventListener('click', e => { const c = e.target.closest('[data-rc]'); if (c && c.dataset.rc === 'csv') { exportCSV(['A']); return; } if (c && c.dataset.rc === 'new') { Sim.s.A.reset(); this.reset(); SimApp.toggle(); return; } r.recap.classList.remove('show'); this.recapHidden = true; });
-    this.n = { bal: new Num(r.bal, (e, v) => U.text(e, U.usd(v)), { thr: .002 }), pnl: new Num(r.pnl, (e, v) => U.text(e, U.sUsd(v)), { thr: .002 }) };
+    this.n = { bal: new Num(r.bal, (e, v) => U.text(e, U.usd(v)), { thr: .002, dur: 1100 }), pnl: new Num(r.pnl, (e, v) => U.text(e, U.sUsd(v)), { thr: .002, dur: 1100 }) };
   },
   reset() { this.lines.forEach(l => l.el.remove()); this.lines = []; this.pend = []; this.pipe.forEach(p => p.el.remove()); this.pipe = []; this.lastSeq = 0; this.feedSeq = Feed.seq; this.r.recap.classList.remove('show'); this.feat = null; this.lastFeatId = 0; },
   addLine(tag, text, big) {
@@ -1868,7 +1989,8 @@ const SimA = {
       const okN = a.k === 'exec' ? (ag.fills || 0) : ag.ok, tot = a.k === 'exec' ? Math.max(1, (ag.quotes || 0) + (ag.fills || 0)) : Math.max(1, ag.ok + ag.no);
       U.css(r['bar' + i], 'transform', `scaleX(${(okN / tot).toFixed(3)})`);
     });
-    Object.keys(EDGES).forEach(k => U.attr(r['e-' + k], 'class', 'edge' + (TL.hot.has(k) ? ' hot' : '')));
+    U.cls(r.radar, 'on', run);
+    this.hotPrev = this.hotPrev || new Set(); Object.keys(EDGES).forEach(k => { const h = TL.hot.has(k); if (h && !this.hotPrev.has(k)) FX.trail(r['e-' + k]); U.attr(r['e-' + k], 'class', 'edge' + (h ? ' hot' : '')); }); this.hotPrev = new Set(TL.hot);
     U.attr(r.eloop, 'class', 'edge loop' + (TL.hot.has('loop') ? ' hot' : '')); U.attr(r.efeed, 'class', 'edge feedin' + (run ? ' hot' : ''));
     if (slow) U.text(r.gopen, `${x.pos.length} ouverte(s) · contrôles de sortie`);
     for (let i = 0; i < 3; i++) {
@@ -1918,6 +2040,7 @@ const SimA = {
     U.text(r.fees, U.usd(x.fees + x.slipCost)); U.text(r.feesub, `frais ${U.usd(x.fees)} · slippage ${U.usd(x.slipCost)}`);
     const wr = cl ? Math.round(w / cl * 100) : 0;
     U.text(r.wr, cl ? wr + '%' : 'n.d.'); U.attr(r.ring, 'stroke-dashoffset', (138.23 * (1 - wr / 100)).toFixed(2));
+    { const sk = FX.streak(x); U.text(r.streak, sk.n >= 2 ? (sk.win ? `🔥 série : ${sk.n} gains` : `série : ${sk.n} pertes`) : ''); U.cls(r.streak, 'hot', sk.n >= 2 && sk.win); U.cls(r.ldot, 'on', x.state === 'running'); }
     U.text(r.wins, w + ' gagnant' + (w > 1 ? 's' : '')); U.text(r.losses, l + ' perdant' + (l > 1 ? 's' : '')); U.text(r.closed, cl + ' clôturé' + (cl > 1 ? 's' : ''));
     U.text(r.res, U.int(x.evals)); U.text(r.el, new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit', second: '2-digit' }));
     const [, cls] = stateLabel(x); 
@@ -1978,7 +2101,7 @@ const SimA = {
 
 /* ========================= PREFS · NOTIFY · TIP : préférences, notifications, infobulles ========================= */
 const Prefs = {
-  v: { toasts: true, tab: 'log', audio: { on: true, vol: .55, music: true, fx: true } },
+  v: { toasts: true, live: true, tab: 'log', audio: { on: true, vol: .55, music: true, fx: true } },
   load(o) { if (o && typeof o === 'object') Object.keys(this.v).forEach(k => { if (o[k] !== undefined) this.v[k] = o[k]; }); if (!this.v.audio || typeof this.v.audio !== 'object') this.v.audio = { on: true, vol: .55, music: true, fx: true }; },
   set(k, val) { this.v[k] = val; SimStore.save(); },
 };
@@ -1998,7 +2121,8 @@ const Notify = {
   trade(x, ev) {
     if (SimApp.restoring) return;
     const now = Date.now(); this.burst = this.burst.filter(b => now - b < 1500); this.burst.push(now);
-    Sound.trade(ev);
+    if (!(FX.on() && ev.kind === 'sell')) Sound.trade(ev);
+    if (FX.trade(x, ev)) return;
     if (!Prefs.v.toasts || !this.el) return;
     if (this.burst.length > 3) { if (now - this.burstAt > 1500) { this.burstAt = now; this.show('Plusieurs trades', 'plusieurs ordres en un instant — voir le journal d’activité', 'info'); } return; }
     if (ev.kind === 'buy') this.show(`ACHAT ${ev.sym} · ${U.usd(ev.size)}`, `exécuté à ${fmtPrice(ev.fill)} (marché ${fmtPrice(ev.price)}) · slippage ${ev.slip.toFixed(2)}% · frais ${U.usd(ev.fee)}`, 'buy');
@@ -2116,17 +2240,108 @@ const Sound = {
     else if (ev.pnl >= 0) [784, 987.8, 1174.7, 1568].forEach((f, i) => this.tone(f, t + i * .06, .35, 'sine', .07, this.fx, true));
     else [440, 349.2, 261.6].forEach((f, i) => this.tone(f, t + i * .1, .35, 'triangle', .06, this.fx, true));
   },
+  /* célébration synchronisée avec l'effet visuel (clôture réelle uniquement) */
+  celebrate(win, big) {
+    if (!this.fxOk()) return; const c = this.ctx, t = c.currentTime + .03;
+    if (win) {
+      const arp = big ? [523.3, 659.3, 784, 1046.5, 1318.5, 1568, 2093] : [659.3, 784, 987.8, 1318.5];
+      arp.forEach((f, i) => this.tone(f, t + i * .055, .5, 'triangle', big ? .06 : .05, this.fx, true));
+      [2637, 3136, 3520].forEach((f, i) => this.tone(f, t + .3 + i * .09, .25, 'sine', .018, this.fx, true));
+      const s = c.createBufferSource(), fl = c.createBiquadFilter(), g = c.createGain(); s.buffer = this.noise; fl.type = 'bandpass'; fl.Q.value = 1.2; fl.frequency.setValueAtTime(600, t); fl.frequency.exponentialRampToValueAtTime(7000, t + .45); this.env(g, t, .05, .5, big ? .07 : .04); s.connect(fl); fl.connect(g); g.connect(this.fx); s.start(t); s.stop(t + .7);
+    } else { [392, 329.6, 261.6].forEach((f, i) => this.tone(f, t + i * .12, .45, 'sine', .05, this.fx, true)); }
+  },
+};
+
+/* ========================= FX : effets « live » (uniquement sur des événements réels) ========================= */
+const FX = {
+  on() { return Prefs.v.live !== false && !REDUCED; },
+  init() {
+    const b = document.body;
+    /* aurore d'arrière-plan : dégradés pré-rendus, animés uniquement en transform */
+    const au = document.createElement('div'); au.className = 'aurora'; au.innerHTML = '<i></i><i></i><i></i>'; document.getElementById('sceneA').prepend(au);
+    /* bandeau défilant des prix réels */
+    const tk = document.createElement('div'); tk.id = 'ticker'; tk.innerHTML = '<div class="tk-l"><span class="ldot"></span><b data-x="ev">0</b><small>analyses</small><b data-x="tk">0</b><small>tokens</small></div><div class="tk-w"><div class="tk-m" data-x="m"></div></div>';
+    b.appendChild(tk); this.tk = tk; this.tm = tk.querySelector('[data-x="m"]');
+    this.nEv = new Num(tk.querySelector('[data-x="ev"]'), (e, v) => U.text(e, U.int(v)), { flash: false }); this.nTk = new Num(tk.querySelector('[data-x="tk"]'), (e, v) => U.text(e, U.int(v)), { flash: false });
+    this.tm.addEventListener('animationiteration', () => this.fillTicker());
+    /* calques : célébration (canvas + nombre géant) et carte « Trade du moment » */
+    const cel = document.createElement('div'); cel.id = 'celeb'; cel.innerHTML = '<canvas></canvas><div class="cb-glow"></div><div class="cb-box"><div class="cb-n"></div><div class="cb-s"></div><div class="cb-k"></div></div>'; b.appendChild(cel); this.cel = cel; this.cv = cel.querySelector('canvas');
+    const sp = document.createElement('div'); sp.id = 'spot'; b.appendChild(sp); this.sp = sp;
+    b.classList.add('has-ticker'); this.apply(); this.fillTicker();
+    setInterval(() => { if (!this.tm.textContent) this.fillTicker(); }, 3000);
+  },
+  apply() { document.body.classList.toggle('fx-calm', !this.on()); },
+  step(now, x) { this.nEv.set(x.evals); this.nTk.set(Feed.watch.length); if (!this.ld) this.ld = this.tk.querySelector('.ldot'); U.cls(this.ld, 'on', x.state === 'running'); },
+  fillTicker() {
+    const ts = [...Feed.tokens.values()].filter(t => t.price && !t.synthetic === (Feed.mode === 'live')).sort((a, b) => (b.liq || 0) - (a.liq || 0)).slice(0, 28);
+    if (!ts.length) { U.html(this.tm, ''); return; }
+    const one = ts.map(t => `<span class="ti"><b>${U.esc(t.sym)}</b> ${fmtPrice(t.price)} <em class="${(t.c5 || 0) >= 0 ? 'g' : 'r'}">${fmtP(t.c5)}</em></span>`).join('');
+    this.tm.innerHTML = `<div>${one}</div><div aria-hidden="true">${one}</div>`;
+    const w = this.tm.firstChild.offsetWidth || 1200; this.tm.style.animationDuration = Math.max(20, w / 70) + 's';
+  },
+  /* appelé par Notify.trade : événements réels d'achat / de vente */
+  trade(x, ev) {
+    if (!this.on()) return false;
+    if (ev.kind === 'buy') { this.spotlight(x, ev); return true; }
+    if (ev.kind === 'sell') { this.celebrate(x, ev); return true; }
+    return false;
+  },
+  streak(x) { const c = x.closed; if (!c.length) return { n: 0, win: true }; const win = c[c.length - 1].pnl >= 0; let n = 0; for (let i = c.length - 1; i >= 0 && (c[i].pnl >= 0) === win; i--) n++; return { n, win }; },
+  spotlight(x, ev) {
+    const M = ev.res && ev.res.M; const row = (n, k) => M && M[k] ? `<div class="sp-r"><b>${n}</b><span>${U.esc(M[k].txt)}</span></div>` : '';
+    this.sp.innerHTML = `<div class="sp-h"><span class="sp-t">TRADE DU MOMENT</span><span class="sp-x">${new Date().toLocaleTimeString('fr-FR')}</span></div>
+      <div class="sp-sym">${U.esc(ev.sym)} <em>${U.usd(ev.size)}</em></div><div class="sp-p">achat à ${fmtPrice(ev.fill)} · marché ${fmtPrice(ev.price)} · slippage ${ev.slip.toFixed(2)}%</div>
+      ${row('ODEN', 'scan')}${row('VIRA', 'safety')}${row('NOLU', 'flow')}${row('KESH', 'mom')}${row('TAMB', 'risk')}`;
+    this.sp.getAnimations().forEach(a => a.cancel());
+    this.sp.animate([{ transform: 'translateX(-110%)', opacity: 0 }, { transform: 'translateX(4%)', opacity: 1, offset: .06 }, { transform: 'translateX(0)', opacity: 1, offset: .09 }, { transform: 'translateX(0)', opacity: 1, offset: .92 }, { transform: 'translateX(-110%)', opacity: 0 }], { duration: 8000, easing: 'cubic-bezier(.2,.8,.2,1)', fill: 'both' });
+  },
+  celebrate(x, ev) {
+    const win = ev.pnl >= 0, big = win && ev.pnlPct >= 5, st = this.streak(x);
+    const box = this.cel.querySelector('.cb-box'), glow = this.cel.querySelector('.cb-glow');
+    this.cel.className = win ? 'win' : 'loss';
+    U.text(this.cel.querySelector('.cb-n'), U.sUsd(ev.pnl));
+    U.text(this.cel.querySelector('.cb-s'), `${ev.sym} · ${fmtP(ev.pnlPct)} · ${ev.why}`);
+    U.text(this.cel.querySelector('.cb-k'), st.n >= 2 ? (st.win ? `🔥 ${st.n} gains d’affilée` : `${st.n} pertes d’affilée`) : win ? 'vente gagnante' : 'vente perdante');
+    [box, glow].forEach(e => e.getAnimations().forEach(a => a.cancel()));
+    box.animate(win ? [{ transform: 'translate(-50%,-50%) scale(.4)', opacity: 0 }, { transform: 'translate(-50%,-50%) scale(1.12)', opacity: 1, offset: .12 }, { transform: 'translate(-50%,-50%) scale(1)', opacity: 1, offset: .2 }, { transform: 'translate(-50%,-50%) scale(1)', opacity: 1, offset: .8 }, { transform: 'translate(-50%,-62%) scale(.96)', opacity: 0 }]
+      : [{ transform: 'translate(-50%,-40%) scale(.9)', opacity: 0 }, { transform: 'translate(-50%,-50%) scale(1)', opacity: .95, offset: .15 }, { transform: 'translate(-50%,-50%) scale(1)', opacity: .95, offset: .75 }, { transform: 'translate(-50%,-38%) scale(.96)', opacity: 0 }], { duration: win ? 2600 : 2000, easing: 'ease-out', fill: 'both' });
+    glow.animate([{ opacity: 0, transform: 'scale(.6)' }, { opacity: win ? .9 : .55, transform: 'scale(1)', offset: .15 }, { opacity: 0, transform: 'scale(1.25)' }], { duration: 2200, easing: 'ease-out', fill: 'both' });
+    Sound.celebrate(win, big);
+    if (win) this.confetti(big ? 150 : 80);
+  },
+  confetti(n) {
+    const cv = this.cv, dpr = Math.min(2, devicePixelRatio || 1), W = innerWidth, H = innerHeight; cv.width = W * dpr; cv.height = H * dpr; const g = cv.getContext('2d'); g.setTransform(dpr, 0, 0, dpr, 0, 0);
+    const cols = ['#34e8a0', '#2dd4bf', '#b66dff', '#ffd166', '#5aa5ff', '#ffffff'];
+    const P = []; for (let i = 0; i < n; i++) { const a = -Math.PI / 2 + (Math.random() - .5) * 2.2, v = 6 + Math.random() * 9; P.push({ x: W / 2, y: H * .5, vx: Math.cos(a) * v, vy: Math.sin(a) * v, r: Math.random() * 6.28, vr: (Math.random() - .5) * .3, w: 5 + Math.random() * 6, h: 3 + Math.random() * 4, c: cols[i % cols.length] }); }
+    const t0 = performance.now(); cancelAnimationFrame(this.cRaf);
+    const fr = now => { const k = (now - t0) / 1000; g.clearRect(0, 0, W, H); if (k > 2.4) return; g.globalAlpha = Math.max(0, 1 - Math.max(0, k - 1.6) / .8);
+      for (const p of P) { p.vy += .32; p.vx *= .985; p.vy *= .985; p.x += p.vx; p.y += p.vy; p.r += p.vr; g.save(); g.translate(p.x, p.y); g.rotate(p.r); g.fillStyle = p.c; g.fillRect(-p.w / 2, -p.h / 2, p.w, p.h * Math.abs(Math.cos(p.r * 2))); g.restore(); }
+      this.cRaf = requestAnimationFrame(fr); };
+    this.cRaf = requestAnimationFrame(fr);
+  },
+  /* traînée lumineuse le long d'une arête du graphe quand un token y passe */
+  trail(path) {
+    if (!this.on() || !path) return;
+    let tr = path._trail; if (!tr) { tr = path.cloneNode(); tr.setAttribute('class', 'trail'); path.parentNode.appendChild(tr); path._trail = tr; path._len = path.getTotalLength(); tr.style.strokeDasharray = `28 ${path._len + 40}`; }
+    tr.getAnimations().forEach(a => a.cancel());
+    tr.animate([{ strokeDashoffset: 28, opacity: 1 }, { strokeDashoffset: -path._len, opacity: .9 }], { duration: 650, easing: 'ease-in-out', fill: 'forwards' });
+  },
 };
 
 /* ========================= UI : panneau de réglages, bandeau, récap ========================= */
 const FIELDS = [
   ['#', 'Session'], ['stake', 'Mise de départ ($)', 'num', 1], ['dur', 'Durée de la session (min)', 'num', 1], ['target', 'Objectif de capital ($)', 'num'], ['preset', 'Préréglage de stratégie', 'preset'],
-  ['#', 'Risque'], ['maxPct', '% max du capital par trade', 'num'], ['maxPos', 'Positions ouvertes max', 'num'], ['stop', 'Stop loss (%)', 'num'], ['tp', 'Prise de profit (%) — si le suiveur est désactivé', 'num'],
-  ['trailOn', 'Prise de profit suiveuse (trailing)', 'bool'], ['trailAct', 'Suiveur activé à +%', 'num'], ['trailPct', 'Distance du suiveur depuis le sommet (%)', 'num'], ['timeExit', 'Sortie temporelle (min, 0 = désactivée)', 'num'], ['cooldown', 'Délai avant de racheter le même token (min)', 'num'],
+  ['#', 'Risque'], ['maxPct', '% max du capital par trade', 'num'], ['maxPos', 'Positions ouvertes max', 'num'], ['maxPerHour', 'Trades max par heure', 'num'],
+  ['stop', 'Stop loss maximum (%)', 'num'], ['stopMin', 'Stop loss minimum (%)', 'num'], ['volK', 'Stop = volatilité 5 min × (facteur)', 'num'], ['rr', 'Objectif = stop × (ratio gain/risque)', 'num'], ['tp', 'Objectif maximum (%)', 'num'],
+  ['beAt', 'Stop remonté à l’entrée après +% (0 = non)', 'num'], ['beLock', 'Marge gardée au-dessus de l’entrée (%)', 'num'],
+  ['trailOn', 'Prise de profit suiveuse (après un vrai gain)', 'bool'], ['trailAct', 'Suiveur activé à +% (au moins 60 % de l’objectif)', 'num'], ['trailPct', 'Distance du suiveur depuis le sommet (%)', 'num'],
+  ['flatMin', 'Sortie d’un trade plat après (min, 0 = non)', 'num'], ['flatBand', 'Trade « plat » si variation inférieure à (%)', 'num'], ['timeExit', 'Sortie temporelle (min, 0 = désactivée)', 'num'],
+  ['cooldown', 'Délai avant de racheter le même token (min)', 'num'], ['cooldownLoss', 'Délai après une perte sur ce token (min)', 'num'],
   ['#', 'Coûts appliqués à chaque ordre'], ['feePct', 'Frais DEX par côté (%)', 'num'], ['netFee', 'Frais réseau + priorité par swap ($)', 'num'], ['baseSlip', 'Slippage de base (%) — plus impact 2×taille/liquidité', 'num'],
-  ['#', 'Filtres d’entrée (agents)'], ['f.minLiq', 'VIRA · liquidité minimum ($)', 'num'], ['f.minVol5', 'NOLU · volume 5 min minimum ($)', 'num'], ['f.minTx5', 'NOLU · transactions 5 min minimum', 'num'], ['f.minBuy', 'NOLU · ratio d’achats minimum (0–1)', 'num'],
-  ['f.minChg5', 'KESH · variation 5 min minimum (%)', 'num'], ['f.maxChg5', 'KESH · variation 5 min maximum (%)', 'num'], ['f.maxChg1h', 'KESH · variation 1 h maximum (%)', 'num'], ['f.maxAgeH', 'ODEN · âge max de la paire (h, 0 = tous)', 'num'],
-  ['f.minScore', 'TAMB · score minimum (0–1)', 'num'], ['f.maxImpact', 'TAMB · impact de prix maximum (%)', 'num'], ['f.early', 'TAMB · bonus paire récente (< 24 h)', 'bool'],
+  ['#', 'Filtres d’entrée (agents)'], ['f.minAgeH', 'ODEN · âge minimum de la paire (h)', 'num'], ['f.minObsS', 'ODEN · observé au moins (s)', 'num'], ['f.minLiq', 'VIRA · liquidité minimum ($)', 'num'],
+  ['f.minVol5', 'NOLU · volume 5 min minimum ($)', 'num'], ['f.minTx5', 'NOLU · transactions 5 min minimum', 'num'], ['f.minBuy', 'NOLU · ratio d’achats 5 min minimum (0–1)', 'num'], ['f.minBuy1h', 'NOLU · ratio d’achats 1 h minimum (0–1)', 'num'],
+  ['f.minChg5', 'KESH · variation 5 min minimum (%)', 'num'], ['f.maxChg5', 'KESH · variation 5 min maximum (%)', 'num'], ['f.minChg1h', 'KESH · variation 1 h minimum (%) — évite les dumps', 'num'], ['f.maxChg1h', 'KESH · variation 1 h maximum (%) — évite les pompes étirées', 'num'], ['f.minMom60', 'KESH · variation 60 s minimum (%)', 'num'],
+  ['f.minScore', 'TAMB · score minimum (0–1)', 'num'], ['f.maxImpact', 'TAMB · impact de prix maximum (%) — réduit la taille', 'num'], ['f.costMult', 'TAMB · objectif ≥ coût aller-retour × (facteur)', 'num'],
 ];
 const getP = (o, p) => p.split('.').reduce((a, k) => a[k], o);
 const setP = (o, p, v) => { const ks = p.split('.'); const last = ks.pop(); ks.reduce((a, k) => a[k], o)[last] = v; };
@@ -2141,6 +2356,7 @@ const SimUI = {
       <div class="btns pseg" data-p="pseg">${Object.keys(PRESETS).map(p => `<button data-preset="${p}">${T2.presets[p]}</button>`).join('')}</div>
       <div class="note">S’applique aux prochaines décisions ; les positions ouvertes gardent leurs règles de sortie.</div>
       <div class="sec">Son</div><div class="btns"><button data-a="sound" data-p="sound"></button><button data-a="music" data-p="music"></button><button data-a="fx" data-p="fx"></button></div><label class="fl">Volume<input type="range" min="0" max="100" data-p="vol"></label>
+      <div class="sec">Effets</div><div class="btns"><button data-a="live" data-p="live"></button></div><div class="note">Célébrations, carte « Trade du moment », traînées lumineuses et aurore animée. Uniquement sur de vrais événements.</div>
       <div class="sec">Export</div>
       <div class="btns"><button data-a="csv">${T2.exportCsv}</button><button data-a="toasts" data-p="toasts"></button></div>
       <div class="sec">Données</div>
@@ -2167,6 +2383,7 @@ const SimUI = {
       if (a === 'music') { Sound.P().music = !Sound.P().music; Sound.unlock(); Sound.apply(); }
       if (a === 'fx') { Sound.P().fx = !Sound.P().fx; Sound.unlock(); Sound.apply(); if (Sound.P().fx) Sound.approve(); }
       if (a === 'toasts') Prefs.set('toasts', !Prefs.v.toasts);
+      if (a === 'live') { Prefs.set('live', Prefs.v.live === false); FX.apply(); }
       if (a === 'tune') this.tune();
       if (a === 'apply' && this.best) { const keep = { stake: x.cfg.stake, dur: x.cfg.dur, target: x.cfg.target }; x.cfg = Object.assign(JSON.parse(JSON.stringify(this.best.cfg)), keep); this.renderFields(); Notify.show('Réglage appliqué', this.best.label, 'info'); }
       SimStore.save(); this.refresh();
@@ -2184,7 +2401,7 @@ const SimUI = {
     if (k === 'preset') { const keep = { stake: x.cfg.stake, dur: x.cfg.dur, target: x.cfg.target, feePct: x.cfg.feePct, netFee: x.cfg.netFee, baseSlip: x.cfg.baseSlip }; x.cfg = Object.assign(defaultCfg(x.key, el.value), keep); this.renderFields(); SimStore.save(); return; }
     let v = el.type === 'checkbox' ? el.checked : parseFloat(String(el.value).replace(',', '.'));
     if (el.type !== 'checkbox') {
-      const lim = { stake: [1, 1e7], dur: [1, 10080], maxPct: [0.5, 100], maxPos: [1, 50], stop: [0.5, 99], tp: [0.5, 10000], trailAct: [0, 10000], trailPct: [0.1, 99], timeExit: [0, 10080], cooldown: [0, 1440], feePct: [0, 10], netFee: [0, 100], baseSlip: [0, 50], 'f.minBuy': [0, 1], 'f.minScore': [0, 1] }[k];
+      const lim = { maxPerHour: [1, 100], stopMin: [0.5, 50], volK: [0.5, 10], rr: [0.5, 10], beAt: [0, 100], beLock: [0, 20], flatMin: [0, 1440], flatBand: [0, 50], cooldownLoss: [0, 1440], 'f.minAgeH': [0, 10000], 'f.minObsS': [0, 3600], 'f.minBuy1h': [0, 1], 'f.minChg1h': [-100, 1000], 'f.minMom60': [-100, 100], 'f.costMult': [0, 20], stake: [1, 1e7], dur: [1, 10080], maxPct: [0.5, 100], maxPos: [1, 50], stop: [0.5, 99], tp: [0.5, 10000], trailAct: [0, 10000], trailPct: [0.1, 99], timeExit: [0, 10080], cooldown: [0, 1440], feePct: [0, 10], netFee: [0, 100], baseSlip: [0, 50], 'f.minBuy': [0, 1], 'f.minScore': [0, 1] }[k];
       if (!Number.isFinite(v)) { el.classList.add('bad'); el.value = getP(x.cfg, k); setTimeout(() => el.classList.remove('bad'), 900); return; }
       if (lim) { const c = U.clamp(v, lim[0], lim[1]); if (c !== v) { v = c; el.value = c; el.classList.add('bad'); setTimeout(() => el.classList.remove('bad'), 900); } }
       if (k === 'maxPos') { v = Math.round(v); el.value = v; }
@@ -2210,7 +2427,7 @@ const SimUI = {
     this.p.pseg.querySelectorAll('button').forEach(b => U.cls(b, 'act', b.dataset.preset === x.cfg.preset));
     U.text(this.P.querySelector('.honest'), Feed.mode === 'practice' ? 'Entraînement hors ligne : prix synthétiques, pas des données de marché réelles.' : 'Prix réels DexScreener (lecture seule) · aucun wallet, aucune clé, aucun ordre réel.');
     this.P.querySelector('[data-a="stop"]').disabled = !(x.state === 'running' || x.state === 'paused');
-    const au = Sound.P(); U.text(this.p.sound, au.on ? '🔊 Son activé' : '🔇 Son coupé'); U.text(this.p.music, 'Musique : ' + (au.music ? 'oui' : 'non')); U.text(this.p.fx, 'Effets : ' + (au.fx ? 'oui' : 'non')); if (document.activeElement !== this.p.vol) this.p.vol.value = Math.round(au.vol * 100); U.text(this.p.toasts, Prefs.v.toasts ? '🔔 Notifications' : '🔕 Notifications');
+    const au = Sound.P(); U.text(this.p.sound, au.on ? '🔊 Son activé' : '🔇 Son coupé'); U.text(this.p.music, 'Musique : ' + (au.music ? 'oui' : 'non')); U.text(this.p.fx, 'Effets : ' + (au.fx ? 'oui' : 'non')); if (document.activeElement !== this.p.vol) this.p.vol.value = Math.round(au.vol * 100); U.text(this.p.toasts, Prefs.v.toasts ? '🔔 Notifications' : '🔕 Notifications'); U.text(this.p.live, '✨ Mode live : ' + (Prefs.v.live === false ? 'non' : 'oui')); U.cls(this.p.live, 'pri', Prefs.v.live !== false);
     this.p.fields.querySelectorAll('input[data-k="stake"],input[data-k="dur"]').forEach(f => { f.disabled = x.state !== 'idle'; });
     const mb = document.getElementById('modeBadge');
     const mt = Feed.mode === 'practice' ? T2.badgePractice : Feed.offline ? 'Flux de données interrompu — session en pause' : ''; U.html(mb, mt ? `<span class="dot demo"></span>${mt}` : ''); U.cls(mb, 'show', !!mt);
@@ -2259,7 +2476,7 @@ const SimApp = {
     if (st.sessions && st.sessions.A && st.sessions.A.cfg) { try { Sim.s.A.restore(st.sessions.A); } catch (e) { Sim.s.A.reset(); } }
     this.restoring = false;
     this.views = { trading: SimA };
-    Notify.init(); Tip.init(); Sound.init();
+    Notify.init(); Tip.init(); Sound.init(); FX.init();
     SimA.build(document.getElementById('sceneA')); SimA.reset();
     SimUI.build();
     document.getElementById('sceneA').classList.add('on'); document.body.dataset.scene = 'trading';
@@ -2308,7 +2525,7 @@ const SimApp = {
   loop(now) {
     this.last = now;
     try {
-      SimA.render(now);
+      SimA.render(now); FX.step(now, SimApp.sess());
       for (const n of Num.all) n.step(now);
       if (now > this.feedAt) { this.feedAt = now + 500; if (document.getElementById('panel').classList.contains('show')) SimUI.feedStatus(); SimUI.refresh(); }
     } catch (err) { console.error(err); }
