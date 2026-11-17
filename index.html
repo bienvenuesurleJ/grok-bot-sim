@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Grok Bot — paper trading simulation (real market data, fictional wallet)</title>
+<title>Grok Bot — bot de trading en simulation (données réelles, portefeuille fictif)</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -449,17 +449,339 @@ body.mobile .phone{border-radius:0;box-shadow:none}
 
 /* fondu en haut du journal pour éviter les lignes coupées */
 .a-feed{-webkit-mask-image:linear-gradient(transparent,#000 22%);mask-image:linear-gradient(transparent,#000 22%)}
+
+/* =========================================================
+   v2 : tableau de bord global, équipage IA de la scène A, toasts, infobulles
+   ========================================================= */
+#sceneA.on{display:flex;justify-content:center;align-items:safe center;overflow:auto}
+#sceneA .a-board{position:relative;left:auto;top:auto;margin:8rem auto;height:950rem;flex:none}
+#sceneA .glows{position:fixed}
+.a-head{height:66rem}
+.a-stats{grid-template-columns:1.1fr 1.1fr 1fr 1fr;grid-template-rows:78rem}
+.a-val.red{color:var(--a-loss)}
+.a-mid{height:236rem}
+.a-chart{height:176rem}
+.a-feed{height:119rem}
+.a-card{position:relative}
+.a-empty{position:absolute;inset:40rem 20rem 20rem;display:flex;align-items:center;justify-content:center;text-align:center;font-family:var(--mono);font-size:11rem;line-height:1.6;color:var(--a-label);background:rgba(10,13,24,.55);border-radius:12rem}
+.a-empty b{color:#fff}
+[data-tip]{cursor:help}
+button[data-tip],a[data-tip]{cursor:pointer}
+/* équipage */
+.a-crew{height:470rem;padding:14rem;display:flex;flex-direction:column;gap:10rem}
+.cr-top{display:grid;grid-template-columns:580rem 1fr;gap:12rem;height:188rem}
+.cr-graph{width:100%;height:100%;overflow:visible}
+.cr-graph .edge{fill:none;stroke:rgba(255,255,255,.13);stroke-width:1.6;transition:stroke .3s}
+.cr-graph .edge.hot{stroke:rgba(140,170,255,.85);stroke-dasharray:5 4;animation:flow .6s linear infinite}
+.cr-graph .edge.loop.hot{stroke:rgba(167,139,250,.75)}
+.cr-graph .edge.feedin.hot{stroke:rgba(59,130,246,.8)}
+@keyframes flow{to{stroke-dashoffset:-18}}
+.cr-graph .gsrc,.cr-graph .gsm{font-family:var(--mono);font-size:8.5px;fill:#8c94a9}
+.gn .nb{fill:rgba(255,255,255,.03);stroke:color-mix(in srgb,var(--c) 40%,transparent);stroke-width:1.3;transition:fill .3s,stroke .3s}
+.gn .nd{fill:#5d667c}
+.gn .gname{font-family:var(--outfit);font-weight:700;font-size:13px;fill:#c9cfdb;letter-spacing:.06em}
+.gn .grole{font-family:var(--mono);font-size:8px;fill:#8c94a9}
+.gn.working .nb{fill:color-mix(in srgb,var(--c) 10%,transparent);stroke:var(--c)}
+.gn.working .nd{fill:#34e8a0}
+.gn.working .gname,.gn.thinking .gname{fill:#fff}
+.gn.thinking .nb{fill:color-mix(in srgb,var(--c) 26%,transparent);stroke:var(--c);stroke-width:2.2;filter:drop-shadow(0 0 6px var(--c))}
+.gn.thinking .nd{fill:var(--c);animation:pulse .8s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
+.gn.waiting .nd{fill:#f6b73c}
+.gn.paused .nd{fill:#f6b73c}
+.badge circle{fill:#1f2433;stroke:#fff;stroke-width:1}
+.badge text{font-size:10px;font-weight:700;fill:#fff}
+.badge.ok circle{fill:#1f9d55;stroke:#34e8a0}
+.badge.no circle{fill:#9b2335;stroke:#ff5c75}
+.badge.q circle{fill:#4b3a8f;stroke:#a78bfa}
+.chip rect{fill:#1b2235;stroke:#5aa5ff;stroke-width:1.2}
+.chip text{font-family:var(--mono);font-size:8.5px;font-weight:600;fill:#fff}
+.chip.ok rect{fill:#123526;stroke:#34e8a0}
+.chip.no rect{fill:#3a1520;stroke:#ff5c75}
+.chip.q rect{fill:#241d42;stroke:#a78bfa;stroke-dasharray:3 2}
+.cr-cons{border-radius:12rem;background:rgba(0,0,0,.25);border:1px solid rgba(255,255,255,.08);padding:9rem 11rem;font-family:var(--mono);font-size:9.5rem;color:#c9cfdb;overflow:hidden;display:flex;flex-direction:column;gap:3.5rem}
+.cs-empty{margin:auto;text-align:center;line-height:1.6;color:var(--a-label);font-size:10.5rem;padding:0 10rem}
+.cs-empty b{color:#fff}
+.cs-h{display:flex;align-items:baseline;gap:7rem;font-size:9rem;letter-spacing:.1em;color:var(--a-label);margin-bottom:2rem}
+.cs-h b{font-size:12rem;color:#fff;letter-spacing:.02em}
+.cs-h span{margin-left:auto;letter-spacing:0}
+.cs-r{display:flex;gap:6rem;align-items:baseline;white-space:nowrap;overflow:hidden}
+.cs-r b{width:38rem;flex:none;font-weight:700}
+.cs-r span{overflow:hidden;text-overflow:ellipsis;color:#aeb5c4}
+.cs-r i,.cs-out i{font-style:normal;width:11rem;flex:none;font-weight:700}
+i.ok{color:var(--a-win)} i.no{color:var(--a-loss)} i.pend{color:#5d667c}
+.cs-v{display:flex;gap:8rem;align-items:center;color:#aeb5c4;transition:opacity .3s}
+.cs-v .dots{display:flex;gap:3rem}
+.cs-v .dots span{width:8rem;height:8rem;border-radius:50%}
+.cs-v .bull{background:var(--a-win)} .cs-v .bear{background:rgba(255,92,117,.55)}
+.cs-v .sc{margin-left:auto;color:#fff}
+.dimq{opacity:.35}
+.cs-bar{position:relative;height:5rem;border-radius:9rem;background:rgba(255,255,255,.08);margin:1rem 0 2rem}
+.cs-bar i{position:absolute;left:0;top:0;bottom:0;border-radius:9rem;background:linear-gradient(90deg,#5aa5ff,#34e8a0);transition:width .5s}
+.cs-bar u{position:absolute;top:-3rem;bottom:-3rem;width:2rem;background:#f6b73c;border-radius:1rem}
+.cs-out{margin-top:auto;padding:5rem 8rem;border-radius:8rem;font-weight:600;font-size:9.5rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cs-out.ok{background:rgba(52,232,160,.12);color:var(--a-win);border:1px solid rgba(52,232,160,.4)}
+.cs-out.no{background:rgba(255,92,117,.10);color:#ff8a9c;border:1px solid rgba(255,92,117,.35)}
+.cs-out.pend{background:rgba(90,165,255,.08);color:#8cc2ff;border:1px solid rgba(90,165,255,.25)}
+.cr-cards{display:grid;grid-template-columns:repeat(6,1fr);gap:9rem;flex:1;min-height:0}
+.cr-card{position:relative;border-radius:14rem;padding:10rem;background:rgba(255,255,255,.025);border:1px solid rgba(255,255,255,.08);display:flex;flex-direction:column;gap:5rem;overflow:hidden;transition:border-color .3s,box-shadow .3s,background .3s}
+.cr-card::before{content:'';position:absolute;left:0;right:0;top:0;height:3rem;background:var(--c);opacity:.5}
+.cr-card.working{border-color:color-mix(in srgb,var(--c) 45%,transparent)}
+.cr-card.thinking{border-color:var(--c);background:color-mix(in srgb,var(--c) 9%,transparent);box-shadow:0 0 16rem color-mix(in srgb,var(--c) 30%,transparent)}
+.cc-h{display:flex;align-items:center;gap:8rem}
+.cr-card .orb{width:26rem;height:26rem;flex:none}
+.cr-card.thinking .orb,.cr-card.working .orb{animation:breathe 1.4s ease-in-out infinite}
+.cc-nm{min-width:0}
+.cc-n{font-family:var(--outfit);font-weight:700;font-size:14rem;letter-spacing:.06em;color:#fff}
+.cc-r{font-family:var(--mono);font-size:8rem;color:var(--a-label);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hb{margin-left:auto;width:7rem;height:7rem;border-radius:50%;background:#3a4052;flex:none}
+.hb.on{animation:beat .5s ease-out}
+@keyframes beat{0%{background:var(--c);box-shadow:0 0 0 0 var(--c)}100%{background:#3a4052;box-shadow:0 0 0 6rem transparent}}
+.cc-st{align-self:flex-start;font-family:var(--mono);font-size:8rem;letter-spacing:.12em;padding:2rem 6rem;border-radius:99rem;background:rgba(255,255,255,.06);color:#8c94a9}
+.cr-card.working .cc-st{background:rgba(52,232,160,.12);color:var(--a-win)}
+.cr-card.thinking .cc-st{background:color-mix(in srgb,var(--c) 22%,transparent);color:#fff}
+.cr-card.waiting .cc-st,.cr-card.paused .cc-st{background:rgba(246,183,60,.12);color:var(--a-warn)}
+.cc-tk{font-family:var(--mono);font-size:9rem;color:var(--a-label);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cc-tk b{color:#fff;font-size:10.5rem}
+.cc-d{flex:1;min-height:0;font-family:var(--mono);font-size:8.6rem;line-height:1.45;color:#c9cfdb;white-space:pre-line;overflow:hidden;display:-webkit-box;-webkit-line-clamp:6;-webkit-box-orient:vertical;word-break:break-word}
+.cc-c{display:flex;gap:6rem;flex-wrap:wrap;font-family:var(--mono);font-size:8.4rem;color:#9aa3b8}
+.cc-c .g{color:var(--a-win)} .cc-c .r{color:var(--a-loss)}
+.cc-bar{height:3rem;border-radius:3rem;background:rgba(255,255,255,.07);overflow:hidden}
+.cc-bar i{display:block;height:100%;background:var(--c);transition:width .5s}
+.a-recap{cursor:pointer}
+/* A sur téléphone : empilé, défilant */
+body.mobile #sceneA .a-board{width:560rem;height:auto;padding:12rem;gap:10rem;margin:0 auto 70px}
+body.mobile #sceneA.on{align-items:flex-start}
+body.mobile .a-head{height:auto}
+body.mobile .a-pill{width:auto}
+body.mobile .a-mode{margin-left:4rem}
+body.mobile .a-stats{grid-template-columns:1fr 1fr;grid-template-rows:auto}
+body.mobile .a-stat{min-height:84rem}
+body.mobile .a-mid{grid-template-columns:1fr;height:auto}
+body.mobile .a-card{height:250rem}
+body.mobile .a-chart{width:100%}
+body.mobile .a-crew{height:auto}
+body.mobile .cr-top{grid-template-columns:1fr;height:auto}
+body.mobile .cr-graph{height:auto;aspect-ratio:640/190}
+body.mobile .cr-cons{min-height:190rem;font-size:11rem}
+body.mobile .cr-cards{grid-template-columns:1fr 1fr}
+body.mobile .cr-card{min-height:210rem}
+body.mobile .cc-d,body.mobile .cc-c,body.mobile .cc-tk{font-size:10.5rem}
+body.mobile .a-recap{width:520rem}
+
+/* ---------- tableau de bord global ---------- */
+body[data-scene=dashboard]{background:radial-gradient(1200px 700px at 15% -10%,rgba(80,100,255,.16),transparent),radial-gradient(900px 600px at 100% 0%,rgba(46,212,127,.08),transparent),#080a12}
+#sceneD{overflow-y:auto;overflow-x:hidden;font-family:var(--inter);font-size:14px;color:#e6e9f2;-webkit-overflow-scrolling:touch}
+#sceneD.on{animation:fadein .35s ease}
+.scene.on{animation:fadein .3s ease}
+@keyframes fadein{from{opacity:0}to{opacity:1}}
+.d-wrap{max-width:1360px;margin:0 auto;padding:18px 20px 90px;display:flex;flex-direction:column;gap:14px}
+.d-top{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}
+.d-brand{display:flex;align-items:center;gap:12px}
+.d-brand .logo{width:40px;height:40px;flex:none}
+.d-ttl{font-family:var(--outfit);font-weight:700;font-size:24px;color:#fff;letter-spacing:.01em}
+.d-ttl b{color:var(--a-brand)}
+.d-ttl span{font-weight:500;color:#9aa3b8;font-size:18px;margin-left:6px}
+.d-sub{font-size:12px;color:#8c94a9;margin-top:2px}
+.d-ctl{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+#sceneD button,#sceneD select,#sceneD input{font:inherit;font-size:12.5px;color:#e6e9f2;background:#171b27;border:1px solid rgba(255,255,255,.12);border-radius:9px;padding:7px 11px;cursor:pointer;transition:background .2s,border-color .2s,transform .1s}
+#sceneD button:hover{background:#20263a;border-color:rgba(255,255,255,.25)}
+#sceneD button:active{transform:scale(.97)}
+#sceneD button:disabled{opacity:.4;cursor:default}
+#sceneD button.pri{background:linear-gradient(180deg,#22b264,#1a8f50);border-color:#22b264;color:#fff;font-weight:600}
+#sceneD button.ghost{background:transparent}
+#sceneD button.act{background:#2a3350;border-color:#5a6fd6}
+#sceneD input{cursor:text;width:120px}
+.d-feed{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:11.5px;color:#aeb5c4;padding:6px 10px;border-radius:99px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08)}
+.fd{width:8px;height:8px;border-radius:50%;background:#5d667c;display:inline-block}
+.fd.g{background:#34e8a0;box-shadow:0 0 0 0 rgba(52,232,160,.6);animation:ping 1.6s infinite}
+.fd.w{background:#f6b73c} .fd.r{background:#ff5c75}
+@keyframes ping{0%{box-shadow:0 0 0 0 rgba(52,232,160,.6)}100%{box-shadow:0 0 0 8px rgba(52,232,160,0)}}
+.d-paper{display:flex;align-items:center;gap:8px;padding:9px 13px;border-radius:12px;background:rgba(246,183,60,.07);border:1px solid rgba(246,183,60,.3);color:#f2d79c;font-size:12.5px;line-height:1.45}
+.d-paper .dot{background:#f6b73c;flex:none}
+.d-paper b{color:#f6b73c;letter-spacing:.06em}
+.d-kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
+.k-tile,.d-card,.d-bot{background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.015));border:1px solid rgba(255,255,255,.09);border-radius:16px}
+.k-tile{padding:12px 14px;min-width:0}
+.k-l{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#8c94a9}
+.k-v{font-family:var(--outfit);font-weight:700;font-size:24px;color:#fff;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.k-s{font-size:11.5px;color:#8c94a9;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#sceneD .g{color:#34e8a0} #sceneD .r{color:#ff6b81}
+.d-bots{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.d-bot{padding:14px;display:flex;flex-direction:column;gap:10px;position:relative;overflow:hidden;transition:border-color .3s,box-shadow .3s}
+.d-bot::before{content:'';position:absolute;left:0;top:0;right:0;height:3px;background:var(--c);opacity:.7}
+.d-bot.running{border-color:color-mix(in srgb,var(--c) 45%,transparent);box-shadow:0 0 30px -12px var(--c)}
+.b-h{display:flex;align-items:center;gap:10px}
+.b-ic{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;font-family:var(--outfit);font-weight:700;font-size:17px;color:#0b0c10;background:var(--c);flex:none}
+.b-t{min-width:0}
+.b-n{font-family:var(--outfit);font-weight:600;font-size:16px;color:#fff}
+.b-s{font-size:11.5px;color:#8c94a9;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.b-st{margin-left:auto;font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;padding:3px 8px;border-radius:99px;background:rgba(255,255,255,.07);color:#9aa3b8;white-space:nowrap}
+.b-st.running{background:rgba(52,232,160,.14);color:#34e8a0}
+.b-st.paused{background:rgba(246,183,60,.14);color:#f6b73c}
+.b-st.ended{background:rgba(90,165,255,.14);color:#8cc2ff}
+.b-eq{display:flex;align-items:baseline;gap:10px;font-family:var(--outfit);font-weight:700;font-size:28px;color:#fff}
+.b-pnl{font-size:14px;font-weight:600}
+.b-spark{width:100%;height:56px;display:block}
+.b-spark .ln{fill:none;stroke:var(--c);stroke-width:2;vector-effect:non-scaling-stroke}
+.b-spark .ln.dn{stroke:#ff6b81}
+.b-spark .ar{fill:color-mix(in srgb,var(--c) 14%,transparent)}
+.b-spark .stk{stroke:rgba(255,255,255,.2);stroke-dasharray:4 4;vector-effect:non-scaling-stroke}
+.b-m{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+.b-m div{display:flex;flex-direction:column;gap:1px;min-width:0}
+.b-m span{font-size:10.5px;color:#8c94a9;text-transform:uppercase;letter-spacing:.06em}
+.b-m b{font-size:13px;color:#fff;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.b-ag{display:flex;flex-wrap:wrap;gap:5px}
+.ad{display:inline-flex;align-items:center;gap:5px;font-family:var(--mono);font-size:10.5px;padding:3px 7px;border-radius:99px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);color:#8c94a9}
+.ad i{width:6px;height:6px;border-radius:50%;background:#5d667c}
+.ad.on{color:#fff;border-color:color-mix(in srgb,var(--c) 50%,transparent)}
+.ad.on i{background:var(--c);animation:pulse 1.2s ease-in-out infinite}
+.ad.wait i{background:#f6b73c}
+.b-a{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.b-a .open{margin-left:auto;color:var(--c);text-decoration:none;font-weight:600;font-size:13px;padding:6px 4px}
+.b-a .open:hover{text-decoration:underline}
+.d-row{display:grid;grid-template-columns:1.25fr 1fr;gap:12px}
+.d-card{padding:14px;min-width:0}
+.c-h{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+.c-h h3{margin:0;font-family:var(--outfit);font-weight:600;font-size:16px;color:#fff;display:flex;align-items:center;gap:7px}
+.c-h .cnt{font-family:var(--inter);font-weight:500;font-size:12.5px;color:#8c94a9}
+.c-note{font-size:12px;color:#8c94a9}
+.seg{display:inline-flex;gap:3px;padding:3px;border-radius:10px;background:rgba(0,0,0,.25);border:1px solid rgba(255,255,255,.07)}
+#sceneD .seg button{border:none;background:transparent;padding:5px 10px;border-radius:7px;font-size:12px;color:#9aa3b8}
+#sceneD .seg button.act{background:#2a3350;color:#fff}
+.tipi{display:inline-grid;place-items:center;width:16px;height:16px;border-radius:50%;font-size:10.5px;font-weight:700;color:#9aa3b8;border:1px solid rgba(255,255,255,.25);cursor:help;font-family:var(--inter)}
+.c-box{position:relative;height:250px}
+.d-chart{position:absolute;left:62px;right:0;top:0;bottom:22px;width:calc(100% - 62px);height:calc(100% - 22px)}
+.d-chart .grid{stroke:rgba(255,255,255,.05)} .d-chart .base{stroke:rgba(255,255,255,.25);stroke-dasharray:4 4;vector-effect:non-scaling-stroke}
+.c-y{position:absolute;left:0;top:0;bottom:22px;width:58px;display:flex;flex-direction:column;justify-content:space-between;font-family:var(--mono);font-size:10.5px;color:#8c94a9;text-align:right}
+.c-x{position:absolute;left:62px;right:0;bottom:0;height:18px;display:flex;justify-content:space-between;font-family:var(--mono);font-size:10.5px;color:#8c94a9}
+.c-leg{display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:8px;font-size:12px;color:#aeb5c4}
+.c-leg i{display:inline-block;width:10px;height:3px;border-radius:2px;margin-right:6px;vertical-align:middle}
+.d-empty{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;color:#8c94a9;font-size:13px;padding:20px;border:1px dashed rgba(255,255,255,.1);border-radius:12px}
+.d-empty.in{position:static;min-height:120px}
+.d-empty b{color:#fff}
+.d-list{height:282px;overflow-y:auto;display:flex;flex-direction:column;gap:2px;padding-right:4px}
+.a-it{display:flex;align-items:baseline;gap:8px;padding:5px 8px;border-radius:8px;font-size:12px;line-height:1.4;animation:fadein .4s ease}
+.a-it:hover{background:rgba(255,255,255,.04)}
+.a-it .tm{font-family:var(--mono);font-size:10.5px;color:#6b7387;flex:none}
+.a-it .ic{flex:none;width:12px;text-align:center;color:#8c94a9}
+.a-it .tx{color:#c9cfdb;font-family:var(--mono);font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.a-it.buy .ic{color:#5aa5ff} .a-it.buy .tx{color:#cfe3ff}
+.a-it.win .ic,.a-it.win .tx{color:#34e8a0} .a-it.loss .ic,.a-it.loss .tx{color:#ff8a9c}
+.a-it.skip .tx{color:#9aa3b8}
+.bt{display:inline-grid;place-items:center;min-width:20px;height:18px;padding:0 5px;border-radius:6px;background:color-mix(in srgb,var(--c) 22%,transparent);color:var(--c);font-family:var(--outfit);font-weight:700;font-size:11.5px;flex:none}
+.t-wrap{overflow-x:auto;max-height:420px;overflow-y:auto}
+.d-t{width:100%;border-collapse:collapse;font-size:12.5px;white-space:nowrap}
+.d-t th{position:sticky;top:0;background:#121623;text-align:left;font-weight:500;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#8c94a9;padding:7px 10px;border-bottom:1px solid rgba(255,255,255,.08)}
+.d-t td{padding:7px 10px;border-bottom:1px solid rgba(255,255,255,.05);color:#d5d9e3;font-variant-numeric:tabular-nums}
+.d-t tr:hover td{background:rgba(255,255,255,.025)}
+.d-t tr.live td{background:rgba(52,232,160,.04)}
+.d-t small{color:#8c94a9;font-size:11px}
+.d-t td.g small,.d-t td.r small{color:inherit;opacity:.8}
+.d-t a{color:#8cc2ff;text-decoration:none} .d-t a:hover{text-decoration:underline}
+.d-t td.empty{text-align:center;color:#8c94a9;padding:22px;white-space:normal}
+.fl{display:flex;gap:6px;flex-wrap:wrap}
+.h-sum{font-size:12.5px;color:#aeb5c4;margin:-2px 0 8px}
+.d-foot{font-size:11.5px;color:#6b7387;line-height:1.6;text-align:center;padding:4px 10px}
+.d-foot b{color:#9aa3b8}
+/* toasts + infobulle */
+#toasts{position:fixed;top:56px;right:14px;z-index:1004;display:flex;flex-direction:column;gap:8px;width:min(360px,calc(100vw - 28px));pointer-events:none}
+.toast2{pointer-events:auto;display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:14px;background:rgba(18,21,32,.94);border:1px solid rgba(255,255,255,.12);border-left:3px solid var(--c);box-shadow:0 12px 30px rgba(0,0,0,.4);color:#e6e9f2;font-family:var(--inter);cursor:pointer;transform:translateX(30px);opacity:0;transition:transform .3s ease,opacity .3s ease;-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+.toast2.in{transform:none;opacity:1}
+.toast2 .tb{width:26px;height:26px;border-radius:8px;display:grid;place-items:center;background:var(--c);color:#0b0c10;font-family:var(--outfit);font-weight:700;flex:none}
+.toast2 .tt{min-width:0;flex:1}
+.toast2 .t1{font-weight:600;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.toast2 .t2{font-size:11.5px;color:#9aa3b8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.toast2.win .t1{color:#34e8a0} .toast2.loss .t1{color:#ff8a9c}
+.toast2 button{background:none;border:none;color:#8c94a9;cursor:pointer;font-size:13px}
+#tip{position:fixed;z-index:1006;max-width:300px;padding:8px 11px;border-radius:10px;background:rgba(10,12,20,.97);border:1px solid rgba(255,255,255,.16);color:#dfe3ef;font-family:var(--inter);font-size:12px;line-height:1.45;pointer-events:none;opacity:0;transform:translateY(3px);transition:opacity .15s,transform .15s;box-shadow:0 10px 28px rgba(0,0,0,.45)}
+#tip.show{opacity:1;transform:none}
+#panel .botsel{display:flex;align-items:center;gap:5px;margin-bottom:10px;flex-wrap:wrap}
+#panel .botsel span{color:#9aa3b8;margin-right:4px}
+#panel .botsel button.act{background:#2a3350;border-color:#5a6fd6}
+#chip{opacity:.85}
+@media (max-width:1100px){.d-kpis{grid-template-columns:repeat(3,1fr)}.d-bots{grid-template-columns:1fr 1fr}.d-row{grid-template-columns:1fr}}
+@media (max-width:760px){
+  .d-wrap{padding:12px 12px 110px;gap:12px}
+  .d-kpis{grid-template-columns:1fr 1fr;gap:8px}
+  .k-v{font-size:20px}
+  .d-bots{grid-template-columns:1fr}
+  .d-ttl{font-size:20px} .d-ttl span{font-size:15px;display:block;margin-left:0}
+  .d-ctl{width:100%}
+  .d-ctl .d-feed{width:100%;justify-content:center}
+  .b-m{grid-template-columns:repeat(3,1fr)}
+  .c-box{height:210px}
+  .d-list{height:260px}
+  #sceneD input{width:100%}
+  #toasts{top:auto;bottom:64px}
+}
+@media (prefers-reduced-motion:reduce){.cr-graph .edge.hot,.fd.g,.ad.on i,.cr-card .orb,.gn.thinking .nd{animation:none!important}}
+/* v2.1 scène A : barre de commande, onglets, ajustements */
+.a-head{align-items:flex-start}
+.a-right{gap:6rem}
+.a-ctl{display:flex;align-items:center;gap:6rem}
+.a-seg{display:flex;padding:3rem;border-radius:999rem;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.025)}
+.a-seg button,.a-btn{font-family:var(--mono);font-size:10.5rem;letter-spacing:.04em;color:#c9cfdb;background:transparent;border:1px solid transparent;border-radius:999rem;padding:7rem 11rem;cursor:pointer;transition:background .2s,color .2s,border-color .2s,transform .1s;white-space:nowrap}
+.a-seg button:hover,.a-btn:hover{color:#fff;background:rgba(255,255,255,.06)}
+.a-seg button.act{background:rgba(182,109,255,.22);color:#fff;border-color:rgba(182,109,255,.55)}
+.a-btn{height:36rem;border-color:rgba(255,255,255,.12);background:rgba(255,255,255,.03)}
+.a-btn:active{transform:scale(.96)}
+.a-btn.pri{background:linear-gradient(180deg,#22b264,#1a8f50);border-color:#22b264;color:#fff;font-weight:600}
+.a-btn:disabled{opacity:.35;cursor:default}
+.a-live{height:36rem}
+.a-tasks{margin-top:0;font-size:10.5rem}
+.a-tabs{display:flex;gap:4rem}
+.a-tabs button{font-family:var(--mono);font-size:10rem;letter-spacing:.1em;color:var(--a-label);background:transparent;border:1px solid transparent;border-radius:99rem;padding:2rem 8rem;cursor:pointer}
+.a-tabs button.act{color:#fff;border-color:rgba(255,255,255,.18);background:rgba(255,255,255,.06)}
+.a-tabs span{color:#8cc2ff}
+.a-list{height:196rem;margin-top:10rem;overflow-y:auto;display:flex;flex-direction:column;gap:5rem;padding-right:4rem}
+.a-list[hidden],.a-tlog[hidden]{display:none}
+.l-r{display:grid;grid-template-columns:1.1fr .8fr 1.6fr .7fr;gap:2rem 8rem;align-items:baseline;padding:6rem 8rem;border-radius:9rem;background:rgba(255,255,255,.03);font-family:var(--mono);font-size:10rem;color:#c9cfdb}
+.l-r b{color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.l-r small{grid-column:1/-1;color:var(--a-label);font-size:9rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.l-r .g{color:var(--a-win)} .l-r .r{color:var(--a-loss)} .l-r .dim2{color:var(--a-label);text-align:right}
+.l-risk{grid-column:1/-1;position:relative;height:4rem;border-radius:4rem;background:linear-gradient(90deg,rgba(255,92,117,.6),rgba(255,255,255,.12) 50%,rgba(52,232,160,.6))}
+.l-risk i{position:absolute;top:-3rem;width:4rem;height:10rem;margin-left:-2rem;border-radius:2rem;background:#fff;transition:left .5s}
+.l-e{margin:auto;color:var(--a-label);font-family:var(--mono);font-size:10.5rem;text-align:center;line-height:1.6;padding:0 20rem}
+.a-feed{height:102rem}
+.cc-r{white-space:normal;line-height:1.25;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+#sceneA .a-board{margin:8rem auto 56px}
+body.mobile .a-right{align-items:stretch;width:100%}
+body.mobile .a-head{flex-direction:column;gap:10rem}
+body.mobile .a-ctl{flex-wrap:wrap}
+body.mobile .a-seg button,body.mobile .a-btn{font-size:12rem}
+body.mobile .a-list{height:200rem}
+body.mobile .l-r{font-size:11.5rem}
+/* v3 : application autonome (bot A seul) */
+.a-recap .rc-act{display:flex;gap:8rem}
+.a-recap .rc-act .cta{flex:1}
+.a-recap .cta.alt{background:transparent;color:#fff;border:1px solid rgba(255,255,255,.3)}
+#modeBadge{pointer-events:none;letter-spacing:.04em}
+#panel input.bad{border-color:#ff5c75!important;box-shadow:0 0 0 2px rgba(255,92,117,.3)}
+#sceneA .a-board{margin:8rem auto 40px}
+.toast2{--c:#8b7cf6}
+.toast2.buy{--c:#5aa5ff} .toast2.win{--c:#34e8a0} .toast2.loss{--c:#ff5c75} .toast2.info{--c:#f6b73c}
+.toast2 .tb{font-size:13px}
+.l-sum{font-family:var(--mono);font-size:10rem;color:#aeb5c4;padding:2rem 4rem 4rem}
+.l-sum .g{color:var(--a-win)} .l-sum .r{color:var(--a-loss)}
+.a-line{transition:transform .35s cubic-bezier(.2,.8,.2,1),opacity .35s ease}
+.a-val{transition:color .6s}
+@media (max-width:759px){#toasts{top:auto;bottom:52px}#modeBadge{left:50%;right:auto;transform:translateX(-50%);bottom:10px;font-size:10px;white-space:nowrap}}
+.a-recap .rc-t{font-size:22rem}.a-recap .rc-s{font-size:11rem}
+.a-mode{white-space:nowrap}.a-tabs{flex-wrap:nowrap}.a-tabs button{white-space:nowrap}
+#toasts{top:78px}@media (max-width:759px){#toasts{top:auto}}
+.cs-h{white-space:nowrap;overflow:hidden}.cs-h b{overflow:hidden;text-overflow:ellipsis}.a-closed{top:10rem;bottom:auto}
+.a-closed{display:none}.cs-v span{white-space:nowrap}.cs-v{overflow:hidden}
 </style>
 </head>
 <body data-scene="trading">
-<!-- Simulation papier : données de marché publiques réelles, portefeuille fictif, aucun ordre réel -->
+<!-- Simulation : données de marché publiques réelles, portefeuille fictif, aucun ordre réel, aucune clé -->
 <div id="sceneA" class="scene"></div>
-<div id="sceneB" class="scene"></div>
-<div id="sceneC" class="scene"></div>
-<div id="chip" role="toolbar" aria-label="scene switcher"></div>
 <div id="modeBadge"></div>
 <div id="banner" role="status"></div>
-<div id="panel" role="complementary" aria-label="session panel"></div>
+<div id="toasts" aria-live="polite"></div>
+<div id="tip" role="tooltip"></div>
+<div id="panel" role="complementary" aria-label="réglages de la session"></div>
+<noscript><p style="color:#fff;font-family:sans-serif;padding:20px">Cette application a besoin de JavaScript. Ouvre le fichier dans Chrome, Safari ou Firefox (pas dans un aperçu de messagerie).</p></noscript>
 <script>
 'use strict';
 /* =====================================================================
@@ -667,20 +989,22 @@ const APPICONS = {
 
 /* ========================= T2 : chaînes de la simulation ========================= */
 const T2 = {
-  offline: 'data feed offline — paused',
-  feedBack: 'data feed back online — press Start to resume',
-  badgeLive: 'PAPER · simulated wallet · real market data',
-  badgePractice: 'OFFLINE PRACTICE · synthetic prices (not real)',
-  paused: 'PAUSED', paper: 'PAPER', practice: 'PRACTICE',
-  start: 'Start', pause: 'Pause', resume: 'Resume', stop: 'Stop', reset: 'Reset', exportCsv: 'Export trades (CSV)',
-  tune: 'Tune on recorded data', applyBest: 'Apply best',
+  offline: 'flux de données coupé — session en pause',
+  feedBack: 'flux de données rétabli — appuie sur Reprendre',
+  badgeLive: 'SIMULATION · portefeuille fictif · données de marché réelles',
+  badgePractice: 'ENTRAÎNEMENT HORS LIGNE · prix synthétiques (non réels)',
+  paused: 'EN PAUSE', paper: 'SIMULATION', practice: 'ENTRAÎNEMENT',
+  start: 'Démarrer', pause: 'Pause', resume: 'Reprendre', stop: 'Arrêter', reset: 'Réinitialiser', exportCsv: 'Exporter les trades (CSV)',
+  tune: 'Optimiser sur les données enregistrées', applyBest: 'Appliquer le meilleur',
   presets: { prudent: 'Prudent', equilibre: 'Équilibré', agressif: 'Agressif' },
-  pausedNote: 'paused — open positions stay marked to real prices; no simulated orders',
-  noData: 'n/a',
+  pausedNote: 'en pause — les positions ouvertes restent évaluées aux prix réels ; aucun ordre simulé',
+  noData: 'n.d.',
 };
 
 /* ========================= Préréglages de stratégie ========================= */
 /* Tous les pourcentages sont en %. Filtres modifiables dans le panneau. */
+const AGN = { scan: 'ODEN', safety: 'VIRA', flow: 'NOLU', mom: 'KESH', analyst: 'score', risk: 'TAMB' };
+const SRCFR = { 'boosts/latest': 'boosts récents', 'profiles/latest': 'profils récents', 'boosts/top': 'top boosts', 'takeovers/latest': 'reprises communautaires' };
 const PRESETS = {
   prudent: { maxPct: 5, maxPos: 3, stop: 6, tp: 12, trailOn: false, trailAct: 8, trailPct: 5, timeExit: 20, cooldown: 15,
     f: { minLiq: 40000, minVol5: 4000, minTx5: 40, minBuy: 0.55, minChg5: 0.5, maxChg5: 15, maxChg1h: 80, maxAgeH: 0, minScore: 0.6, maxImpact: 1, early: false } },
@@ -734,7 +1058,7 @@ const Feed = {
     const ctl = new AbortController(); const tm = setTimeout(() => ctl.abort(), 9000);
     try {
       const r = await fetch(API + path, { signal: ctl.signal, headers: { Accept: 'application/json' } });
-      if (r.status === 429) { this.stats.r429++; throw new Error('HTTP 429 rate limited'); }
+      if (r.status === 429) { this.stats.r429++; throw new Error('HTTP 429 limite de requêtes'); }
       if (!r.ok) throw new Error('HTTP ' + r.status);
       const txt = await r.text(); this.stats.bytes += txt.length; return JSON.parse(txt);
     } finally { clearTimeout(tm); }
@@ -747,7 +1071,7 @@ const Feed = {
         const sol = (Array.isArray(data) ? data : []).filter(d => d && d.chainId === 'solana' && d.tokenAddress);
         let fresh = 0;
         sol.forEach(d => { if (!this.tokens.has(d.tokenAddress)) { this.tokens.set(d.tokenAddress, this.blank(d.tokenAddress, job.name)); fresh++; } this.addWatch(d.tokenAddress); });
-        this.push({ kind: 'scan', src: job.name, n: sol.length, fresh });
+        this.push({ kind: 'scan', src: job.name, n: sol.length, fresh }); Sim.onScan(job.name, sol.length, fresh);
       } else {
         /* paramètre anti-cache : le CDN garde chaque URL 30 s, ce qui mélangerait des prix d'âges différents */
         const data = await this.get('/tokens/v1/solana/' + job.addrs.join(',') + '?_=' + Date.now());
@@ -848,9 +1172,9 @@ const Practice = {
 };
 
 /* ========================= RULES : agents = modules de règles transparents ========================= */
-const fmtK = v => (v === null || v === undefined ? 'n/a' : (v >= 1e6 ? '$' + (v / 1e6).toFixed(2) + 'M' : '$' + (v / 1000).toFixed(1) + 'k'));
-const fmtP = (v, d = 1) => (v === null || v === undefined ? 'n/a' : (v >= 0 ? '+' : '') + v.toFixed(d) + '%');
-const fmtPrice = p => (p === null || p === undefined ? 'n/a' : (p >= 1 ? p.toFixed(4) : p.toPrecision(4)));
+const fmtK = v => (v === null || v === undefined ? 'n.d.' : (v >= 1e6 ? '$' + (v / 1e6).toFixed(2) + 'M' : '$' + (v / 1000).toFixed(1) + 'k'));
+const fmtP = (v, d = 1) => (v === null || v === undefined ? 'n.d.' : (v >= 0 ? '+' : '') + v.toFixed(d) + '%');
+const fmtPrice = p => (p === null || p === undefined ? 'n.d.' : (p >= 1 ? p.toFixed(4) : p.toPrecision(4)));
 const Rules = {
   /* momentum local : variation sur ≈ 60 s d'après nos propres relevés (n/a si historique insuffisant) */
   mom60(snaps, i = snaps.length - 1) {
@@ -869,15 +1193,15 @@ const Rules = {
     const M = {};
     /* SCANNER : données présentes, âge de la paire */
     const ageOk = !f.maxAgeH || (ageH !== null && ageH <= f.maxAgeH);
-    M.scan = { ok: s.p > 0 && ageOk, txt: `age ${ageH === null ? 'n/a' : ageH.toFixed(1) + 'h'}${f.maxAgeH ? ' ≤ ' + f.maxAgeH + 'h' : ''}` };
+    M.scan = { ok: s.p > 0 && ageOk, txt: `âge ${ageH === null ? 'n.d.' : ageH.toFixed(1) + ' h'}${f.maxAgeH ? ' ≤ ' + f.maxAgeH + ' h' : ''}` };
     /* SAFETY : liquidité ; verrou LP et wallet dev : aucune donnée publique → n/a */
-    M.safety = { ok: s.liq !== null && s.liq >= f.minLiq, txt: `LP ${fmtK(s.liq)} ${s.liq !== null && s.liq >= f.minLiq ? '≥' : '<'} ${fmtK(f.minLiq)} · lock n/a · dev n/a`, lock: 'na', dev: 'na' };
+    M.safety = { ok: s.liq !== null && s.liq >= f.minLiq, txt: `liquidité ${fmtK(s.liq)} ${s.liq !== null && s.liq >= f.minLiq ? '≥' : '<'} ${fmtK(f.minLiq)} · verrou n.d. · dev n.d.`, lock: 'na', dev: 'na' };
     /* FLOW (smart money / acheteurs) */
     M.flow = { ok: buyR !== null && buyR >= f.minBuy && tx >= f.minTx5 && s.vol5 !== null && s.vol5 >= f.minVol5,
-      txt: `buys ${buyR === null ? 'n/a' : Math.round(buyR * 100) + '%'} of ${tx ?? 'n/a'} tx/5m · vol5m ${fmtK(s.vol5)}` };
+      txt: `achats ${buyR === null ? 'n.d.' : Math.round(buyR * 100) + '%'} sur ${tx ?? 'n.d.'} tx/5 min · vol. 5 min ${fmtK(s.vol5)}` };
     /* MOMENTUM (tendance) */
     M.mom = { ok: s.c5 !== null && s.c5 >= f.minChg5 && s.c5 <= f.maxChg5 && (s.c1h === null || s.c1h <= f.maxChg1h) && (mom === null || mom >= -0.5),
-      txt: `5m ${fmtP(s.c5)} · 1h ${fmtP(s.c1h, 0)} · 60s ${fmtP(mom, 2)}` };
+      txt: `5 min ${fmtP(s.c5)} · 1 h ${fmtP(s.c1h, 0)} · 60 s ${fmtP(mom, 2)}` };
     /* ANALYST / DEBATE : score pondéré + votes bull/bear sur des faits */
     let sc = 0;
     sc += .30 * (buyR === null ? 0 : U.clamp((buyR - .45) / .25));
@@ -888,12 +1212,12 @@ const Rules = {
     if (f.early && ageH !== null && ageH < 24) sc += .05;
     const votes = [buyR !== null && buyR > .5, s.c5 !== null && s.c5 > 0, mom !== null && mom > 0, s.vol5 !== null && s.vol5 >= f.minVol5, s.liq !== null && s.liq >= f.minLiq];
     const bull = votes.filter(Boolean).length;
-    M.analyst = { ok: sc >= f.minScore, score: sc, bull, bear: 5 - bull, txt: `score ${sc.toFixed(2)} ${sc >= f.minScore ? '≥' : '<'} ${f.minScore} · bull ${bull} / bear ${5 - bull}` };
+    M.analyst = { ok: sc >= f.minScore, score: sc, bull, bear: 5 - bull, txt: `score ${sc.toFixed(2)} ${sc >= f.minScore ? '≥' : '<'} ${f.minScore} · haussier ${bull} / baissier ${5 - bull}` };
     /* RISK : taille ≤ max % ; impact de prix estimé (2 × taille / liquidité) */
     const size = Math.min(ctx.equity * cfg.maxPct / 100, ctx.cash);
     const imp = this.impactPct(size, s.liq);
     M.risk = { ok: size >= 1 && ctx.open < cfg.maxPos && imp !== null && imp <= f.maxImpact, size, imp,
-      txt: `size ${U.usd(size)} (${cfg.maxPct}%) · impact ${imp === null ? 'n/a' : imp.toFixed(2) + '%'} · ${ctx.open}/${cfg.maxPos} open` };
+      txt: `taille ${U.usd(size)} (${cfg.maxPct}%) · impact ${imp === null ? 'n.d.' : imp.toFixed(2) + '%'} · ${ctx.open}/${cfg.maxPos} ouvertes` };
     const order = ['scan', 'safety', 'flow', 'mom', 'analyst', 'risk'];
     const fail = order.find(k => !M[k].ok);
     return { ok: !fail, fail, M, size, buyR, ageH, score: sc };
@@ -908,11 +1232,11 @@ const Rules = {
     pos.peakP = Math.max(pos.peakP || pos.entryP, s.p);
     const peakR = (pos.peakP / pos.entryP - 1) * 100;
     const ageMin = (s.t - pos.openMs) / 60000;
-    if (r <= -cfg.stop) return { why: `stop -${cfg.stop}%`, r };
-    if (s.liq !== null && pos.entryLiq && s.liq < pos.entryLiq * .5) return { why: `liquidity pulled ${fmtK(s.liq)}`, r };
-    if (cfg.trailOn) { if (peakR >= cfg.trailAct && s.p <= pos.peakP * (1 - cfg.trailPct / 100)) return { why: `trailing TP (peak ${fmtP(peakR)}, -${cfg.trailPct}% from peak)`, r }; }
-    else if (r >= cfg.tp) return { why: `take profit +${cfg.tp}%`, r };
-    if (cfg.timeExit && ageMin >= cfg.timeExit) return { why: `time exit ${cfg.timeExit}m`, r };
+    if (r <= -cfg.stop) return { why: `stop loss -${cfg.stop}%`, r };
+    if (s.liq !== null && pos.entryLiq && s.liq < pos.entryLiq * .5) return { why: `liquidité retirée ${fmtK(s.liq)}`, r };
+    if (cfg.trailOn) { if (peakR >= cfg.trailAct && s.p <= pos.peakP * (1 - cfg.trailPct / 100)) return { why: `TP suiveur (sommet ${fmtP(peakR)}, -${cfg.trailPct}% depuis le sommet)`, r }; }
+    else if (r >= cfg.tp) return { why: `prise de profit +${cfg.tp}%`, r };
+    if (cfg.timeExit && ageMin >= cfg.timeExit) return { why: `sortie temporelle ${cfg.timeExit} min`, r };
     return null;
   },
 };
@@ -926,9 +1250,13 @@ class PaperSession {
       state: 'idle', reason: '', cash: c.stake, pos: [], closed: [], hist: [[0, c.stake]], log: [], events: [], seq: 0,
       elapsed: 0, fees: 0, slipCost: 0, evals: 0, rejects: 0, calls: { scan: 0, safety: 0, flow: 0, mom: 0, analyst: 0, risk: 0, exec: 0, exit: 0 },
       peak: c.stake, minEq: c.stake, maxDD: 0, cooldown: {}, lastSkip: {}, startMs: null, endMs: null, uid: 0, sampleAt: 0, lastMod: 'scan', mode: Feed.mode,
+      ag: PaperSession.blankAg(), traces: [], trSeq: 0, lastBatchMs: 0,
     });
   }
-  emit(ev) { ev.seq = ++this.seq; ev.ms = ev.ms || Date.now(); this.events.push(ev); if (this.events.length > 300) this.events.shift(); this.log.unshift(ev); if (this.log.length > 300) this.log.pop(); }
+  /* compteurs des agents (modules de règles) : chaque évaluation réelle les alimente */
+  static blankAg() { const o = {}; ['scan', 'safety', 'flow', 'mom', 'analyst', 'risk'].forEach(k => { o[k] = { n: 0, ok: 0, no: 0, last: '', lastOk: null, lastMs: 0, sym: '' }; }); o.exec = { n: 0, ok: 0, no: 0, fills: 0, checks: 0, quotes: 0, last: '', lastMs: 0, sym: '' }; o.scan.batches = 0; o.scan.disc = ''; return o; }
+  agSet(k, sym, txt, ok, now) { const a = this.ag[k]; a.n++; if (ok === true) a.ok++; else if (ok === false) a.no++; a.last = txt; a.lastOk = ok; a.lastMs = now; a.sym = sym; }
+  emit(ev) { ev.seq = ++this.seq; ev.ms = ev.ms || Date.now(); this.events.push(ev); if (this.events.length > 300) this.events.shift(); this.log.unshift(ev); if (this.log.length > 300) this.log.pop(); if (ev.kind === 'buy' || ev.kind === 'sell') Sim.onTrade(this, ev); }
   since(seq) { return this.events.filter(e => e.seq > seq); }
   tok(a) { return Feed.tokens.get(a); }
   posValue(p) { const t = this.tok(p.addr); const px = t && t.price ? t.price : p.lastP || p.entryP; return Rules.fillSell(px, p.qty, t ? t.liq : p.entryLiq, this.cfg).net; }
@@ -937,23 +1265,23 @@ class PaperSession {
   losses() { return this.closed.filter(t => t.pnl < 0).length; }
   start() {
     if (this.state === 'ended') return;
-    if (this.state === 'idle') { this.startMs = Date.now(); this.mode = Feed.mode; this.emit({ kind: 'info', txt: `session start · ${T2.presets[this.cfg.preset]} · stake ${U.usd(this.cfg.stake)} · ${this.cfg.dur} min · ${Feed.mode === 'live' ? 'real DexScreener data' : 'SYNTHETIC practice prices'}` }); }
-    else this.emit({ kind: 'info', txt: 'session resumed' });
+    if (this.state === 'idle') { this.startMs = Date.now(); this.mode = Feed.mode; this.emit({ kind: 'info', txt: `début de session · ${T2.presets[this.cfg.preset]} · mise ${U.usd(this.cfg.stake)} · ${this.cfg.dur} min · ${Feed.mode === 'live' ? 'données réelles DexScreener' : 'prix SYNTHÉTIQUES (entraînement)'}` }); }
+    else this.emit({ kind: 'info', txt: 'session reprise' });
     this.state = 'running'; this.reason = '';
   }
-  pause(reason = 'paused by user') { if (this.state !== 'running') return; this.state = 'paused'; this.reason = reason; this.emit({ kind: 'info', txt: reason }); }
-  stop(reason = 'stopped by user') {
+  pause(reason = 'mise en pause par l’utilisateur') { if (this.state !== 'running') return; this.state = 'paused'; this.reason = reason; this.emit({ kind: 'info', txt: reason }); }
+  stop(reason = 'arrêtée par l’utilisateur') {
     if (this.state === 'idle' || this.state === 'ended') return;
-    this.pos.slice().forEach(p => { const t = this.tok(p.addr); this.close(p, t && t.price ? { p: t.price, liq: t.liq, t: Date.now() } : { p: p.lastP || p.entryP, liq: p.entryLiq, t: Date.now() }, 'session end · ' + (t && t.price ? 'last real price' : 'last known price')); });
+    this.pos.slice().forEach(p => { const t = this.tok(p.addr); this.close(p, t && t.price ? { p: t.price, liq: t.liq, t: Date.now() } : { p: p.lastP || p.entryP, liq: p.entryLiq, t: Date.now() }, 'fin de session · ' + (t && t.price ? 'dernier prix réel' : 'dernier prix connu')); });
     this.state = 'ended'; this.reason = reason; this.endMs = Date.now();
-    this.emit({ kind: 'info', txt: 'session ended · ' + reason });
+    this.emit({ kind: 'info', txt: 'session terminée · ' + reason });
     Sim.recordHistory(this);
   }
   tick(dtMs) {
     if (this.state !== 'running') return;
     this.elapsed += dtMs;
     if (this.elapsed >= this.sampleAt) { this.sampleAt = this.elapsed + 5000; this.sample(); }
-    if (this.elapsed >= this.cfg.dur * 60000) this.stop('duration reached');
+    if (this.elapsed >= this.cfg.dur * 60000) this.stop('durée atteinte');
   }
   sample() {
     const e = this.equity(); this.hist.push([this.elapsed, e]); if (this.hist.length > 4000) this.hist.splice(1, this.hist.length - 4000);
@@ -962,13 +1290,15 @@ class PaperSession {
   /* appelé à chaque rafraîchissement réel de tokens */
   onUpdate(toks) {
     if (this.state !== 'running') return;
-    const now = Date.now();
+    const now = Date.now(), batch = [];
+    this.ag.scan.batches++; this.lastBatchMs = now;
     toks.forEach(t => {
       if (t.synthetic !== (this.mode === 'practice')) return;
       const s = t.snaps[t.snaps.length - 1]; if (!s || now - s.t > 15000) return;
       const held = this.pos.find(p => p.addr === t.addr);
       if (held) {
         held.lastP = t.price; this.calls.exit++;
+        const ex0 = this.ag.exec; ex0.checks++; ex0.lastMs = now; ex0.sym = t.sym; ex0.last = `${t.sym} évalué à ${fmtPrice(s.p)} · ${fmtP((this.posValue(held) / held.size - 1) * 100)} · règles de sortie vérifiées`;
         const ex = Rules.exit(held, s, this.cfg); if (ex) this.close(held, s, ex.why);
         return;
       }
@@ -976,6 +1306,12 @@ class PaperSession {
       const eq = this.equity();
       const res = Rules.entry(s, Rules.mom60(t.snaps), this.cfg, { equity: eq, cash: this.cash, open: this.pos.length });
       this.evals++;
+      /* les 6 modules jugent chaque candidat en parallèle (valeurs réelles) ; TAMB = consensus + risque */
+      ['scan', 'safety', 'flow', 'mom'].forEach(k => this.agSet(k, t.sym, `${t.sym} · ${res.M[k].txt}`, res.M[k].ok, now));
+      this.agSet('analyst', t.sym, `${t.sym} · ${res.M.analyst.txt}`, res.M.analyst.ok, now);
+      this.agSet('risk', t.sym, `${t.sym} · ${res.ok ? 'APPROUVÉ' : 'REFUSÉ (' + AGN[res.fail] + ')'} · ${res.M.risk.txt}`, res.ok, now);
+      const tr = { id: ++this.trSeq, ms: now, sym: t.sym, addr: t.addr, M: res.M, ok: res.ok, fail: res.fail, score: res.score, size: res.size, liq: s.liq, p: s.p, quote: null };
+      this.traces.push(tr); if (this.traces.length > 80) this.traces.shift(); batch.push(tr);
       const order = ['scan', 'safety', 'flow', 'mom', 'analyst', 'risk'];
       for (const k of order) { this.calls[k]++; if (k === res.fail) break; }
       this.lastMod = res.fail || 'exec';
@@ -986,7 +1322,11 @@ class PaperSession {
         return;
       }
       this.open(t, s, res);
+      tr.quote = { done: true };
     });
+    /* RYZO (exécution) chiffre le meilleur candidat refusé : devis papier frais + glissement, non envoyé */
+    const cand = batch.filter(b => !b.ok && b.size >= 1 && b.liq).sort((a, b) => b.score - a.score)[0];
+    if (cand) { const q = Rules.fillBuy(cand.p, cand.size, cand.liq, this.cfg); cand.quote = { slip: q.slip, fee: q.fee }; const ex = this.ag.exec; ex.quotes++; ex.lastMs = now; ex.sym = cand.sym; ex.last = `devis ${cand.sym} ${U.usd(cand.size)} → slippage ${q.slip.toFixed(2)}% · frais ${U.usd(q.fee)} · non envoyé (veto ${AGN[cand.fail]})`; }
     this.sample();
   }
   open(t, s, res) {
@@ -995,7 +1335,8 @@ class PaperSession {
     const p = { id: ++this.uid, addr: t.addr, sym: t.sym, pair: t.pair, dex: t.dex, url: t.url, openMs: s.t, entryP: s.p, fillP: f.px, qty: f.qty, size: res.size, feeIn: f.fee, slipIn: f.slip, entryLiq: s.liq, peakP: s.p, lastP: s.p,
       reasons: ['scan', 'safety', 'flow', 'mom', 'analyst', 'risk'].map(k => res.M[k].txt).join(' | '), score: res.score, bull: res.M.analyst.bull, bear: res.M.analyst.bear, buyR: res.buyR };
     this.pos.push(p);
-    this.emit({ kind: 'buy', sym: t.sym, addr: t.addr, size: res.size, price: s.p, fill: f.px, slip: f.slip, fee: f.fee, res, txt: `BUY ${t.sym} ${U.usd(res.size)} @ ${fmtPrice(f.px)} (mkt ${fmtPrice(s.p)}, slip ${f.slip.toFixed(2)}%)` });
+    const ex = this.ag.exec; ex.fills++; ex.n++; ex.ok++; ex.lastMs = Date.now(); ex.sym = t.sym; ex.last = `ACHAT ${t.sym} ${U.usd(res.size)} exécuté à ${fmtPrice(f.px)} · slippage ${f.slip.toFixed(2)}% · frais ${U.usd(f.fee)}`;
+    this.emit({ kind: 'buy', sym: t.sym, addr: t.addr, size: res.size, price: s.p, fill: f.px, slip: f.slip, fee: f.fee, res, txt: `ACHAT ${t.sym} ${U.usd(res.size)} à ${fmtPrice(f.px)} (marché ${fmtPrice(s.p)}, slippage ${f.slip.toFixed(2)}%)` });
   }
   close(p, s, why) {
     const f = Rules.fillSell(s.p, p.qty, s.liq, this.cfg);
@@ -1005,7 +1346,8 @@ class PaperSession {
     const tr = Object.assign({}, p, { closeEl: this.elapsed, closeMs: s.t || Date.now(), exitP: s.p, exitFill: f.px, feeOut: f.fee, slipOut: f.slip, proceeds: f.net, pnl, pnlPct: pnl / p.size * 100, why });
     this.closed.push(tr); if (this.closed.length > 1000) this.closed.shift();
     this.cooldown[p.addr] = Date.now() + this.cfg.cooldown * 60000;
-    this.emit({ kind: 'sell', sym: p.sym, addr: p.addr, pnl, pnlPct: tr.pnlPct, why, price: s.p, txt: `SOLD ${p.sym} ${U.sUsd(pnl)} (${fmtP(tr.pnlPct)}) · ${why}` });
+    if (this.ag && this.ag.exec) { const ex = this.ag.exec; ex.fills++; ex.n++; ex.lastMs = Date.now(); ex.sym = p.sym; ex.last = `VENTE ${p.sym} ${U.sUsd(pnl)} (${fmtP(pnl / p.size * 100)}) · ${why}`; }
+    this.emit({ kind: 'sell', sym: p.sym, addr: p.addr, pnl, pnlPct: tr.pnlPct, why, price: s.p, txt: `VENDU ${p.sym} ${U.sUsd(pnl)} (${fmtP(tr.pnlPct)}) · ${why}` });
   }
   summary() {
     const e = this.equity(), cl = this.closed, w = this.wins();
@@ -1014,21 +1356,43 @@ class PaperSession {
       trades: cl.length, wins: w, losses: cl.length - w, winRate: cl.length ? w / cl.length * 100 : null, maxDD: this.maxDD, fees: this.fees, slip: this.slipCost,
       coins: new Set(cl.map(t => t.addr)).size, best: best ? [best.sym, best.pnl] : null, worst: worst ? [worst.sym, worst.pnl] : null, minutes: this.elapsed / 60000 };
   }
-  serialize() { const o = {}; ['key', 'cfg', 'state', 'reason', 'cash', 'pos', 'closed', 'hist', 'elapsed', 'fees', 'slipCost', 'evals', 'rejects', 'calls', 'peak', 'minEq', 'maxDD', 'cooldown', 'startMs', 'endMs', 'uid', 'mode'].forEach(k => { o[k] = this[k]; }); o.log = this.log.slice(0, 60).map(e => ({ kind: e.kind, sym: e.sym, txt: e.txt, pnl: e.pnl, ms: e.ms, mod: e.mod })); return o; }
-  restore(o) { Object.assign(this, o); this.events = []; this.seq = 0; this.lastSkip = {}; this.sampleAt = this.elapsed; if (this.state === 'running') { this.state = 'paused'; this.reason = 'restored after reload — press Resume'; } }
+  serialize() { const o = {}; ['key', 'cfg', 'state', 'reason', 'cash', 'pos', 'closed', 'hist', 'elapsed', 'fees', 'slipCost', 'evals', 'rejects', 'calls', 'peak', 'minEq', 'maxDD', 'cooldown', 'startMs', 'endMs', 'uid', 'mode', 'ag'].forEach(k => { o[k] = this[k]; }); o.log = this.log.slice(0, 60).map(e => ({ kind: e.kind, sym: e.sym, txt: e.txt, pnl: e.pnl, ms: e.ms, mod: e.mod })); return o; }
+  restore(o) { Object.assign(this, o); const b = PaperSession.blankAg(); this.ag = Object.assign(b, o.ag || {}); this.traces = []; this.trSeq = 0; this.events = []; this.seq = 0; this.lastSkip = {}; this.sampleAt = this.elapsed; if (this.state === 'running') { this.state = 'paused'; this.reason = 'restaurée après rechargement — appuie sur Reprendre'; } }
 }
 
 /* ========================= SIM : gestionnaire des 3 sessions ========================= */
 const Sim = {
   s: {}, history: [],
-  init() { ['A', 'B', 'C'].forEach(k => { this.s[k] = new PaperSession(k, defaultCfg(k)); }); },
+  init() { ['A'].forEach(k => { this.s[k] = new PaperSession(k, defaultCfg(k)); }); },
   all() { return Object.values(this.s); },
   anyRunning() { return this.all().some(x => x.state === 'running'); },
   onUpdate(toks) { this.all().forEach(x => x.onUpdate(toks)); },
-  onOffline() { this.all().forEach(x => x.pause('data feed offline — paused')); SimUI.banner(T2.offline, true); },
+  onOffline() { this.all().forEach(x => x.pause('flux de données coupé — en pause')); SimUI.banner(T2.offline, true); },
   onFeedBack() { SimUI.banner(T2.feedBack, true); setTimeout(() => SimUI.banner('', false), 8000); },
   tick(dtMs) { this.all().forEach(x => x.tick(dtMs)); },
-  recordHistory(x) { this.history.unshift(x.summary()); if (this.history.length > 50) this.history.pop(); SimStore.save(); },
+  recordHistory(x) { this.history.unshift(x.summary()); if (this.history.length > 60) this.history.pop(); SimStore.save(); },
+  /* portefeuille agrégé : relevé toutes les 5 s (heure réelle) des 3 capitaux */
+  agg: [], aggAt: 0, aggPeak: 0, aggDD: 0,
+  totals() {
+    const xs = this.all(), eq = xs.reduce((a, x) => a + x.equity(), 0), stake = xs.reduce((a, x) => a + x.cfg.stake, 0);
+    const cl = xs.flatMap(x => x.closed.map(t => Object.assign({ bot: x.key }, t)));
+    const w = cl.filter(t => t.pnl >= 0).length;
+    const best = cl.reduce((a, b) => (!a || b.pnl > a.pnl ? b : a), null), worst = cl.reduce((a, b) => (!a || b.pnl < a.pnl ? b : a), null);
+    return { eq, stake, pnl: eq - stake, pnlPct: stake ? (eq / stake - 1) * 100 : 0, trades: cl.length, wins: w, losses: cl.length - w, winRate: cl.length ? w / cl.length * 100 : null,
+      open: xs.reduce((a, x) => a + x.pos.length, 0), fees: xs.reduce((a, x) => a + x.fees + x.slipCost, 0), best, worst, dd: this.aggDD, running: xs.filter(x => x.state === 'running').length };
+  },
+  sampleAgg(force) {
+    const now = Date.now(); if (!force && (now < this.aggAt || !this.anyRunning())) return; this.aggAt = now + 5000;
+    const e = { t: now }; let tot = 0; this.all().forEach(x => { e[x.key] = +x.equity().toFixed(4); tot += e[x.key]; }); e.T = +tot.toFixed(4);
+    this.agg.push(e); if (this.agg.length > 3000) this.agg.splice(0, this.agg.length - 3000);
+    this.aggPeak = Math.max(this.aggPeak || 0, tot); this.aggDD = Math.max(this.aggDD || 0, this.aggPeak ? (this.aggPeak - tot) / this.aggPeak * 100 : 0);
+  },
+  resetAgg() { this.agg = []; this.aggPeak = 0; this.aggDD = 0; this.aggAt = 0; },
+  startAll() { if (Feed.offline && Feed.mode === 'live') { Feed.offline = false; Feed.fails = 0; SimUI.banner('', false); } this.all().forEach(x => { if (x.state !== 'running' && x.state !== 'ended') x.start(); }); this.sampleAgg(true); },
+  pauseAll() { this.all().forEach(x => x.pause()); },
+  stopAll() { this.all().forEach(x => x.stop()); this.sampleAgg(true); },
+  onTrade(x, ev) { if (typeof Notify !== 'undefined') Notify.trade(x, ev); },
+  onScan(src, n, fresh) { this.all().forEach(x => { if (x.state !== 'running') return; const a = x.ag.scan; a.disc = `${SRCFR[src] || src} : ${n} tokens Solana, ${fresh} nouveaux`; a.lastMs = Date.now(); }); },
 };
 
 /* ========================= BACKTEST : réglage sur les données réelles enregistrées ========================= */
@@ -1065,10 +1429,10 @@ const Backtest = {
     if (D.snaps < 50) return { D, out };
     ['prudent', 'equilibre', 'agressif'].forEach(pr => [6, 8, 12, 16].forEach(stop => [[false, 0, 0], [true, 6, 5], [true, 6, 8], [true, 10, 12]].forEach(([tr, act, pct]) => [10, 25].forEach(size => {
       const c = defaultCfg(key, pr); Object.assign(c, { stake: base.stake, stop, trailOn: tr, trailAct: act || c.trailAct, trailPct: pct || c.trailPct, maxPct: size, feePct: base.feePct, netFee: base.netFee, baseSlip: base.baseSlip });
-      out.push({ label: `${T2.presets[pr]} · size ${size}% · stop -${stop}% · ${tr ? `trail ${pct}% after +${act}%` : 'TP +' + c.tp + '%'}`, cfg: c, r: this.run(c, D) });
+      out.push({ label: `${T2.presets[pr]} · taille ${size}% · stop -${stop}% · ${tr ? `suiveur ${pct}% après +${act}%` : 'TP +' + c.tp + '%'}`, cfg: c, r: this.run(c, D) });
     }))));
     out.sort((a, b) => b.r.ret - a.r.ret);
-    return { D, out, presets: ['prudent', 'equilibre', 'agressif'].map(pr => { const c = defaultCfg(key, pr); Object.assign(c, { stake: base.stake }); return { label: T2.presets[pr] + ' (defaults)', r: this.run(c, D) }; }) };
+    return { D, out, presets: ['prudent', 'equilibre', 'agressif'].map(pr => { const c = defaultCfg(key, pr); Object.assign(c, { stake: base.stake }); return { label: T2.presets[pr] + ' (par défaut)', r: this.run(c, D) }; }) };
   },
 };
 
@@ -1078,7 +1442,7 @@ const SimStore = {
   load() { try { return JSON.parse(localStorage.getItem(this.KEY) || '{}') || {}; } catch (e) { return {}; } },
   save() {
     try {
-      const o = { scene: SimApp.scene, feedMode: Feed.mode, history: Sim.history, sessions: {} };
+      const o = { scene: SimApp.scene, feedMode: Feed.mode, history: Sim.history, sessions: {}, agg: Sim.agg.slice(-1500), aggPeak: Sim.aggPeak, aggDD: Sim.aggDD, prefs: typeof Prefs !== 'undefined' ? Prefs.v : {}, pk: SimApp.pk };
       Sim.all().forEach(x => { o.sessions[x.key] = x.serialize(); });
       localStorage.setItem(this.KEY, JSON.stringify(o));
     } catch (e) { /* la page fonctionne sans stockage */ }
@@ -1089,16 +1453,17 @@ const SimStore = {
 /* ========================= Export CSV des trades ========================= */
 function exportCSV(keys) {
   const iso = ms => (ms ? new Date(ms).toISOString() : '');
-  const head = ['scene', 'mode', 'id', 'status', 'token', 'token_address', 'pair_address', 'dex', 'open_time', 'close_time', 'market_entry_usd', 'fill_entry_usd', 'market_exit_usd', 'fill_exit_usd', 'size_usd', 'qty', 'fee_in_usd', 'fee_out_usd', 'slip_in_pct', 'slip_out_pct', 'proceeds_usd', 'pnl_usd', 'pnl_pct', 'exit_reason', 'entry_reasons'];
+  const head = ['bot', 'mode', 'id', 'statut', 'token', 'adresse_token', 'adresse_paire', 'dex', 'ouverture', 'cloture', 'prix_marche_entree_usd', 'prix_execution_entree_usd', 'prix_marche_sortie_usd', 'prix_execution_sortie_usd', 'taille_usd', 'quantite', 'frais_entree_usd', 'frais_sortie_usd', 'slippage_entree_pct', 'slippage_sortie_pct', 'produit_usd', 'pnl_usd', 'pnl_pct', 'raison_sortie', 'raisons_entree'];
   const q = v => { const s = v === null || v === undefined ? '' : String(v); return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; };
   const rows = [head.join(',')];
   keys.forEach(k => {
     const x = Sim.s[k];
-    x.closed.forEach(t => rows.push([k, x.mode, t.id, 'closed', t.sym, t.addr, t.pair, t.dex, iso(t.openMs), iso(t.closeMs), t.entryP, t.fillP, t.exitP, t.exitFill, t.size.toFixed(4), t.qty, t.feeIn.toFixed(4), t.feeOut.toFixed(4), t.slipIn.toFixed(3), t.slipOut.toFixed(3), t.proceeds.toFixed(4), t.pnl.toFixed(4), t.pnlPct.toFixed(3), t.why, t.reasons].map(q).join(',')));
-    x.pos.forEach(t => { const v = x.posValue(t); rows.push([k, x.mode, t.id, 'open (marked)', t.sym, t.addr, t.pair, t.dex, iso(t.openMs), '', t.entryP, t.fillP, t.lastP, '', t.size.toFixed(4), t.qty, t.feeIn.toFixed(4), '', t.slipIn.toFixed(3), '', v.toFixed(4), (v - t.size).toFixed(4), ((v / t.size - 1) * 100).toFixed(3), '', t.reasons].map(q).join(',')); });
+    x.closed.forEach(t => rows.push([k, x.mode === 'live' ? 'reel' : 'entrainement', t.id, 'clôturé', t.sym, t.addr, t.pair, t.dex, iso(t.openMs), iso(t.closeMs), t.entryP, t.fillP, t.exitP, t.exitFill, t.size.toFixed(4), t.qty, t.feeIn.toFixed(4), t.feeOut.toFixed(4), t.slipIn.toFixed(3), t.slipOut.toFixed(3), t.proceeds.toFixed(4), t.pnl.toFixed(4), t.pnlPct.toFixed(3), t.why, t.reasons].map(q).join(',')));
+    x.pos.forEach(t => { const v = x.posValue(t); rows.push([k, x.mode === 'live' ? 'reel' : 'entrainement', t.id, 'ouvert (évalué)', t.sym, t.addr, t.pair, t.dex, iso(t.openMs), '', t.entryP, t.fillP, t.lastP, '', t.size.toFixed(4), t.qty, t.feeIn.toFixed(4), '', t.slipIn.toFixed(3), '', v.toFixed(4), (v - t.size).toFixed(4), ((v / t.size - 1) * 100).toFixed(3), '', t.reasons].map(q).join(',')); });
   });
+  if (rows.length < 2) return 0;
   const blob = new Blob([rows.join('\n')], { type: 'text/csv' });
-  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `grokbot-paper-trades-${new Date().toISOString().slice(0, 19).replace(/:/g, '')}.csv`;
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `grokbot-simulation-trades-${new Date().toISOString().slice(0, 19).replace(/:/g, '')}.csv`;
   document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500);
   return rows.length - 1;
 }
@@ -1125,39 +1490,83 @@ Num.all = [];
 const hhmmOf = ms => { const d = new Date(ms); return U.pad(d.getHours()) + ':' + U.pad(d.getMinutes()); };
 /* fenêtre de la courbe : s'élargit avec le temps écoulé, jusqu'à la durée de session */
 const winMs = (x, c) => Math.min(c.dur * 60000, Math.max(10 * 60000, x.elapsed * 1.15));
-const durTxt = ms => { const m = Math.floor(ms / 60000); return m < 60 ? `${m} min` : `${Math.floor(m / 60)}h ${String(m % 60).padStart(2, '0')}`; };
+const durTxt = ms => { const m = Math.floor(ms / 60000); return m < 60 ? `${m} min` : `${Math.floor(m / 60)} h ${String(m % 60).padStart(2, '0')}`; };
 /* pastille d'état commune */
 function stateLabel(x) {
   if (Feed.offline && x.state !== 'ended') return [T2.paused, 'demo'];
   if (x.state === 'paused') return [T2.paused, 'demo'];
   if (x.mode === 'practice' || (x.state === 'idle' && Feed.mode === 'practice')) return [T2.practice, 'demo'];
-  return [x.state === 'running' ? T2.paper : (x.state === 'ended' ? 'ENDED' : 'READY'), x.state === 'running' ? '' : 'idle'];
+  return [x.state === 'running' ? T2.paper : (x.state === 'ended' ? 'TERMINÉE' : 'PRÊT'), x.state === 'running' ? '' : 'idle'];
 }
 
-/* ---------------- Scène A : dashboard ---------------- */
+
+/* ---------------- Scène A : dashboard + équipage de 6 agents qui collaborent ---------------- */
+/* Chaque agent est un module de règles transparent. Tous jugent CHAQUE instantané réel en parallèle :
+   ODEN (scanner) → VIRA / KESH / NOLU (analystes, votent) → TAMB (consensus + risque) → RYZO (exécution papier + sorties). */
+const CREW = [
+  { n: 'ODEN', k: 'scan', role: 'Scanner', c: '#3b82f6', tip: 'Scanner — découvre les tokens Solana sur DexScreener (boosts récents, profils, top boosts, reprises communautaires), rafraîchit leurs prix réels toutes les quelques secondes et vérifie les données de la paire. Transmet chaque relevé aux trois analystes.' },
+  { n: 'VIRA', k: 'safety', role: 'Liquidité & sécurité', c: '#22d3ee', tip: 'Liquidité & sécurité — compare la liquidité réelle du pool au minimum du préréglage. Verrou de liquidité et wallet du développeur : aucune donnée publique ici, donc affichés « n.d. », jamais inventés. Droit de veto.' },
+  { n: 'KESH', k: 'mom', role: 'Analyste momentum', c: '#f5a524', tip: 'Analyste momentum — variation réelle du prix sur 5 min et 1 h, plus notre propre momentum sur 60 s mesuré entre deux relevés. Vote pour ou contre.' },
+  { n: 'NOLU', k: 'flow', role: 'Volume & flux d’ordres', c: '#22c55e', tip: 'Analyste volume & flux — nombre réel d’achats et de ventes sur 5 min, ratio d’achats et volume sur 5 min. Vote pour ou contre.' },
+  { n: 'TAMB', k: 'risk', role: 'Gestion du risque · consensus', c: '#f0506e', tip: 'Gestionnaire du risque — rassemble les votes, calcule le score pondéré (ratio d’achats, momentum, volume, liquidité), dimensionne le trade (% max du capital), vérifie l’impact de prix et les places libres. N’approuve que si toutes les conditions passent.' },
+  { n: 'RYZO', k: 'exec', role: 'Exécution · sorties', c: '#a78bfa', tip: 'Exécution — ordres simulés au prix réel, avec frais DEX, frais réseau et slippage (base + impact). Chiffre le meilleur candidat refusé (sans l’envoyer) et surveille chaque position ouverte : stop loss, take-profit suiveur, sortie temporelle, retrait de liquidité.' },
+];
+const GEO = { ODEN: [10, 75, 110, 40], VIRA: [200, 10, 110, 40], KESH: [200, 75, 110, 40], NOLU: [200, 140, 110, 40], TAMB: [390, 75, 110, 40], RYZO: [530, 75, 100, 40] };
+const cy = n => GEO[n][1] + GEO[n][3] / 2;
+const EDGES = {
+  'ODEN-VIRA': [[120, 95], [160, 95], [160, cy('VIRA')], [200, cy('VIRA')]],
+  'ODEN-KESH': [[120, 95], [160, 95], [160, 95], [200, 95]],
+  'ODEN-NOLU': [[120, 95], [160, 95], [160, cy('NOLU')], [200, cy('NOLU')]],
+  'VIRA-TAMB': [[310, cy('VIRA')], [350, cy('VIRA')], [350, 95], [390, 95]],
+  'KESH-TAMB': [[310, 95], [350, 95], [350, 95], [390, 95]],
+  'NOLU-TAMB': [[310, cy('NOLU')], [350, cy('NOLU')], [350, 95], [390, 95]],
+  'TAMB-RYZO': [[500, 95], [510, 95], [520, 95], [530, 95]],
+};
+const ANALYSTS = ['VIRA', 'KESH', 'NOLU'];
+const CY_MS = 2600;
+const TAGFR = { SCAN: 'SCAN', RISK: 'RISQUE', WARN: 'ALERTE', EXEC: 'EXÉC.', FILL: 'GAIN', LOSS: 'PERTE', BIG: 'GROS GAIN' };
+const durS = ms => { const v = Math.max(1, Math.round(ms / 1000)); return v < 60 ? v + ' s' : v < 3600 ? Math.floor(v / 60) + ' min ' + U.pad(v % 60) + ' s' : Math.floor(v / 3600) + ' h ' + U.pad(Math.floor(v / 60) % 60); };
+
 const SimA = {
-  key: 'A', r: {}, CW: 484, CH: 224, lines: [], pend: [], pipe: [], lastSeq: 0, feedSeq: 0, nextLine: 0,
-  mods: [['ODEN', 'scan'], ['VIRA', 'safety'], ['KESH', 'analyst'], ['NOLU', 'risk'], ['TAMB', 'exec'], ['RYZO', 'exit']],
+  key: 'A', r: {}, CW: 484, CH: 176, lines: [], pend: [], pipe: [], lastSeq: 0, feedSeq: 0, nextLine: 0, feat: null, lastFeatId: 0, beats: {},
   build(root) {
-    const colors = ['#3b82f6', '#22d3ee', '#f5a524', '#22c55e', '#f0506e', '#a78bfa'];
-    const tiles = this.mods.map(([n, m], i) => `<div class="glass a-tile" style="--c:${colors[i]}"><div class="tint"></div><div class="bar"></div><div class="orb"></div><div class="nm">${n}</div><div class="cap" data-r="cap${i}">${m}</div></div>`).join('');
+    const pathD = p => `M${p[0][0]},${p[0][1]} C${p[1][0]},${p[1][1]} ${p[2][0]},${p[2][1]} ${p[3][0]},${p[3][1]}`;
+    let g = `<text x="65" y="22" text-anchor="middle" class="gsrc">DexScreener · flux réel</text><path d="M65,30 L65,73" class="edge feedin" data-r="efeed"/>`;
+    Object.entries(EDGES).forEach(([k, p]) => { g += `<path d="${pathD(p)}" class="edge" data-r="e-${k}"/>`; });
+    g += `<path d="M565,115 C565,172 615,172 615,115" class="edge loop" data-r="eloop"/><text x="590" y="182" text-anchor="middle" class="gsm" data-r="gopen">0 ouverte</text>`;
+    CREW.forEach(a => {
+      const [x, y, w, h] = GEO[a.n];
+      g += `<g class="gn" data-r="gn-${a.n}" style="--c:${a.c}"><rect x="${x}" y="${y}" width="${w}" height="${h}" rx="10" class="nb"/><circle cx="${x + 13}" cy="${y + 14}" r="4" class="nd"/>
+        <text x="${x + 23}" y="${y + 18}" class="gname">${a.n}</text><text x="${x + 10}" y="${y + 32}" class="grole">${a.role.split(' · ')[0]}</text>
+        <g class="badge" data-r="gb-${a.n}" transform="translate(${x + w - 2},${y + 2})" opacity="0"><circle r="8"/><text y="3.5" text-anchor="middle" data-r="gbt-${a.n}">✓</text></g><title>${U.esc(a.tip)}</title></g>`;
+    });
+    for (let i = 0; i < 3; i++) g += `<g class="chip" data-r="chip${i}" opacity="0"><rect x="-30" y="-8" width="60" height="16" rx="8"/><text y="3.5" text-anchor="middle" data-r="chipt${i}"></text></g>`;
+    const cards = CREW.map((a, i) => `<div class="cr-card" style="--c:${a.c}" data-r="cc${i}" data-tip="${U.esc(a.tip)}">
+      <div class="cc-h"><div class="orb"></div><div class="cc-nm"><div class="cc-n">${a.n}</div><div class="cc-r">${a.role}</div></div><span class="hb" data-r="hb${i}"></span></div>
+      <div class="cc-st" data-r="st${i}">EN VEILLE</div>
+      <div class="cc-tk">sur <b data-r="tk${i}">—</b></div>
+      <div class="cc-d" data-r="d${i}">en attente du démarrage de la session</div>
+      <div class="cc-c" data-r="c${i}"></div><div class="cc-bar"><i data-r="bar${i}"></i></div></div>`).join('');
     root.innerHTML = `
 <div class="glows"><div class="glow g1"></div><div class="glow g2"></div><div class="glow g3"></div></div>
 <div class="a-board">
   <div class="a-head">
-    <div class="a-brand"><div class="a-pill">${VIS.logo('', false)}<div class="a-word">GROK <b>BOT</b></div></div><div class="a-mode">TRADING MODE · PAPER SIM</div></div>
-    <div class="a-right"><div class="a-live"><span class="dot pulse" data-r="dot"></span><span data-r="lt">PAPER</span></div>
-    <div class="a-tasks"><b data-r="tasks">0</b> <span>RULE CHECKS</span></div></div>
+    <div class="a-brand"><div class="a-pill">${VIS.logo('', false)}<div class="a-word">GROK <b>BOT</b></div></div><div class="a-mode">6 AGENTS IA · SIMULATION</div></div>
+    <div class="a-right"><div class="a-ctl">
+      <div class="a-seg" data-r="seg" data-tip="Préréglage de stratégie. S’applique aux prochaines décisions ; les positions ouvertes gardent leurs règles de sortie.">${Object.keys(PRESETS).map(p => `<button data-preset="${p}">${T2.presets[p]}</button>`).join('')}</div>
+      <button class="a-btn pri" data-a="tog" data-r="btog">▶ Démarrer</button><button class="a-btn" data-a="stop" data-r="bstop" data-tip="Terminer la session : les positions simulées ouvertes sont clôturées au dernier prix réel.">■ Arrêter</button><button class="a-btn" data-a="reset" data-tip="Réinitialiser la session (les sessions terminées restent dans l’historique).">↺</button><button class="a-btn" data-a="cfg" data-tip="Réglages : mise, durée, risque, coûts, filtres d’entrée, optimisation.">⚙</button><button class="a-btn" data-a="sound" data-r="bsnd" data-tip="Son à chaque trade simulé (activé / coupé).">🔇</button><button class="a-btn" data-a="csv" data-tip="Télécharger les trades de la session en CSV.">CSV</button>
+      <div class="a-live"><span class="dot pulse" data-r="dot"></span><span data-r="lt">SIMULATION</span></div></div>
+    <div class="a-tasks" data-tip="À chaque relevé de prix réel, les six agents jugent le token. Ce compteur additionne ces évaluations depuis le début de la session."><span data-r="clock"></span> · <b data-r="tasks">0</b> <span>ÉVALUATIONS DES AGENTS</span></div></div>
   </div>
   <div class="a-stats">
-    <div class="glass a-stat"><div class="a-lbl">BALANCE</div><div class="a-val" data-r="bal"></div><div class="a-sub" data-r="started"></div></div>
-    <div class="glass a-stat bar" style="--bc:#34e8a0"><div class="a-lbl">TOTAL P&amp;L</div><div class="a-val green" data-r="pnl"></div><div class="a-sub" data-r="pnlp"></div></div>
-    <div class="glass a-stat bar" style="--bc:#b66dff"><div class="a-lbl">FEES &amp; SLIPPAGE</div><div class="a-val" data-r="fees"></div><div class="a-sub" data-r="feesub"></div></div>
-    <div class="glass a-stat a-wr"><div class="a-ring"><svg viewBox="0 0 50 50"><defs><linearGradient id="wrg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2dd4bf"/><stop offset="1" stop-color="#34e8a0"/></linearGradient></defs><circle cx="25" cy="25" r="22" fill="none" stroke="rgba(255,255,255,.10)" stroke-width="6"/><circle data-r="ring" cx="25" cy="25" r="22" fill="none" stroke="url(#wrg)" stroke-width="6" stroke-linecap="round" stroke-dasharray="138.23" stroke-dashoffset="138.23"/></svg><div class="pct" data-r="wr"></div></div>
-      <div class="a-wrtext"><div class="a-lbl">WIN RATE</div><div class="w" data-r="wins"></div><div class="l" data-r="losses"></div></div><div class="a-closed" data-r="closed"></div></div>
+    <div class="glass a-stat" data-tip="Liquidités + positions ouvertes évaluées au dernier prix réel, moins les frais et le slippage qu’une vente coûterait."><div class="a-lbl">SOLDE</div><div class="a-val" data-r="bal"></div><div class="a-sub" data-r="started"></div></div>
+    <div class="glass a-stat bar" style="--bc:#34e8a0" data-tip="Solde moins la mise de départ. Ne vient que des vrais mouvements de prix, après frais et slippage."><div class="a-lbl">GAIN / PERTE</div><div class="a-val green" data-r="pnl"></div><div class="a-sub" data-r="pnlp"></div></div>
+    <div class="glass a-stat bar" style="--bc:#b66dff" data-tip="Frais DEX par côté + frais réseau par swap + slippage (base + impact de prix 2×taille/liquidité) payés sur chaque ordre simulé."><div class="a-lbl">FRAIS &amp; SLIPPAGE</div><div class="a-val" data-r="fees"></div><div class="a-sub" data-r="feesub"></div></div>
+    <div class="glass a-stat a-wr" data-tip="Part des trades clôturés avec un résultat ≥ 0 après coûts."><div class="a-ring"><svg viewBox="0 0 50 50"><defs><linearGradient id="wrg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2dd4bf"/><stop offset="1" stop-color="#34e8a0"/></linearGradient></defs><circle cx="25" cy="25" r="22" fill="none" stroke="rgba(255,255,255,.10)" stroke-width="6"/><circle data-r="ring" cx="25" cy="25" r="22" fill="none" stroke="url(#wrg)" stroke-width="6" stroke-linecap="round" stroke-dasharray="138.23" stroke-dashoffset="138.23"/></svg><div class="pct" data-r="wr"></div></div>
+      <div class="a-wrtext"><div class="a-lbl">TAUX DE RÉUSSITE</div><div class="w" data-r="wins"></div><div class="l" data-r="losses"></div></div><div class="a-closed" data-r="closed"></div></div>
   </div>
   <div class="a-mid">
-    <div class="glass a-card"><div class="a-ch"><div class="a-title">BALANCE HISTORY</div><div class="a-meta" data-r="el"></div></div>
+    <div class="glass a-card"><div class="a-ch"><div class="a-title">ÉVOLUTION DU SOLDE</div><div class="a-meta" data-r="el"></div></div>
       <svg class="a-chart" viewBox="0 0 ${this.CW} ${this.CH}" preserveAspectRatio="none">
         <defs><linearGradient id="aLine" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="${this.CW}" y2="0"><stop offset="0" stop-color="#8b7cf6"/><stop offset="1" stop-color="#4fa8ff"/></linearGradient>
         <linearGradient id="aArea" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="rgba(60,110,255,.35)"/><stop offset="1" stop-color="rgba(60,110,255,0)"/></linearGradient></defs>
@@ -1167,81 +1576,186 @@ const SimA = {
         <text x="2" y="10" data-r="peak"></text><text x="${this.CW - 2}" y="${this.CH - 2}" text-anchor="end" data-r="floor"></text>
         <g data-r="end"><circle class="ring" r="4" fill="none" stroke="#34e8a0" stroke-width="1.5"/><circle r="4" fill="#34e8a0"/></g>
         <text class="cur" data-r="cur" text-anchor="end"></text>
-      </svg></div>
-    <div class="glass a-card"><div class="a-ch"><div class="a-title">ACTIVITY LOG</div><div class="a-meta"><span data-r="res">0</span> RESOLVED</div></div>
-      <div class="a-pipe" data-r="pipe"></div><div class="a-sep"></div><div class="a-feed" data-r="feed"></div></div>
+      </svg><div class="a-empty" data-r="cempty">Appuie sur <b>Démarrer</b> — la courbe suit le solde, réévalué aux prix réels toutes les quelques secondes.</div></div>
+    <div class="glass a-card"><div class="a-ch"><div class="a-tabs" data-r="tabs"><button data-t="log" class="act">ACTIVITÉ</button><button data-t="pos">POSITIONS <span data-r="tpn">0</span></button><button data-t="tr">TRADES <span data-r="ttn">0</span></button><button data-t="hist">HISTORIQUE</button></div><span data-r="res" hidden></span></div>
+      <div class="a-tlog" data-r="tlog"><div class="a-pipe" data-r="pipe"></div><div class="a-sep"></div><div class="a-feed" data-r="feed"></div></div>
+      <div class="a-list" data-r="tpos" hidden></div><div class="a-list" data-r="ttr" hidden></div><div class="a-list" data-r="thist" hidden></div></div>
   </div>
-  <div class="a-daily"><div class="lab">SESSION TARGET <span data-r="tgt"></span></div><div class="a-track"><div class="a-fill" data-r="fill"></div></div><div class="pct" data-r="dpct"></div></div>
-  <div class="a-agents" data-r="agents">${tiles}</div>
+  <div class="glass a-crew">
+    <div class="a-ch"><div class="a-title">ÉQUIPE IA · COLLABORATION EN DIRECT</div><div class="a-meta" data-r="crewst"></div></div>
+    <div class="cr-top">
+      <svg class="cr-graph" viewBox="0 0 640 190">${g}</svg>
+      <div class="cr-cons" data-r="cons"></div>
+    </div>
+    <div class="cr-cards">${cards}</div>
+  </div>
+  <div class="a-daily"><div class="lab">OBJECTIF DE SESSION <span data-r="tgt"></span></div><div class="a-track"><div class="a-fill" data-r="fill"></div></div><div class="pct" data-r="dpct"></div></div>
 </div>
 <div class="a-recap glass" data-r="recap"></div>`;
     root.querySelectorAll('[data-r]').forEach(e => { this.r[e.dataset.r] = e; });
-    this.tiles = [...this.r.agents.children];
     const r = this.r;
+    this.tab = 'log';
+    r.tabs.addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; this.tab = b.dataset.t; r.tabs.querySelectorAll('button').forEach(x => U.cls(x, 'act', x === b)); r.tlog.hidden = this.tab !== 'log'; r.tpos.hidden = this.tab !== 'pos'; r.ttr.hidden = this.tab !== 'tr'; r.thist.hidden = this.tab !== 'hist'; this.listAt = 0; });
+    root.querySelector('.a-ctl').addEventListener('click', e => {
+      const b = e.target.closest('button'); if (!b) return; const x = Sim.s.A;
+      if (b.dataset.preset) { const keep = { stake: x.cfg.stake, dur: x.cfg.dur, target: x.cfg.target, feePct: x.cfg.feePct, netFee: x.cfg.netFee, baseSlip: x.cfg.baseSlip }; x.cfg = Object.assign(defaultCfg('A', b.dataset.preset), keep); if (x.state !== 'idle') x.emit({ kind: 'info', txt: `préréglage → ${T2.presets[b.dataset.preset]} (pour les prochaines décisions)` }); SimUI.renderFields(); }
+      const a = b.dataset.a;
+      if (a === 'tog') SimApp.toggle();
+      if (a === 'stop') { if (x.pos.length && !confirm(`Arrêter la session ? ${x.pos.length} position(s) simulée(s) ouverte(s) seront clôturées au dernier prix réel.`)) return; x.stop(); }
+      if (a === 'reset') { if ((x.state === 'running' || x.state === 'paused' || x.closed.length) && !confirm('Réinitialiser la session ? Les sessions terminées restent dans l’historique.')) return; if (x.state === 'running' || x.state === 'paused') x.stop('réinitialisée par l’utilisateur'); x.reset(); this.reset(); }
+      if (a === 'cfg') SimUI.togglePanel();
+      if (a === 'sound') { Prefs.set('sound', !Prefs.v.sound); if (Prefs.v.sound) Notify.beep(true); }
+      if (a === 'csv') { const n = exportCSV(['A']); if (!n) Notify.show('Aucun trade à exporter', 'le CSV contiendra les trades dès que le bot aura tradé', 'info'); }
+      SimUI.refresh(); SimStore.save();
+    });
+    r.recap.addEventListener('click', e => { const c = e.target.closest('[data-rc]'); if (c && c.dataset.rc === 'csv') { exportCSV(['A']); return; } if (c && c.dataset.rc === 'new') { Sim.s.A.reset(); this.reset(); SimApp.toggle(); return; } r.recap.classList.remove('show'); this.recapHidden = true; });
     this.n = { bal: new Num(r.bal, (e, v) => U.text(e, U.usd(v)), { thr: .002 }), pnl: new Num(r.pnl, (e, v) => U.text(e, U.sUsd(v)), { thr: .002 }), tasks: new Num(r.tasks, (e, v) => U.text(e, U.int(v)), { flash: false }) };
   },
-  reset() { this.lines.forEach(l => l.el.remove()); this.lines = []; this.pend = []; this.pipe.forEach(p => p.el.remove()); this.pipe = []; this.lastSeq = 0; this.feedSeq = Feed.seq; this.r.recap.classList.remove('show'); this.caps = {}; },
+  reset() { this.lines.forEach(l => l.el.remove()); this.lines = []; this.pend = []; this.pipe.forEach(p => p.el.remove()); this.pipe = []; this.lastSeq = 0; this.feedSeq = Feed.seq; this.r.recap.classList.remove('show'); this.feat = null; this.lastFeatId = 0; },
   addLine(tag, text, big) {
     const el = document.createElement('div'); el.className = 'a-line' + (big ? ' big' : '');
-    el.innerHTML = `<span class="tag ${tag}">[${tag}]</span> ${U.esc(text)}`; el.title = text;
+    el.innerHTML = `<span class="tag ${tag}">[${TAGFR[tag] || tag}]</span> ${U.esc(text)}`; el.title = text;
     el.style.transform = 'translateY(-17rem)'; el.style.opacity = '0'; this.r.feed.prepend(el); this.lines.unshift({ el }); void el.offsetWidth;
-    this.lines.forEach((l, i) => { if (i < 8) { l.el.style.transform = `translateY(${i * 17}rem)`; l.el.style.opacity = '1'; } });
-    while (this.lines.length > 8) { const o = this.lines.pop(); o.el.style.opacity = '0'; setTimeout(() => o.el.remove(), 260); }
+    this.lines.forEach((l, i) => { if (i < 6) { l.el.style.transform = `translateY(${i * 17}rem)`; l.el.style.opacity = '1'; } });
+    while (this.lines.length > 6) { const o = this.lines.pop(); o.el.style.opacity = '0'; setTimeout(() => o.el.remove(), 260); }
   },
   addPipe(ev) {
-    /* étapes : LP = liquidité, LOCK / DEV = n/a (aucune donnée publique), BUY = flux + momentum + score + risque */
     const fail = ev.kind === 'buy' ? null : ev.mod;
     const lp = fail === 'scan' || fail === 'safety' ? 'fail' : 'ok';
     const buy = lp === 'fail' ? 'idle' : (fail ? 'fail' : 'ok');
     const st = [lp, lp === 'ok' ? 'na' : 'idle', lp === 'ok' ? 'na' : 'idle', buy];
-    const status = fail ? (lp === 'fail' ? 'REJECTED · LP' : 'REJECTED · BUY (' + fail + ')') : 'PASSED · BUY';
+    const status = fail ? (lp === 'fail' ? 'REFUSÉ · LIQUIDITÉ' : 'REFUSÉ · ' + AGN[fail]) : 'VALIDÉ · ACHAT';
     const el = document.createElement('div'); el.className = 'a-prow';
-    el.innerHTML = `<div class="tk">${U.esc(ev.sym)}</div><div class="a-dots">${st.map(() => '<span class="pd run"></span>').join('')}</div><div class="st chk">CHECKING LP</div>`;
+    el.innerHTML = `<div class="tk">${U.esc(ev.sym)}</div><div class="a-dots">${st.map(() => '<span class="pd run"></span>').join('')}</div><div class="st chk">VÉRIF. LIQUIDITÉ</div>`;
     el.style.transform = 'translateY(66rem)'; el.style.opacity = '0'; this.r.pipe.appendChild(el); void el.offsetWidth;
     this.pipe.push({ el, st, status, cls: fail ? 'rej' : 'pass', born: performance.now() });
     while (this.pipe.length > 3) { const o = this.pipe.shift(); o.el.style.transform = 'translateY(-22rem)'; o.el.style.opacity = '0'; setTimeout(() => o.el.remove(), 260); }
   },
   consume(x) {
-    Feed.since(this.feedSeq).forEach(e => { this.feedSeq = e.seq; if (e.kind === 'scan') this.pend.push(['SCAN', `${e.src}: ${e.n} Solana tokens, ${e.fresh} new · ${Feed.watch.length} watched`]); if (e.kind === 'feederr') this.pend.push(['WARN', `feed error: ${e.msg} · backoff (${e.fails})`]); });
+    Feed.since(this.feedSeq).forEach(e => { this.feedSeq = e.seq; if (x.state !== 'running') return; if (e.kind === 'scan') this.pend.push(['SCAN', `ODEN · ${SRCFR[e.src] || e.src} : ${e.n} tokens Solana, ${e.fresh} nouveaux · ${Feed.watch.length} suivis`]); if (e.kind === 'feederr') this.pend.push(['WARN', `erreur du flux : ${e.msg} · nouvel essai différé (${e.fails})`]); });
     x.since(this.lastSeq).forEach(e => {
       this.lastSeq = e.seq;
-      if (e.kind === 'skip') { this.addPipe(e); this.pend.push([e.mod === 'safety' || e.mod === 'risk' ? 'RISK' : 'WARN', `${e.sym} skip · ${e.txt}`]); this.lastMod = e.mod; this.setCaps(e.res); }
-      else if (e.kind === 'buy') { this.addPipe(e); this.pend.push(['EXEC', e.txt]); this.lastMod = 'exec'; this.setCaps(e.res); this.caps.exec = `BUY ${e.sym} ${U.usd(e.size)}`; }
-      else if (e.kind === 'sell') { this.pend.push([e.pnl >= 0 ? 'FILL' : 'LOSS', e.txt, Math.abs(e.pnlPct) >= 20]); this.lastMod = 'exit'; this.caps.exit = `${e.sym} ${fmtP(e.pnlPct)}`; }
+      const who = { scan: 'ODEN', safety: 'VIRA', flow: 'NOLU', mom: 'KESH', analyst: 'TAMB', risk: 'TAMB' }[e.mod] || '';
+      if (e.kind === 'skip') { this.addPipe(e); this.pend.push([e.mod === 'safety' || e.mod === 'risk' ? 'RISK' : 'WARN', `veto ${who} sur ${e.sym} · ${e.txt}`]); }
+      else if (e.kind === 'buy') { this.addPipe(e); this.pend.push(['EXEC', 'TAMB ✓ → RYZO ' + e.txt]); this.flash = { kind: 'buy', sym: e.sym, at: performance.now() }; }
+      else if (e.kind === 'sell') { this.pend.push([e.pnl >= 0 ? 'FILL' : 'LOSS', 'RYZO ' + e.txt, Math.abs(e.pnlPct) >= 20]); this.flash = { kind: 'sell', sym: e.sym, pnl: e.pnl, at: performance.now() }; }
       else if (e.kind === 'info') this.pend.push(['SCAN', e.txt]);
     });
     if (this.pend.length > 24) this.pend = this.pend.filter(p => p[0] !== 'WARN' && p[0] !== 'RISK').concat(this.pend.slice(-6));
     const now = performance.now();
-    if (this.pend.length && now >= this.nextLine) { const p = this.pend.shift(); this.addLine(p[0], p[1], p[2]); this.nextLine = now + 160; }
+    if (this.pend.length && now >= this.nextLine) { const p = this.pend.shift(); this.addLine(p[0], p[1], p[2]); this.nextLine = now + 220; }
   },
-  setCaps(res) { if (!res) return; const M = res.M; this.caps.scan = M.scan.txt; this.caps.safety = M.safety.txt.split(' · ')[0]; this.caps.analyst = M.analyst.txt.split(' · ')[0]; this.caps.risk = M.risk.txt.split(' · ')[1] || M.risk.txt; },
+  /* choisit le prochain token « mis en avant » parmi les évaluations réelles récentes */
+  pickFeat(x, now) {
+    const fresh = x.traces.filter(t => t.id > this.lastFeatId);
+    if (!fresh.length) return null;
+    const prog = t => (t.ok ? 1000 : 0) + ['scan', 'safety', 'flow', 'mom'].filter(k => t.M[k].ok).length * 10 + t.score;
+    const best = fresh.reduce((a, b) => (prog(b) > prog(a) ? b : a));
+    const tr = Math.random() < .55 || best.ok ? best : fresh[fresh.length - 1];
+    this.lastFeatId = fresh[fresh.length - 1].id;
+    return { tr, t0: now };
+  },
+  verdict(tr) {
+    const M = tr.M, v = { VIRA: M.safety, KESH: M.mom, NOLU: M.flow };
+    return { v, pass: ANALYSTS.filter(n => v[n].ok).length };
+  },
+  renderCrew(x, now) {
+    const r = this.r, run = x.state === 'running', wall = Date.now();
+    if (run && (!this.feat || now - this.feat.t0 >= CY_MS)) { const f = this.pickFeat(x, now); if (f) this.feat = f; else if (this.feat && now - this.feat.t0 >= CY_MS) this.feat.done = true; }
+    if (!run && this.feat && x.state !== 'paused') this.feat = null;
+    const F = this.feat && !this.feat.done ? this.feat : null, t = F ? now - F.t0 : 1e9, tr = F ? F.tr : (this.feat ? this.feat.tr : null);
+    const thinking = new Set(), hot = new Set();
+    const chips = [null, null, null];
+    if (F && run) {
+      const V = this.verdict(tr);
+      if (t < 650) { thinking.add('ODEN'); const u = U.easeInOut(t / 650); ANALYSTS.forEach((n, i) => { hot.add('ODEN-' + n); chips[i] = [bez(...EDGES['ODEN-' + n], u), tr.sym, '']; }); }
+      else if (t < 1250) { ANALYSTS.forEach((n, i) => { thinking.add(n); const p = bez(...EDGES[n + '-TAMB'], .3); chips[i] = [p, tr.sym, t >= 950 ? (V.v[n].ok ? 'ok' : 'no') : '']; }); }
+      else if (t < 1800) { const u = U.easeInOut((t - 1250) / 550); ANALYSTS.forEach((n, i) => { hot.add(n + '-TAMB'); chips[i] = [bez(...EDGES[n + '-TAMB'], u), V.v[n].ok ? '✓ ' + n : '✗ ' + n, V.v[n].ok ? 'ok' : 'no']; }); }
+      else if (t < 2150) { thinking.add('TAMB'); chips[0] = [[445, 134], `${V.pass}/3 · ${tr.score.toFixed(2)}`, t >= 2000 ? (tr.ok ? 'ok' : 'no') : '']; }
+      else { const u = U.easeInOut(Math.min(1, (t - 2150) / 400)); if (tr.ok) { hot.add('TAMB-RYZO'); thinking.add('RYZO'); chips[0] = [bez(...EDGES['TAMB-RYZO'], u), 'BUY', 'ok']; } else if (tr.quote) { hot.add('TAMB-RYZO'); thinking.add('RYZO'); chips[0] = [bez(...EDGES['TAMB-RYZO'], u), 'quote', 'q']; } else chips[0] = [[445, 134], 'REJECT', 'no']; }
+    }
+    const fl = this.flash && now - this.flash.at < 2500 ? this.flash : null;
+    if (fl) thinking.add('RYZO');
+    if (run && x.pos.length) hot.add('loop');
+    /* graphe */
+    CREW.forEach((a, i) => {
+      const ag = x.ag[a.k], last = a.k === 'scan' ? Math.max(ag.lastMs, x.lastBatchMs) : ag.lastMs;
+      const working = run && wall - last < 4500;
+      const st = !run ? (x.state === 'paused' ? 'paused' : 'standby') : thinking.has(a.n) ? 'thinking' : working ? 'working' : 'waiting';
+      const gn = r['gn-' + a.n]; if (gn._st !== st) { gn._st = st; gn.setAttribute('class', 'gn ' + st); }
+      /* badge de verdict */
+      let bt = null;
+      if (F && tr) { const V = this.verdict(tr); if (ANALYSTS.includes(a.n) && t >= 950) bt = V.v[a.n].ok; if (a.n === 'ODEN' && t >= 300) bt = tr.M.scan.ok; if (a.n === 'TAMB' && t >= 2000) bt = tr.ok; if (a.n === 'RYZO' && t >= 2400 && (tr.ok || tr.quote)) bt = tr.ok ? true : 'q'; }
+      const b = r['gb-' + a.n]; U.attr(b, 'opacity', bt === null ? '0' : '1'); U.attr(b, 'class', 'badge ' + (bt === true ? 'ok' : bt === 'q' ? 'q' : 'no')); U.text(r['gbt-' + a.n], bt === true ? '✓' : bt === 'q' ? '$' : '✗');
+      /* carte */
+      const card = r['cc' + i]; if (card._st !== st) { card._st = st; card.className = 'cr-card ' + st; }
+      U.text(r['st' + i], { thinking: 'RÉFLÉCHIT', working: 'AU TRAVAIL', waiting: 'EN ATTENTE', standby: 'EN VEILLE', paused: 'EN PAUSE' }[st]);
+      if (this.beats[i] !== last && last) { this.beats[i] = last; const hb = r['hb' + i]; hb.classList.remove('on'); void hb.offsetWidth; hb.classList.add('on'); }
+      let tk = '—', d, c;
+      const fresh = tr && wall - tr.ms < 15000;
+      if (a.k === 'scan') { tk = fresh ? tr.sym : (ag.sym || '—'); d = `${ag.disc || 'en attente du premier lot de découverte'}\nlot de rafraîchissement n° ${U.int(ag.batches || 0)} · ${Feed.watch.length} tokens suivis`; c = [['reçus', ag.n], ['✓', ag.ok, 'g'], ['✗', ag.no, 'r']]; }
+      else if (a.k === 'exec') { const op = x.pos.length; tk = fl ? fl.sym : (op ? x.pos.map(p => p.sym).slice(0, 2).join(' ') : (ag.sym || '—')); d = (fl ? (fl.kind === 'buy' ? `ACHAT simulé ${fl.sym} exécuté` : `VENTE simulée ${fl.sym} ${U.sUsd(fl.pnl)}`) + '\n' : '') + (ag.last || 'attend un trade approuvé') + (op ? `\nsurveille ${op} position${op > 1 ? 's' : ''} ouverte${op > 1 ? 's' : ''}` : ''); c = [['ordres', ag.fills || 0, 'g'], ['contrôles', ag.checks || 0], ['devis', ag.quotes || 0]]; }
+      else if (a.k === 'risk') {
+        if (fresh) { const V = this.verdict(tr), M = tr.M; tk = tr.sym; d = `${V.pass}/3 analystes ✓ · haussier ${M.analyst.bull}/5 · score ${M.analyst.score.toFixed(2)} vs ${x.cfg.f.minScore}\n${M.risk.txt}\n→ ${tr.ok ? 'APPROUVÉ' : 'REFUSÉ · veto ' + ({ scan: 'ODEN', safety: 'VIRA', flow: 'NOLU', mom: 'KESH', analyst: 'score', risk: 'TAMB' }[tr.fail])}`; }
+        else { tk = ag.sym || '—'; d = ag.last || 'en attente des votes'; }
+        c = [['votes', ag.n], ['✓', ag.ok, 'g'], ['✗', ag.no, 'r']];
+      } else {
+        const mk = a.k; if (fresh) { tk = tr.sym; d = `${tr.M[mk].ok ? '✓ VALIDÉ' : '✗ REFUSÉ'} · ${tr.M[mk].txt}`; } else { tk = ag.sym || '—'; d = ag.last ? (ag.lastOk ? '✓ ' : '✗ ') + ag.last : 'en attente des relevés'; }
+        c = [['reçus', ag.n], ['✓', ag.ok, 'g'], ['✗', ag.no, 'r']];
+      }
+      if (!run && !ag.n && !(ag.fills || ag.checks)) d = x.state === 'idle' ? 'en veille — appuie sur Démarrer ; chaque agent juge chaque relevé réel' : d;
+      U.text(r['tk' + i], tk); U.text(r['d' + i], d);
+      U.html(r['c' + i], c.map(([k, v, cl]) => `<span class="${cl || ''}">${k} ${U.int(v)}</span>`).join(''));
+      const okN = a.k === 'exec' ? (ag.fills || 0) : ag.ok, tot = a.k === 'exec' ? Math.max(1, (ag.quotes || 0) + (ag.fills || 0)) : Math.max(1, ag.ok + ag.no);
+      U.css(r['bar' + i], 'width', (okN / tot * 100).toFixed(1) + '%');
+    });
+    Object.keys(EDGES).forEach(k => U.attr(r['e-' + k], 'class', 'edge' + (hot.has(k) ? ' hot' : '')));
+    U.attr(r.eloop, 'class', 'edge loop' + (hot.has('loop') ? ' hot' : '')); U.attr(r.efeed, 'class', 'edge feedin' + (run ? ' hot' : ''));
+    U.text(r.gopen, `${x.pos.length} ouverte(s) · contrôles de sortie`);
+    chips.forEach((ch, i) => { const el = r['chip' + i]; if (!ch) { U.attr(el, 'opacity', '0'); return; } U.attr(el, 'opacity', '1'); U.attr(el, 'transform', `translate(${ch[0][0].toFixed(1)},${ch[0][1].toFixed(1)})`); U.attr(el, 'class', 'chip ' + ch[2]); U.text(r['chipt' + i], ch[1]); });
+    /* tableau de décision (consensus) */
+    U.html(r.cons, this.consHTML(x, tr, F ? t : 1e9, run));
+    const sts = CREW.map(a => r['gn-' + a.n]._st); const nw = sts.filter(s => s === 'working' || s === 'thinking').length;
+    U.text(r.crewst, run ? `${nw}/6 ACTIFS · ${U.int(x.evals)} ÉVALUATIONS · ${Feed.watch.length} TOKENS SUIVIS` : x.state === 'paused' ? 'EN PAUSE · ' + (x.reason || '') : x.state === 'ended' ? 'SESSION TERMINÉE' : 'EN VEILLE · APPUIE SUR DÉMARRER');
+  },
+  consHTML(x, tr, t, run) {
+    if (!tr) return `<div class="cs-empty">${run ? 'En attente des premiers relevés de prix réels…' : 'Le tableau de décision montre, token par token, comment les six agents votent sur des données réelles. Appuie sur <b>Démarrer</b> pour réveiller l’équipe.'}</div>`;
+    const M = tr.M, V = this.verdict(tr), mark = (ok, show) => (show ? (ok ? '<i class="ok">✓</i>' : '<i class="no">✗</i>') : '<i class="pend">…</i>');
+    const row = (n, ok, txt, show) => `<div class="cs-r">${mark(ok, show)}<b style="color:${CREW.find(c => c.n === n).c}">${n}</b><span>${U.esc(txt)}</span></div>`;
+    const sv = t >= 1800, vd = t >= 2000, thr = x.cfg.f.minScore;
+    const dots = Array.from({ length: 5 }, (_, i) => `<span class="${i < M.analyst.bull ? 'bull' : 'bear'}"></span>`).join('');
+    return `<div class="cs-h">TABLEAU DE DÉCISION <b>${U.esc(tr.sym)}</b><span>${hhmmOf(tr.ms)}:${U.pad(new Date(tr.ms).getSeconds())} · éval. n° ${U.int(tr.id)}</span></div>
+      ${row('ODEN', M.scan.ok, 'données paire · ' + M.scan.txt, t >= 300)}${row('VIRA', M.safety.ok, M.safety.txt, t >= 950)}${row('KESH', M.mom.ok, M.mom.txt, t >= 950)}${row('NOLU', M.flow.ok, M.flow.txt, t >= 950)}
+      <div class="cs-v ${sv ? '' : 'dimq'}"><span>votes</span><span class="dots">${dots}</span><span>haussier ${M.analyst.bull} / baissier ${M.analyst.bear}</span><span class="sc">score ${sv ? M.analyst.score.toFixed(2) : '…'}</span></div>
+      <div class="cs-bar ${sv ? '' : 'dimq'}"><i style="width:${sv ? (U.clamp(M.analyst.score) * 100).toFixed(0) : 0}%"></i><u style="left:${(thr * 100).toFixed(0)}%" title="score minimum ${thr}"></u></div>
+      ${row('TAMB', M.risk.ok, M.risk.txt, sv)}
+      <div class="cs-out ${vd ? (tr.ok ? 'ok' : 'no') : 'pend'}">${vd ? (tr.ok ? `APPROUVÉ · ${V.pass}/3 analystes + score + risque → RYZO ACHAT simulé ${U.usd(tr.size)}` : `REFUSÉ · veto ${({ scan: 'ODEN', safety: 'VIRA liquidité', flow: 'NOLU flux d’ordres', mom: 'KESH momentum', analyst: 'score sous le seuil', risk: 'TAMB risque' })[tr.fail]}${tr.quote ? ` · devis RYZO : slippage ${tr.quote.slip.toFixed(2)}%, frais ${U.usd(tr.quote.fee)} (non envoyé)` : ''}`) : 'délibération…'}</div>`;
+  },
   render(now) {
     const x = Sim.s.A, r = this.r, c = x.cfg;
     this.consume(x);
     const eq = x.equity(), pnl = eq - c.stake, w = x.wins(), l = x.losses(), cl = w + l;
     this.n.bal.set(eq); this.n.pnl.set(pnl); this.n.tasks.set(x.evals);
-    U.text(r.started, `started at ${U.usd(c.stake)} · ${x.pos.length} open`);
-    U.text(r.pnlp, fmtP(pnl / c.stake * 100, 1) + ' on starting stack');
-    U.text(r.fees, U.usd(x.fees + x.slipCost)); U.text(r.feesub, `fees ${U.usd(x.fees)} · slip ${U.usd(x.slipCost)} · max DD -${x.maxDD.toFixed(1)}%`);
+    U.text(r.started, `départ ${U.usd(c.stake)} · repli max -${x.maxDD.toFixed(1)}%`);
+    U.text(r.pnlp, fmtP(pnl / c.stake * 100, 2) + ' sur la mise de départ'); U.cls(r.pnl, 'green', pnl >= 0); U.cls(r.pnl, 'red', pnl < 0);
+    U.text(r.fees, U.usd(x.fees + x.slipCost)); U.text(r.feesub, `frais ${U.usd(x.fees)} · slippage ${U.usd(x.slipCost)}`);
     const wr = cl ? Math.round(w / cl * 100) : 0;
-    U.text(r.wr, cl ? wr + '%' : 'n/a'); U.attr(r.ring, 'stroke-dashoffset', (138.23 * (1 - wr / 100)).toFixed(2));
-    U.text(r.wins, w + ' wins'); U.text(r.losses, l + ' losses'); U.text(r.closed, cl + ' closed');
-    U.text(r.res, U.int(x.evals)); U.text(r.el, U.hms(x.elapsed / 1000) + ' / ' + (c.dur >= 60 ? (c.dur / 60).toFixed(c.dur % 60 ? 1 : 0) + 'H' : c.dur + 'M'));
+    U.text(r.wr, cl ? wr + '%' : 'n.d.'); U.attr(r.ring, 'stroke-dashoffset', (138.23 * (1 - wr / 100)).toFixed(2));
+    U.text(r.wins, w + ' gagnant' + (w > 1 ? 's' : '')); U.text(r.losses, l + ' perdant' + (l > 1 ? 's' : '')); U.text(r.closed, cl + ' clôturé' + (cl > 1 ? 's' : ''));
+    U.text(r.res, U.int(x.evals)); U.text(r.el, U.hms(x.elapsed / 1000) + ' / ' + (c.dur >= 60 ? (c.dur / 60).toFixed(c.dur % 60 ? 1 : 0) + ' H' : c.dur + ' MIN'));
     const [lab, cls] = stateLabel(x); U.text(r.lt, lab); U.cls(r.dot, 'demo', cls === 'demo'); U.cls(r.dot, 'idle', cls === 'idle');
     const tg = U.clamp(Math.round((eq - c.stake) / Math.max(1e-9, c.target - c.stake) * 100), 0, 100);
     U.text(r.tgt, U.usd(c.target, 0)); U.text(r.dpct, tg + '%'); U.css(r.fill, 'transform', `scaleX(${tg / 100})`);
-    /* agents : le module responsable de la dernière décision est actif */
-    const act = { scan: 0, safety: 1, flow: 2, mom: 2, analyst: 2, risk: 3, exec: 4, exit: 5 }[this.lastMod];
-    this.tiles.forEach((t, i) => { U.cls(t, 'on', i === act); U.text(r['cap' + i], (this.caps && this.caps[this.mods[i][1]]) || this.mods[i][1]); });
-    /* pipeline : révélation des pastilles (150 ms chacune) */
+    this.renderCrew(x, now);
+    this.renderHead(x, now);
     this.pipe.forEach((p, i) => {
       U.css(p.el, 'transform', `translateY(${i * 22}rem)`); U.css(p.el, 'opacity', '1');
       const k = Math.floor((now - p.born) / 150); const dots = p.el.querySelectorAll('.pd');
       dots.forEach((d, j) => { const c2 = 'pd' + (j < k ? (p.st[j] === 'idle' ? '' : ' ' + p.st[j]) : (j === k ? ' run' : '')); if (d._c !== c2) { d._c = c2; d.className = c2; } });
       const stEl = p.el.querySelector('.st'); const done = k >= 4;
-      U.text(stEl, done ? p.status : 'CHECKING ' + ['LP', 'LOCK', 'DEV', 'BUY'][Math.min(3, k)]); const sc = 'st ' + (done ? p.cls : 'chk'); if (stEl._c !== sc) { stEl._c = sc; stEl.className = sc; }
+      U.text(stEl, done ? p.status : 'VÉRIF. ' + ['LIQUIDITÉ', 'VERROU', 'DEV', 'ACHAT'][Math.min(3, k)]); const sc = 'st ' + (done ? p.cls : 'chk'); if (stEl._c !== sc) { stEl._c = sc; stEl.className = sc; }
     });
-    /* courbe : x = temps écoulé / durée de session */
+    U.css(r.cempty, 'display', x.state === 'idle' ? 'flex' : 'none');
     const W = this.CW, H = this.CH, top = 18, bot = H - 18, durMs = winMs(x, c);
     const pts0 = x.hist.concat([[x.elapsed, eq]]);
     let lo = Math.min(...pts0.map(p => p[1])), hi = Math.max(...pts0.map(p => p[1])); if (hi - lo < c.stake * .02) { hi += c.stake * .01; lo -= c.stake * .01; }
@@ -1254,201 +1768,153 @@ const SimA = {
     U.attr(r.end, 'transform', `translate(${last[0].toFixed(1)},${last[1].toFixed(1)})`);
     const left = last[0] < 110; U.attr(r.cur, 'text-anchor', left ? 'start' : 'end'); U.attr(r.cur, 'x', (left ? last[0] + 12 : last[0] - 12).toFixed(1)); U.attr(r.cur, 'y', U.clamp(last[1] - 9, 14, H - 22).toFixed(1)); U.text(r.cur, U.usd(eq));
     U.text(r.peak, U.usd(hi, hi < 100 ? 2 : 0)); U.text(r.floor, U.usd(lo, lo < 100 ? 2 : 0));
-    /* points verts/rouges : clôtures de trades */
     const mk = x.closed.length + '|' + Math.round(durMs / 30000); if (this.markN !== mk) { this.markN = mk; U.html(r.marks, x.closed.slice(-80).map(t => { const e = t.closeEl ?? 0; return `<circle cx="${X(e).toFixed(1)}" cy="${Y(this.eqAt(x, e)).toFixed(1)}" r="2.5" fill="${t.pnl >= 0 ? '#34e8a0' : '#ff5c75'}"/>`; }).join('')); }
-    /* récap */
-    if (x.state === 'ended') { if (!r.recap.classList.contains('show')) { r.recap.innerHTML = SimUI.recapHTML(x, 'dark'); r.recap.classList.add('show'); } } else r.recap.classList.remove('show');
+    if (x.state === 'ended') { if (!r.recap.classList.contains('show') && !this.recapHidden) { r.recap.innerHTML = SimUI.recapHTML(x); r.recap.classList.add('show'); } } else { r.recap.classList.remove('show'); this.recapHidden = false; }
   },
-  elAt(x, ms) { /* conversion approximative heure → temps de session écoulé */ const k = x.hist; return Math.min(x.elapsed, Math.max(0, ms - x.startMs - (x._pausedMs || 0))); },
+  renderHead(x, now) {
+    const r = this.r;
+    r.seg.querySelectorAll('button').forEach(b => U.cls(b, 'act', b.dataset.preset === x.cfg.preset));
+    U.text(r.btog, x.state === 'running' ? '❚❚ Pause' : x.state === 'paused' ? '▶ Reprendre' : x.state === 'ended' ? '↻ Nouvelle session' : '▶ Démarrer');
+    U.cls(r.btog, 'pri', x.state !== 'running'); r.bstop.disabled = !(x.state === 'running' || x.state === 'paused');
+    U.text(r.bsnd, Prefs.v.sound ? '🔊' : '🔇'); U.text(r.clock, x.state === 'idle' ? 'PRÊT' : `${U.hms(x.elapsed / 1000)} / ${durTxt(x.cfg.dur * 60000)}`);
+    U.text(r.tpn, String(x.pos.length)); U.text(r.ttn, String(x.closed.length));
+    if (this.tab === 'log' || now < (this.listAt || 0)) return; this.listAt = now + 700;
+    if (this.tab === 'pos') {
+      const c = x.cfg;
+      U.html(r.tpos, x.pos.map(p => { const t = Feed.tokens.get(p.addr), v = x.posValue(p), u = v - p.size, up = (v / p.size - 1) * 100; const hiR = c.trailOn ? c.trailAct : c.tp; const k = U.clamp((up + c.stop) / (hiR + c.stop));
+        return `<div class="l-r"><b>${U.esc(p.sym)}</b><span>${U.usd(p.size)}</span><span class="${pc(u)}">${U.sUsd(u)} · ${fmtP(up, 2)}</span><span class="dim2">${ago(p.openMs)}</span>
+          <div class="l-risk" data-tip="Rendement actuel entre le stop (-${c.stop}%) et ${c.trailOn ? 'l’activation du suiveur (+' + c.trailAct + '%)' : 'la prise de profit (+' + c.tp + '%)'}"><i style="left:${(k * 100).toFixed(1)}%"></i></div>
+          <small>entrée ${fmtPrice(p.fillP)} → maintenant ${fmtPrice(t && t.price ? t.price : p.lastP)}${t && t.upd ? ' (il y a ' + ago(t.upd) + ')' : ''}</small></div>`; }).join('') || `<div class="l-e">${x.state === 'running' ? 'Aucune position ouverte — RYZO n’achète que si TAMB approuve sur données réelles.' : 'Aucune position ouverte.'}</div>`);
+    } else if (this.tab === 'hist') {
+      const H = Sim.history.filter(h => h.key === 'A'), tot = H.reduce((a2, h) => a2 + h.pnl, 0);
+      U.html(r.thist, (H.length ? `<div class="l-sum">${H.length} session${H.length > 1 ? 's' : ''} terminée${H.length > 1 ? 's' : ''} · cumul <b class="${pc(tot)}">${U.sUsd(tot)}</b> · ${H.reduce((a2, h) => a2 + h.trades, 0)} trades</div>` : '') + (H.map(h => `<div class="l-r"><b>${new Date(h.start).toLocaleString('fr-FR', { dateStyle: 'short', timeStyle: 'short' })}</b><span>${T2.presets[h.preset] || ''}</span><span class="${pc(h.pnl)}">${U.sUsd(h.pnl)} · ${fmtP(h.pnlPct, 2)}</span><span class="dim2">${Math.round(h.minutes)} min</span><small>${U.usd(h.stake)} → ${U.usd(h.final)} · ${h.trades} trades · réussite ${h.winRate === null ? 'n.d.' : Math.round(h.winRate) + '%'} · repli max -${h.maxDD.toFixed(1)}%${h.mode === 'practice' ? ' · PRIX SYNTHÉTIQUES' : ''}</small></div>`).join('') || '<div class="l-e">Aucune session terminée. Une session se termine quand sa durée est atteinte ou quand tu appuies sur Arrêter.</div>'));
+    } else {
+      U.html(r.ttr, x.closed.slice(-40).reverse().map(t => `<div class="l-r"><b>${U.esc(t.sym)}</b><span>${U.usd(t.size)}</span><span class="${pc(t.pnl)}">${U.sUsd(t.pnl)} · ${fmtP(t.pnlPct, 2)}</span><span class="dim2">${hms2(t.closeMs)}</span><small>${U.esc(t.why)} · détenu ${durS(t.closeMs - t.openMs)}</small></div>`).join('') || '<div class="l-e">Aucun trade clôturé pour l’instant.</div>');
+    }
+  },
   eqAt(x, e) { const h = x.hist; let v = h[0][1]; for (const p of h) { if (p[0] > e) break; v = p[1]; } return v; },
 };
 
-/* ---------------- Scènes B et C : apps mobiles ---------------- */
-class SimPhone {
-  constructor(key) {
-    this.key = key; this.r = {}; this.CW = 492; this.CH = 190; this.lastSeq = 0; this.toasts = []; this.log = []; this.txt = {};
-    this.B = key === 'B';
-    this.agents = this.B ? [['SMART$', '#3ddc97', 'flow', 'gmgn-skills'], ['TRENDS', '#4cb4ff', 'mom', 'MCP-Trading'], ['DEBATE', '#a98bff', 'analyst', 'TradingAgents'], ['ROUTER', '#ffa63a', 'risk', 'agent-kit'], ['EXEC', '#ff4fa5', 'exec', 'opentrade']]
-      : [['SCANNER', '#f59e0b', 'scan', 'ai-memecoin-bot'], ['SAFETY', '#ef4444', 'safety', 'ai-memecoin-bot'], ['ANALYST', '#7c5cf0', 'analyst', 'TradingAgents'], ['RISK', '#ec4899', 'risk', 'TradingAgents'], ['EXECUTOR', '#14b8a6', 'exec', 'solana-agent-kit']];
-  }
-  build(root) {
-    const B = this.B, rows = B ? 3 : 6;
-    const agentRows = this.agents.map(([n, c, , tag], i) => `<div class="agrow">${VIS.robot(c, 28)}<span class="an" style="color:${c}">${n}</span><span class="ax" data-r="ax${i}">waiting for data</span><span class="tagpill">${tag}</span></div>`).join('');
-    let extra;
-    if (B) {
-      const xs = [50, 148, 246, 344, 442]; this.xs = xs; let g = '';
-      this.agents.forEach(([n, c], i) => { g += `<text x="${xs[i]}" y="13" text-anchor="middle" fill="${c}">${n}</text>` + VIS.robotG(c, xs[i] - 22, 20, 44) + `<path d="M${xs[i]},68 C${xs[i]},120 246,104 246,144" fill="none" stroke="${c}" stroke-width="2" opacity=".55"/>`; });
-      g += this.agents.map(([, c], i) => `<circle data-r="pk${i}" r="4" fill="${c}"/>`).join('') + `<circle cx="246" cy="184" r="38" fill="#0b0c0f" stroke="#3ddc97" stroke-width="3"/>` + VIS.logoAt(220, 158, 52) + `<g data-r="frog" transform="translate(300,170)" opacity=".25">${VIS.frog(28).replace('<svg ', '<svg x="0" y="0" ')}</g>`;
-      extra = `<div class="card"><div class="card-h"><span class="ct">paper trades</span><span class="cr" data-r="openc"></span></div><div class="logs" data-r="logs"></div></div>
-        <div class="card"><div class="card-h"><span class="ct">agents · working together</span><span class="cr"><span class="dot pulse"></span>rule modules</span></div>${agentRows}</div>
-        <div class="card"><div class="card-h"><span class="ct">5 agents → grok core</span><span class="cr"><span data-r="sig">0</span>&nbsp;signals</span></div><svg class="core" viewBox="0 0 492 250">${g}</svg></div>`;
-    } else {
-      const reps = [['TradingAgents', '#7c5cf0', '★ 91.7k', ['analyst', 'risk']], ['solana-agent-kit', '#14b8a6', '★ 1.7k', ['exec', 'exit']], ['ai-memecoin-trading-bot', '#f59e0b', '★ 63', ['scan', 'safety', 'flow', 'mom']]]; this.reps = reps;
-      extra = `<div class="card">${reps.map(([n, c, st], i) => `<div class="urow"><span style="width:9rem;height:9rem;border-radius:50%;background:${c};flex:none"></span><span class="un">${n}</span><span class="us">${st}</span><span class="uc">● <span data-r="calls${i}">0</span> calls</span></div>`).join('')}</div>
-        <div class="card"><div class="card-h"><span class="ct">agents · working on repos</span><span class="cr"><span class="dot pulse"></span>rule modules</span></div>${agentRows}</div>
-        <div class="card"><div class="card-h"><span class="ct">Grok core · decisions</span><span class="cr"><span class="dot pulse"></span>streaming</span></div><div class="logs" data-r="logs"></div></div>`;
-    }
-    const sbar = B ? '' : `<div class="sbar"><span data-r="sbt"></span><div class="island"></div><span class="sb-r"><span class="bars"><i style="height:6rem"></i><i style="height:9rem"></i><i style="height:12.5rem"></i><i style="height:16rem"></i></span><span class="lte">LTE</span><span class="batt">100</span></span></div>`;
-    root.innerHTML = `<div class="stage"><div class="phone ${B ? 'theme-b' : 'theme-c'}" data-r="phone">${sbar}
-  <div class="scr s5" style="opacity:1;visibility:visible"><div class="live-scroll"><div class="live">
-    <div class="hdr">${VIS.logo()}<span class="nm">Grok Bot</span><span class="mpill">${B ? 'gmgn mode' : 'meme mode'}</span><div class="rpill"><span class="dot pulse" data-r="ldot"></span><span data-r="ltxt">PAPER</span></div></div>
-    <div class="tape"><div class="tape-in" data-r="tape"></div></div>
-    <div class="lsub" data-r="lsub"></div>
-    <div class="eqrow"><div class="eq" data-r="eq"><span data-r="eqi"></span><span class="c" data-r="eqc"></span></div><span class="dpill" data-r="dp">+$0</span></div>
-    <div class="pillrow"><span class="inpill" data-r="inp"></span><span class="mulpill" data-r="mul"></span></div>
-    <div class="resrow"><span data-r="res" class="pos"></span><span class="tm" data-r="clock"></span></div>
-    <svg class="curve" viewBox="0 0 ${this.CW} ${this.CH}"><defs><linearGradient id="cg${this.key}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--curve)" stop-opacity=".35"/><stop offset="1" stop-color="var(--curve)" stop-opacity="0"/></linearGradient></defs>
-      <line data-r="putin" x1="0" x2="${this.CW}" stroke="var(--sub)" stroke-width="1.2" stroke-dasharray="5 5" opacity=".7"/><path data-r="carea" fill="url(#cg${this.key})"/><path data-r="cline" fill="none" stroke="var(--curve)" stroke-width="2.4" stroke-linejoin="round"/>
-      <circle data-r="cdot" r="7" fill="${B ? '#0b0c0f' : '#fff'}" stroke="${B ? '#fff' : 'var(--curve)'}" stroke-width="3"/></svg>
-    <div class="axis"><span data-r="axl"></span><span>— value   -- put in</span><span data-r="axr"></span></div>
-    ${extra}
-  </div></div></div>
-  <div class="toast" data-r="toast"><div class="ti" data-r="tic"></div><div class="tx"><div class="t1" data-r="t1"></div><div class="t2" data-r="t2"></div></div><span data-r="tav"></span></div>
-  <div class="veil" data-r="veil"></div><div class="sheet recap" data-r="recap"></div>
-  ${B ? '' : '<div class="homebar"></div>'}</div></div>`;
-    root.querySelectorAll('[data-r]').forEach(e => { this.r[e.dataset.r] = e; });
-    const r = this.r; this.rows = rows;
-    this.n = { eq: new Num(r.eq, (e, v) => { const fl = Math.floor(v + 1e-9); U.text(r.eqi, '$' + U.fmt(fl, 0)); U.text(r.eqc, (v - fl).toFixed(2).slice(1).replace('1.00', '.00')); }, { thr: .002 }), sig: r.sig ? new Num(r.sig, (e, v) => U.text(e, U.int(v)), { flash: false }) : null, calls: [0, 1, 2].map(i => (r['calls' + i] ? new Num(r['calls' + i], (e, v) => U.text(e, U.int(v)), { flash: false }) : null)) };
-  }
-  reset() { this.lastSeq = 0; this.toasts = []; this.log = []; this.txt = {}; this.recapShown = false; this.tapeAt = 0; this.tapeW = 0; U.html(this.r.logs, ''); }
-  consume(x) {
-    x.since(this.lastSeq).forEach(e => {
-      this.lastSeq = e.seq;
-      if (e.res) { const M = e.res.M; ['scan', 'safety', 'flow', 'mom', 'analyst', 'risk'].forEach(k => { this.txt[k] = `${e.sym} · ${M[k].txt}`; }); if (!this.B) this.txt.scan = `${U.int(x.evals)} checks · ${Feed.watch.length} watched → ${e.sym}`; }
-      if (e.kind === 'buy') {
-        this.log.unshift({ tm: hhmmOf(e.ms), side: 'BUY', tk: e.sym, dt: `score ${e.res.score.toFixed(2)} · buys ${e.res.buyR === null ? 'n/a' : Math.round(e.res.buyR * 100) + '%'}`, amt: U.usd(e.size) });
-        this.txt.exec = `BUY ${e.sym} ${U.usd(e.size)} · slip ${e.slip.toFixed(2)}%`; this.frogAt = performance.now();
-        this.toasts.push({ at: performance.now(), ic: 'frog', t1: `Paper buy ${e.sym} · ${U.usd(e.size)}`, t2: `score ${e.res.score.toFixed(2)} · ${e.res.M.flow.txt}`, tk: e.sym });
-      }
-      if (e.kind === 'sell') {
-        this.log.unshift({ tm: hhmmOf(e.ms), side: 'SELL', tk: e.sym, amt: U.sUsd(e.pnl), suffix: `(${fmtP(e.pnlPct)}) ${e.why}`, neg: e.pnl < 0 });
-        this.txt.exec = `SELL ${e.sym} ${U.sUsd(e.pnl)} · ${e.why}`; this.frogAt = performance.now();
-        this.toasts.push({ at: performance.now(), ic: 'logo', t1: `Sold ${e.sym} · ${U.sUsd(e.pnl)} (${fmtP(e.pnlPct)})`, t2: `${e.why} · paper fill at real price`, tk: e.sym });
-      }
-      if (this.log.length > 12) this.log.pop();
-      this.logDirty = true;
-    });
-    /* une seule notification à la fois : file d'attente, 3 s chacune */
-    const nw = performance.now(); let t0 = 0;
-    this.toasts.forEach(t => { t.show = Math.max(t.at, t0); t0 = t.show + 3200; });
-    this.toasts = this.toasts.filter(t => nw < t.show + 3000);
-    if (this.toasts.length > 4) { const cur = this.toasts.find(t => nw >= t.show); this.toasts = (cur ? [cur] : []).concat(this.toasts.slice(-3)); }
-  }
-  render(now) {
-    const x = Sim.s[this.key], r = this.r, c = x.cfg; this.consume(x);
-    const eq = x.equity(), pnl = eq - c.stake, w = x.wins(), l = x.losses();
-    this.n.eq.set(eq);
-    const [lab, cls] = stateLabel(x); U.text(r.ltxt, lab); U.cls(r.ldot, 'demo', cls === 'demo'); U.cls(r.ldot, 'idle', cls === 'idle');
-    const h30 = x.hist.filter(h => h[0] <= x.elapsed - 30 * 60000); const base = h30.length ? h30[h30.length - 1][1] : c.stake; const d = Math.round(eq - base);
-    U.text(r.dp, (d < 0 ? '-$' : '+$') + Math.abs(d)); U.cls(r.dp, 'neg', d < 0);
-    U.text(r.inp, `in ${U.usd(c.stake, 0)} · ${x.closed.length + x.pos.length} trades`); U.text(r.mul, (eq / c.stake).toFixed(2) + '×');
-    U.text(r.res, `${U.sUsd(pnl)} · ${w}W ${l}L`); U.cls(r.res, 'pos', pnl >= 0); U.cls(r.res, 'neg', pnl < 0);
-    U.text(r.clock, hhmmOf(Date.now())); if (r.sbt) U.text(r.sbt, hhmmOf(Date.now()));
-    const src = x.mode === 'practice' || (x.state === 'idle' && Feed.mode === 'practice') ? 'SYNTHETIC practice' : 'paper · DexScreener';
-    const lsub = x.state === 'idle' ? `${src} · ${Feed.watch.length} watched · press Start in the panel` : `${src} · ${Feed.watch.length} watched · ${x.pos.length} open · ${durTxt(x.elapsed)} in`;
-    U.text(r.lsub, lsub + (x.state === 'paused' ? ' · ' + x.reason : ''));
-    if (r.openc) U.text(r.openc, `${x.pos.length} open`);
-    if (this.n.sig) this.n.sig.set(x.evals);
-    if (this.reps) this.reps.forEach((rp, i) => this.n.calls[i].set(rp[3].reduce((s, k) => s + (x.calls[k] || 0), 0)));
-    /* bandeau : tokens réellement suivis, variation 5 min */
-    if (now >= (this.tapeAt || 0)) {
-      this.tapeAt = now + 10000;
-      const toks = Feed.watch.map(a => Feed.tokens.get(a)).filter(t => t && t.price).slice(-14);
-      const it = toks.length ? toks.map(t => [t.sym, t.c5 === null ? 'n/a' : fmtP(t.c5, 2)]) : [['…', 'waiting for data']];
-      const one = it.map(([tk, p]) => `<span class="tchip">${tk === '…' ? '' : VIS.av(tk)}<span class="tt">${U.esc(tk)}</span><span class="tp ${p[0] === '-' ? 'neg' : 'pos'}">${p}</span><span class="td">5m</span></span>`).join('');
-      if (one !== this.tapeHtml) { this.tapeHtml = one; r.tape.innerHTML = one + one; this.tapeW = 0; }
-    }
-    if (!this.tapeW) this.tapeW = r.tape.scrollWidth / 2;
-    if (!REDUCED && this.tapeW > 0) U.css(r.tape, 'transform', `translate3d(${(-((now / 1000 * 60) % this.tapeW)).toFixed(1)}px,0,0)`);
-    /* courbe */
-    const W = this.CW, H = this.CH, durMs = winMs(x, c), vals = x.hist.concat([[x.elapsed, eq]]);
-    let lo = Math.min(c.stake, ...vals.map(v => v[1])), hi = Math.max(c.stake, ...vals.map(v => v[1])); const pad = Math.max((hi - lo) * .1, c.stake * .02); lo -= pad; hi += pad;
-    const X = e => Math.min(1, e / durMs) * (W - 8) + 4, Y = v => H - 8 - (v - lo) / (hi - lo) * (H - 20);
-    const step = Math.max(1, Math.ceil(vals.length / 120)), pts = []; for (let i = 0; i < vals.length; i += step) pts.push([X(vals[i][0]), Y(vals[i][1])]);
-    const lp = [X(x.elapsed), Y(eq)]; pts[pts.length - 1] = lp;
-    const dd = U.spline(pts); U.attr(r.cline, 'd', dd); U.attr(r.carea, 'd', dd + `L${lp[0].toFixed(1)},${H}L${pts[0][0].toFixed(1)},${H}Z`);
-    U.attr(r.cdot, 'cx', lp[0].toFixed(1)); U.attr(r.cdot, 'cy', lp[1].toFixed(1)); const py = Y(c.stake).toFixed(1); U.attr(r.putin, 'y1', py); U.attr(r.putin, 'y2', py);
-    const st = x.startMs || Date.now(); U.text(r.axl, hhmmOf(st)); U.text(r.axr, hhmmOf(st + durMs));
-    /* journal */
-    if (this.logDirty) {
-      this.logDirty = false; const op = this.B ? [1, .6, .35] : [1, .82, .66, .5, .38, .28];
-      U.html(r.logs, this.log.slice(0, this.rows).map((e, i) => `<div class="lrow" style="opacity:${op[i]}"><span class="tm">${e.tm}</span><span class="sd ${e.side === 'BUY' ? 'buy' : 'sell'}">${e.side}</span>${VIS.av(e.tk, 'sm')}<span class="tk">${U.esc(e.tk)}</span><span class="dt">${e.side === 'BUY' ? `· ${U.esc(e.dt)} · <span style="color:var(--text)">${e.amt}</span>` : `· <span class="${e.neg ? 'neg' : 'pos'}">${e.amt}</span> ${U.esc(e.suffix)}`}</span></div>`).join('') || `<div class="lrow"><span class="tm">no paper trades yet</span></div>`);
-    }
-    /* agents : derniers verdicts réels, fondu au changement */
-    this.agents.forEach((a, i) => { const t = this.txt[a[2]] || 'waiting for data'; const el = r['ax' + i]; if (el._t !== t) { U.text(el, t); el.title = t; el._ch = now; } U.css(el, 'opacity', (REDUCED ? 1 : .2 + .8 * U.clamp((now - (el._ch || 0)) / 300)).toFixed(2)); });
-    if (this.B) {
-      const run = x.state === 'running';
-      for (let i = 0; i < 5; i++) { const u = ((now / 1600) + i * .2) % 1; const p = bez([this.xs[i], 68], [this.xs[i], 120], [246, 104], [246, 144], u); U.attr(r['pk' + i], 'transform', `translate(${p[0].toFixed(1)},${p[1].toFixed(1)})`); U.attr(r['pk' + i], 'opacity', run ? '1' : '0'); }
-      const fa = now - (this.frogAt || -1e9); U.attr(r.frog, 'opacity', fa < 500 ? (Math.floor(fa / 62) % 2 ? '.35' : '1') : '.25');
-    }
-    /* toasts */
-    const cur = this.toasts.find(t => now >= t.show && now < t.show + 3000);
-    if (cur !== this.curToast) { this.curToast = cur; if (cur) { U.html(r.tic, cur.ic === 'frog' ? VIS.frog(30) : VIS.logo()); U.text(r.t1, cur.t1); U.text(r.t2, cur.t2); U.html(r.tav, VIS.av(cur.tk)); } }
-    const tp = cur ? (now - cur.show) / 1000 : 0, ty = !cur ? -140 : (tp < .35 ? (1 - U.easeOut(tp / .35)) * -140 : (tp > 2.65 ? -140 * U.easeInOut((tp - 2.65) / .35) : 0));
-    U.css(r.toast, 'transform', `translateY(${ty.toFixed(1)}%)`); U.css(r.toast, 'opacity', cur ? (tp < .3 ? tp / .3 : tp > 2.7 ? (3 - tp) / .3 : 1).toFixed(2) : '0');
-    /* récap à la fin de session */
-    const ended = x.state === 'ended';
-    if (ended && !this.recapShown) { this.recapShown = true; r.recap.innerHTML = SimUI.recapHTML(x, this.B ? 'b' : 'c'); this.recapAt = now; }
-    if (!ended) this.recapShown = false;
-    const k = ended ? U.easeOut(U.clamp((now - this.recapAt) / 550)) : 0;
-    U.show(r.veil, k); U.css(r.recap, 'transform', `translateY(${((1 - k) * 105).toFixed(2)}%)`);
-  }
-}
+/* ========================= PREFS · NOTIFY · TIP : préférences, notifications, infobulles ========================= */
+const Prefs = {
+  v: { sound: false, toasts: true, tab: 'log' },
+  load(o) { if (o && typeof o === 'object') Object.keys(this.v).forEach(k => { if (o[k] !== undefined) this.v[k] = o[k]; }); },
+  set(k, val) { this.v[k] = val; SimStore.save(); },
+};
+const Notify = {
+  q: [], el: null, ctx: null, burst: [], burstAt: 0,
+  init() { this.el = document.getElementById('toasts'); },
+  beep(win) {
+    if (!Prefs.v.sound) return;
+    try {
+      this.ctx = this.ctx || new (window.AudioContext || window.webkitAudioContext)();
+      const o = this.ctx.createOscillator(), g = this.ctx.createGain(), t = this.ctx.currentTime;
+      o.type = 'sine'; o.frequency.setValueAtTime(win === null ? 660 : win ? 880 : 300, t); if (win) o.frequency.exponentialRampToValueAtTime(1320, t + .12);
+      g.gain.setValueAtTime(.0001, t); g.gain.exponentialRampToValueAtTime(.12, t + .02); g.gain.exponentialRampToValueAtTime(.0001, t + .25);
+      o.connect(g); g.connect(this.ctx.destination); o.start(t); o.stop(t + .3);
+    } catch (e) { /* audio indisponible */ }
+  },
+  trade(x, ev) {
+    if (SimApp.restoring) return;
+    const now = Date.now(); this.burst = this.burst.filter(b => now - b < 1500); this.burst.push(now);
+    this.beep(ev.kind === 'buy' ? null : ev.pnl >= 0);
+    if (!Prefs.v.toasts || !this.el) return;
+    if (this.burst.length > 3) { if (now - this.burstAt > 1500) { this.burstAt = now; this.show('Plusieurs trades simulés', 'plusieurs ordres en un instant — voir le journal d’activité', 'info'); } return; }
+    if (ev.kind === 'buy') this.show(`ACHAT simulé ${ev.sym} · ${U.usd(ev.size)}`, `exécuté à ${fmtPrice(ev.fill)} (marché ${fmtPrice(ev.price)}) · slippage ${ev.slip.toFixed(2)}% · frais ${U.usd(ev.fee)}`, 'buy');
+    else this.show(`VENTE simulée ${ev.sym} · ${U.sUsd(ev.pnl)} (${fmtP(ev.pnlPct)})`, `${ev.why} · prix réel, après frais`, ev.pnl >= 0 ? 'win' : 'loss');
+  },
+  show(t1, t2, kind) {
+    if (!this.el) return;
+    const el = document.createElement('div'); el.className = 'toast2 ' + kind;
+    const ic = { buy: '▲', win: '▼', loss: '▼', info: 'i' }[kind] || 'i';
+    el.innerHTML = `<span class="tb">${ic}</span><div class="tt"><div class="t1">${U.esc(t1)}</div><div class="t2">${U.esc(t2)}</div></div><button aria-label="fermer">✕</button>`;
+    el.querySelector('button').onclick = () => this.hide(el);
+    this.el.prepend(el); requestAnimationFrame(() => requestAnimationFrame(() => el.classList.add('in')));
+    [...this.el.children].slice(3).forEach(o => this.hide(o));
+    setTimeout(() => this.hide(el), 4200);
+  },
+  hide(el) { if (!el.isConnected || el._h) return; el._h = 1; el.classList.remove('in'); setTimeout(() => el.remove(), 300); },
+};
+const Tip = {
+  el: null,
+  init() {
+    this.el = document.getElementById('tip');
+    const show = (t, x, y) => { const s = t.dataset.tip; if (!s) return; this.el.textContent = s; this.el.classList.add('show'); const w = this.el.offsetWidth, h = this.el.offsetHeight; this.el.style.left = U.clamp(x - w / 2, 8, innerWidth - w - 8) + 'px'; this.el.style.top = (y + 18 + h > innerHeight ? y - h - 12 : y + 18) + 'px'; this.cur = t; };
+    document.addEventListener('mouseover', e => { const t = e.target.closest('[data-tip]'); if (t && t !== this.cur) show(t, e.clientX, e.clientY); else if (!t) this.hide(); });
+    document.addEventListener('mousemove', e => { if (this.cur && this.el.classList.contains('show')) { const w = this.el.offsetWidth, h = this.el.offsetHeight; this.el.style.left = U.clamp(e.clientX - w / 2, 8, innerWidth - w - 8) + 'px'; this.el.style.top = (e.clientY + 18 + h > innerHeight ? e.clientY - h - 12 : e.clientY + 18) + 'px'; } });
+    document.addEventListener('click', e => { const t = e.target.closest('.tipi'); if (t) { const r = t.getBoundingClientRect(); show(t, r.left + r.width / 2, r.bottom); e.stopPropagation(); } }, true);
+    document.addEventListener('scroll', () => this.hide(), true);
+  },
+  hide() { if (this.el) this.el.classList.remove('show'); this.cur = null; },
+};
+const tipI = s => `<span class="tipi" tabindex="0" data-tip="${U.esc(s)}">?</span>`;
+const ago = ms => { const s = Math.max(0, Math.round((Date.now() - ms) / 1000)); return s < 60 ? s + 's' : s < 3600 ? Math.floor(s / 60) + 'm ' + U.pad(s % 60) + 's' : Math.floor(s / 3600) + 'h ' + U.pad(Math.floor(s / 60) % 60) + 'm'; };
+const hms2 = ms => { const d = new Date(ms); return U.pad(d.getHours()) + ':' + U.pad(d.getMinutes()) + ':' + U.pad(d.getSeconds()); };
+const pc = v => (v >= 0 ? 'g' : 'r');
 
-/* ========================= UI : panneau de session, sélecteur, bandeau ========================= */
+
+/* ========================= UI : panneau de réglages, bandeau, récap ========================= */
 const FIELDS = [
-  ['#', 'Session'], ['stake', 'Starting stake ($)', 'num', 1], ['dur', 'Session duration (min)', 'num', 1], ['target', 'Target equity ($)', 'num'], ['preset', 'Strategy preset', 'preset'],
-  ['#', 'Risk'], ['maxPct', 'Max % of equity per trade', 'num'], ['maxPos', 'Max open positions', 'num'], ['stop', 'Stop loss (%)', 'num'], ['tp', 'Take profit (%) — used when trailing is off', 'num'],
-  ['trailOn', 'Trailing take-profit', 'bool'], ['trailAct', 'Trail activates at +%', 'num'], ['trailPct', 'Trail distance from peak (%)', 'num'], ['timeExit', 'Time exit (min, 0 = off)', 'num'], ['cooldown', 'Re-entry cooldown (min)', 'num'],
-  ['#', 'Costs applied to every paper fill'], ['feePct', 'DEX fee per side (%)', 'num'], ['netFee', 'Network + priority fee per swap ($)', 'num'], ['baseSlip', 'Base slippage (%) — plus price impact 2×size/liquidity', 'num'],
-  ['#', 'Entry filters (rule modules)'], ['f.minLiq', 'SAFETY · min liquidity ($)', 'num'], ['f.minVol5', 'FLOW · min volume 5m ($)', 'num'], ['f.minTx5', 'FLOW · min txns 5m', 'num'], ['f.minBuy', 'FLOW · min buy ratio (0–1)', 'num'],
-  ['f.minChg5', 'MOMENTUM · min 5m change (%)', 'num'], ['f.maxChg5', 'MOMENTUM · max 5m change (%)', 'num'], ['f.maxChg1h', 'MOMENTUM · max 1h change (%)', 'num'], ['f.maxAgeH', 'SCANNER · max pair age (h, 0 = any)', 'num'],
-  ['f.minScore', 'ANALYST · min score (0–1)', 'num'], ['f.maxImpact', 'RISK · max price impact (%)', 'num'], ['f.early', 'ANALYST · early-pair bonus (< 24h)', 'bool'],
+  ['#', 'Session'], ['stake', 'Mise de départ ($)', 'num', 1], ['dur', 'Durée de la session (min)', 'num', 1], ['target', 'Objectif de capital ($)', 'num'], ['preset', 'Préréglage de stratégie', 'preset'],
+  ['#', 'Risque'], ['maxPct', '% max du capital par trade', 'num'], ['maxPos', 'Positions ouvertes max', 'num'], ['stop', 'Stop loss (%)', 'num'], ['tp', 'Prise de profit (%) — si le suiveur est désactivé', 'num'],
+  ['trailOn', 'Prise de profit suiveuse (trailing)', 'bool'], ['trailAct', 'Suiveur activé à +%', 'num'], ['trailPct', 'Distance du suiveur depuis le sommet (%)', 'num'], ['timeExit', 'Sortie temporelle (min, 0 = désactivée)', 'num'], ['cooldown', 'Délai avant de racheter le même token (min)', 'num'],
+  ['#', 'Coûts appliqués à chaque ordre simulé'], ['feePct', 'Frais DEX par côté (%)', 'num'], ['netFee', 'Frais réseau + priorité par swap ($)', 'num'], ['baseSlip', 'Slippage de base (%) — plus impact 2×taille/liquidité', 'num'],
+  ['#', 'Filtres d’entrée (agents)'], ['f.minLiq', 'VIRA · liquidité minimum ($)', 'num'], ['f.minVol5', 'NOLU · volume 5 min minimum ($)', 'num'], ['f.minTx5', 'NOLU · transactions 5 min minimum', 'num'], ['f.minBuy', 'NOLU · ratio d’achats minimum (0–1)', 'num'],
+  ['f.minChg5', 'KESH · variation 5 min minimum (%)', 'num'], ['f.maxChg5', 'KESH · variation 5 min maximum (%)', 'num'], ['f.maxChg1h', 'KESH · variation 1 h maximum (%)', 'num'], ['f.maxAgeH', 'ODEN · âge max de la paire (h, 0 = tous)', 'num'],
+  ['f.minScore', 'TAMB · score minimum (0–1)', 'num'], ['f.maxImpact', 'TAMB · impact de prix maximum (%)', 'num'], ['f.early', 'TAMB · bonus paire récente (< 24 h)', 'bool'],
 ];
 const getP = (o, p) => p.split('.').reduce((a, k) => a[k], o);
 const setP = (o, p, v) => { const ks = p.split('.'); const last = ks.pop(); ks.reduce((a, k) => a[k], o)[last] = v; };
+const STFR = { idle: 'PRÊTE', running: 'EN COURS', paused: 'EN PAUSE', ended: 'TERMINÉE' };
 const SimUI = {
   build() {
-    document.getElementById('chip').innerHTML = `<button data-s="trading"><b>A</b> Trading</button><span class="sep">·</span><button data-s="gmgn"><b>B</b> GMGN</button><span class="sep">·</span><button data-s="meme"><b>C</b> Meme</button><span class="sep">|</span><button data-a="panel">Session panel</button><button data-a="toggle" id="qStart">Start</button>`;
-    document.getElementById('chip').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; if (b.dataset.s) location.hash = '#' + b.dataset.s; if (b.dataset.a === 'panel') this.togglePanel(); if (b.dataset.a === 'toggle') SimApp.toggle(); });
     const P = document.getElementById('panel');
-    P.innerHTML = `<div class="ph"><b data-p="title"></b><span class="stchip" data-p="st"></span><button class="x" data-a="close" aria-label="close">✕</button></div>
-      <div class="honest">Paper simulation. Real public market data (read-only), fictional wallet. No wallet connection, no keys, no real orders — ever.</div>
-      <label class="fl">Data source<select data-p="src"><option value="live">Live — DexScreener public API (real prices)</option><option value="practice">Offline practice — synthetic prices (NOT real)</option></select></label>
-      <div class="btns"><button data-a="start" class="pri">Start</button><button data-a="pause">Pause</button><button data-a="stop">Stop</button><button data-a="reset">Reset</button></div>
-      <div class="btns"><button data-a="csv">Export trades (CSV)</button><button data-a="csvall">CSV · all scenes</button></div>
+    P.innerHTML = `<div class="ph"><b>Réglages de la session</b><span class="stchip" data-p="st"></span><button class="x" data-a="close" aria-label="fermer">✕</button></div>
+      <div class="honest"></div>
+      <label class="fl">Source des données<select data-p="src"><option value="live">En direct — API publique DexScreener (prix réels)</option><option value="practice">Entraînement hors ligne — prix synthétiques (NON réels)</option></select></label>
+      <div class="btns"><button data-a="start" class="pri">Démarrer</button><button data-a="pause">Pause</button><button data-a="stop">Arrêter</button><button data-a="reset">Réinitialiser</button></div>
+      <div class="btns"><button data-a="csv">${T2.exportCsv}</button><button data-a="sound" data-p="sound"></button><button data-a="toasts" data-p="toasts"></button></div>
       <div class="feedst" data-p="feed"></div>
       <div data-p="fields"></div>
-      <div class="sec">Tuning (backtest on data recorded this session)</div>
+      <div class="sec">Optimisation (rejoue les règles sur les prix réels enregistrés pendant cette session)</div>
       <div class="btns"><button data-a="tune">${T2.tune}</button><button data-a="apply" disabled>${T2.applyBest}</button></div>
       <div class="tune" data-p="tune"></div>
-      <div class="sec">Session history</div><div class="hist" data-p="hist"></div>`;
+      <div class="sec">Raccourcis clavier</div><div class="note">Espace : démarrer / pause · R : réglages · Échap : fermer · 1 à 4 : onglets du journal</div>`;
     this.P = P; this.p = {}; P.querySelectorAll('[data-p]').forEach(e => { this.p[e.dataset.p] = e; });
     P.addEventListener('click', e => {
-      const b = e.target.closest('button'); if (!b) return; const x = SimApp.sess();
-      const a = b.dataset.a;
+      const b = e.target.closest('button'); if (!b) return;
+      const x = SimApp.sess(), a = b.dataset.a;
       if (a === 'close') this.togglePanel(false);
-      if (a === 'start') { if (Feed.offline && Feed.mode === 'live') { Feed.offline = false; Feed.fails = 0; this.banner('', false); } x.start(); if (SimApp.scene === 'trading' && innerWidth < 1500) this.togglePanel(false); }
-      if (a === 'pause') { if (x.state === 'running') x.pause(); else if (x.state === 'paused') x.start(); }
-      if (a === 'stop') x.stop();
-      if (a === 'reset') { x.reset(); SimApp.view().reset(); }
-      if (a === 'csv') exportCSV([x.key]);
-      if (a === 'csvall') exportCSV(['A', 'B', 'C']);
+      if (a === 'start') { SimApp.resumeFeed(); if (x.state === 'ended') { x.reset(); SimA.reset(); } x.start(); if (innerWidth < 1500) this.togglePanel(false); }
+      if (a === 'pause') { if (x.state === 'running') x.pause(); else if (x.state === 'paused') { SimApp.resumeFeed(); x.start(); } }
+      if (a === 'stop') { if (x.pos.length && !confirm(`Arrêter la session ? ${x.pos.length} position(s) simulée(s) seront clôturées au dernier prix réel.`)) return; x.stop(); }
+      if (a === 'reset') { if ((x.state === 'running' || x.state === 'paused' || x.closed.length) && !confirm('Réinitialiser la session ? Les sessions terminées restent dans l’historique.')) return; if (x.state === 'running' || x.state === 'paused') x.stop('réinitialisée par l’utilisateur'); x.reset(); SimA.reset(); this.renderFields(); }
+      if (a === 'csv') { if (!exportCSV(['A'])) Notify.show('Aucun trade à exporter', 'le CSV contiendra les trades dès que le bot aura tradé', 'info'); }
+      if (a === 'sound') { Prefs.set('sound', !Prefs.v.sound); if (Prefs.v.sound) Notify.beep(true); }
+      if (a === 'toasts') Prefs.set('toasts', !Prefs.v.toasts);
       if (a === 'tune') this.tune();
-      if (a === 'apply' && this.best) { const keep = { stake: x.cfg.stake, dur: x.cfg.dur, target: x.cfg.target }; x.cfg = Object.assign(JSON.parse(JSON.stringify(this.best.cfg)), keep); this.renderFields(); }
+      if (a === 'apply' && this.best) { const keep = { stake: x.cfg.stake, dur: x.cfg.dur, target: x.cfg.target }; x.cfg = Object.assign(JSON.parse(JSON.stringify(this.best.cfg)), keep); this.renderFields(); Notify.show('Réglage appliqué', this.best.label, 'info'); }
       SimStore.save(); this.refresh();
     });
     this.p.src.addEventListener('change', e => {
-      if (Sim.all().some(s => s.state === 'running' || s.state === 'paused')) { e.target.value = Feed.mode; alert('Stop or reset all sessions before changing the data source.'); return; }
+      if (Sim.all().some(s => s.state === 'running' || s.state === 'paused')) { e.target.value = Feed.mode; alert('Arrête ou réinitialise la session avant de changer de source de données.'); return; }
       Feed.mode = e.target.value; Feed.reset(); Practice.init = false; Sim.all().forEach(s => { if (s.state !== 'ended') s.mode = Feed.mode; }); this.refresh(); SimStore.save();
     });
-    this.p.fields.addEventListener('input', e => this.onField(e)); this.p.fields.addEventListener('change', e => this.onField(e));
+    this.p.fields.addEventListener('change', e => this.onField(e));
+    this.p.fields.addEventListener('input', e => { if (e.target.type !== 'number') this.onField(e); });
   },
   onField(e) {
     const el = e.target, k = el.dataset.k; if (!k) return; const x = SimApp.sess();
     if (k === 'preset') { const keep = { stake: x.cfg.stake, dur: x.cfg.dur, target: x.cfg.target, feePct: x.cfg.feePct, netFee: x.cfg.netFee, baseSlip: x.cfg.baseSlip }; x.cfg = Object.assign(defaultCfg(x.key, el.value), keep); this.renderFields(); SimStore.save(); return; }
-    const v = el.type === 'checkbox' ? el.checked : parseFloat(el.value); if (el.type !== 'checkbox' && !Number.isFinite(v)) return;
-    setP(x.cfg, k, v); if (k === 'stake' && x.state === 'idle') { x.cash = v; x.hist = [[0, v]]; x.peak = x.minEq = v; } SimStore.save();
+    let v = el.type === 'checkbox' ? el.checked : parseFloat(String(el.value).replace(',', '.'));
+    if (el.type !== 'checkbox') {
+      const lim = { stake: [1, 1e7], dur: [1, 10080], maxPct: [0.5, 100], maxPos: [1, 50], stop: [0.5, 99], tp: [0.5, 10000], trailAct: [0, 10000], trailPct: [0.1, 99], timeExit: [0, 10080], cooldown: [0, 1440], feePct: [0, 10], netFee: [0, 100], baseSlip: [0, 50], 'f.minBuy': [0, 1], 'f.minScore': [0, 1] }[k];
+      if (!Number.isFinite(v)) { el.classList.add('bad'); el.value = getP(x.cfg, k); setTimeout(() => el.classList.remove('bad'), 900); return; }
+      if (lim) { const c = U.clamp(v, lim[0], lim[1]); if (c !== v) { v = c; el.value = c; el.classList.add('bad'); setTimeout(() => el.classList.remove('bad'), 900); } }
+      if (k === 'maxPos') { v = Math.round(v); el.value = v; }
+    }
+    setP(x.cfg, k, v); if (k === 'stake' && x.state === 'idle') { x.cash = v; x.hist = [[0, v]]; x.peak = x.minEq = v; if (x.cfg.target <= v) { x.cfg.target = v * 2; this.renderFields(); } }
+    SimStore.save();
   },
   renderFields() {
     const x = SimApp.sess(), c = x.cfg, locked = x.state !== 'idle';
@@ -1456,114 +1922,118 @@ const SimUI = {
       if (k === '#') return `<div class="sec">${lab}</div>`;
       if (type === 'preset') return `<label class="fl">${lab}<select data-k="preset">${Object.keys(PRESETS).map(p => `<option value="${p}" ${c.preset === p ? 'selected' : ''}>${T2.presets[p]}</option>`).join('')}</select></label>`;
       if (type === 'bool') return `<label class="fl ck"><input type="checkbox" data-k="${k}" ${getP(c, k) ? 'checked' : ''}> ${lab}</label>`;
-      return `<label class="fl">${lab}<input type="number" step="any" data-k="${k}" value="${getP(c, k)}" ${lock && locked ? 'disabled' : ''}></label>`;
-    }).join('') + `<div class="note">Stake and duration lock once the session starts. Risk, costs and filters apply live to new decisions.</div>`;
+      return `<label class="fl">${lab}<input type="number" step="any" inputmode="decimal" data-k="${k}" value="${getP(c, k)}" ${lock && locked ? 'disabled' : ''}></label>`;
+    }).join('') + `<div class="note">La mise et la durée se verrouillent au démarrage. Risque, coûts et filtres s’appliquent en direct aux nouvelles décisions.</div>`;
   },
   refresh() {
     const x = SimApp.sess(); if (!x || !this.p) return;
-    const names = { A: 'Scene A · Trading dashboard', B: 'Scene B · GMGN mode', C: 'Scene C · Meme mode' };
-    U.text(this.p.title, names[x.key]); U.text(this.p.st, x.state.toUpperCase() + (x.reason && x.state !== 'running' ? ' · ' + x.reason : ''));
+    U.text(this.p.st, STFR[x.state] + (x.reason && x.state !== 'running' ? ' · ' + x.reason : ''));
     this.p.src.value = Feed.mode;
-    const sb = this.P.querySelector('[data-a="start"]'); sb.textContent = x.state === 'paused' ? T2.resume : T2.start; sb.disabled = x.state === 'running' || x.state === 'ended';
-    this.P.querySelector('[data-a="pause"]').textContent = T2.pause;
+    const sb = this.P.querySelector('[data-a="start"]'); sb.textContent = x.state === 'paused' ? T2.resume : x.state === 'ended' ? 'Nouvelle session' : T2.start; sb.disabled = x.state === 'running';
     this.P.querySelector('[data-a="pause"]').disabled = x.state !== 'running';
-    /* avertissement adapté à la source de données */
-    U.text(this.P.querySelector('.honest'), Feed.mode === 'practice' ? 'OFFLINE PRACTICE: synthetic prices generated in your browser — NOT real market data, results mean nothing for real trading. Fictional wallet, no keys, no real orders.' : 'Paper simulation. Real public market data (read-only), fictional wallet. No wallet connection, no keys, no real orders — ever.');
+    U.text(this.P.querySelector('.honest'), Feed.mode === 'practice' ? 'ENTRAÎNEMENT HORS LIGNE : prix synthétiques générés dans ton navigateur — PAS des données de marché réelles, les résultats ne valent rien pour du vrai trading. Portefeuille fictif, aucune clé, aucun ordre réel.' : 'Simulation. Données de marché publiques réelles (lecture seule), portefeuille fictif. Aucune connexion de wallet, aucune clé, aucun ordre réel — jamais.');
     this.P.querySelector('[data-a="stop"]').disabled = !(x.state === 'running' || x.state === 'paused');
-    document.getElementById('qStart').textContent = x.state === 'running' ? 'Pause' : (x.state === 'paused' ? 'Resume' : (x.state === 'ended' ? 'Ended' : 'Start'));
-    document.querySelectorAll('#chip [data-s]').forEach(b => b.classList.toggle('act', b.dataset.s === SimApp.scene));
-    const fields = this.p.fields.querySelectorAll('input[data-k="stake"],input[data-k="dur"]'); fields.forEach(f => { f.disabled = x.state !== 'idle'; });
-    U.html(this.p.hist, Sim.history.slice(0, 10).map(h => `<div class="hrow"><b>${h.key}</b> ${new Date(h.start).toLocaleString('en-GB', { dateStyle: 'short', timeStyle: 'short' })} · ${T2.presets[h.preset]}${h.mode === 'practice' ? ' · SYNTHETIC' : ''}<br>${U.usd(h.stake)} → ${U.usd(h.final)} (<span class="${h.pnl >= 0 ? 'g' : 'r'}">${fmtP(h.pnlPct)}</span>) · ${h.trades} trades · win ${h.winRate === null ? 'n/a' : Math.round(h.winRate) + '%'} · max DD -${h.maxDD.toFixed(1)}% · ${h.minutes.toFixed(0)} min</div>`).join('') || '<div class="hrow">no finished sessions yet</div>');
+    U.text(this.p.sound, Prefs.v.sound ? '🔊 Son activé' : '🔇 Son coupé'); U.text(this.p.toasts, Prefs.v.toasts ? '🔔 Notifications' : '🔕 Notifications');
+    this.p.fields.querySelectorAll('input[data-k="stake"],input[data-k="dur"]').forEach(f => { f.disabled = x.state !== 'idle'; });
     const mb = document.getElementById('modeBadge');
-    mb.innerHTML = Feed.mode === 'practice' ? `<span class="dot demo"></span>${T2.badgePractice}` : `<span class="dot ${Feed.offline ? 'demo' : ''}"></span>${T2.badgeLive}`;
+    U.html(mb, Feed.mode === 'practice' ? `<span class="dot demo"></span>${T2.badgePractice}` : `<span class="dot ${Feed.offline ? 'demo' : ''}"></span>${Feed.offline ? 'SIMULATION · flux coupé — en pause' : innerWidth < 760 ? 'SIMULATION · argent fictif · prix réels' : T2.badgeLive}`);
   },
   feedStatus() {
     const s = Feed.stats, x = SimApp.sess();
-    const age = s.lastOk ? Math.round((Date.now() - s.lastOk) / 1000) + 's ago' : 'never';
-    U.html(this.p.feed, Feed.mode === 'practice' ? `<b>OFFLINE PRACTICE</b> · ${Feed.watch.length} synthetic tokens · prices are generated, not real`
-      : `<b>DexScreener</b> ${Feed.offline ? '<span class="r">OFFLINE</span>' : (Feed.fails ? `<span class="r">backoff (${Feed.fails})</span>` : '<span class="g">ok</span>')} · requests ${s.req} · ok ${s.ok} · errors ${s.err} (429: ${s.r429}) · stale dropped ${s.stale} · last ok ${age}<br>watched ${Feed.watch.length} · known ${Feed.tokens.size} · ${x.pos.length} open here · rule checks ${U.int(x.evals)}${s.lastErr ? '<br>last error: ' + U.esc(s.lastErr) : ''}`);
+    const age = s.lastOk ? 'il y a ' + Math.round((Date.now() - s.lastOk) / 1000) + ' s' : 'jamais';
+    U.html(this.p.feed, Feed.mode === 'practice' ? `<b>ENTRAÎNEMENT HORS LIGNE</b> · ${Feed.watch.length} tokens synthétiques · prix générés, non réels`
+      : `<b>DexScreener</b> ${Feed.offline ? '<span class="r">COUPÉ</span>' : (Feed.fails ? `<span class="r">nouvel essai (${Feed.fails})</span>` : '<span class="g">ok</span>')} · requêtes ${s.req} · ok ${s.ok} · erreurs ${s.err} (429 : ${s.r429}) · réponses périmées ignorées ${s.stale} · dernier succès ${age}<br>tokens suivis ${Feed.watch.length} · connus ${Feed.tokens.size} · ${x.pos.length} position(s) ouverte(s) · évaluations ${U.int(x.evals)}${s.lastErr ? '<br>dernière erreur : ' + U.esc(s.lastErr) : ''}`);
   },
   tune() {
     const x = SimApp.sess(); const t0 = performance.now(); const g = Backtest.grid(x.key, x.cfg); const ms = performance.now() - t0;
-    if (!g.out.length) { U.html(this.p.tune, `Not enough recorded data yet (${g.D.snaps} price snapshots). Run a session for a few minutes first.`); return; }
+    if (!g.out.length) { U.html(this.p.tune, `Pas encore assez de données enregistrées (${g.D.snaps} relevés de prix). Laisse tourner une session quelques minutes.`); return; }
     this.best = g.out[0];
-    const row = o => `<tr><td>${U.esc(o.label)}</td><td class="${o.r.ret >= 0 ? 'g' : 'r'}">${fmtP(o.r.ret)}</td><td>-${o.r.maxDD.toFixed(1)}%</td><td>${o.r.trades}</td><td>${o.r.winRate === null ? 'n/a' : Math.round(o.r.winRate) + '%'}</td></tr>`;
-    U.html(this.p.tune, `<div class="note">${g.out.length} variants replayed on ${U.int(g.D.snaps)} real snapshots of ${g.D.toks.length} tokens over ${g.D.span.toFixed(1)} min (${ms.toFixed(0)} ms). In-sample result: short window, overfitting likely — not a forecast.</div>
-      <table><tr><th>variant</th><th>return</th><th>max DD</th><th>trades</th><th>win</th></tr>${g.out.slice(0, 6).map(row).join('')}<tr><td colspan="5" class="sub">presets with defaults</td></tr>${g.presets.map(row).join('')}<tr><td colspan="5" class="sub">worst variant</td></tr>${row(g.out[g.out.length - 1])}</table>`);
+    const row = o => `<tr><td>${U.esc(o.label)}</td><td class="${o.r.ret >= 0 ? 'g' : 'r'}">${fmtP(o.r.ret)}</td><td>-${o.r.maxDD.toFixed(1)}%</td><td>${o.r.trades}</td><td>${o.r.winRate === null ? 'n.d.' : Math.round(o.r.winRate) + '%'}</td></tr>`;
+    U.html(this.p.tune, `<div class="note">${g.out.length} variantes rejouées sur ${U.int(g.D.snaps)} relevés réels de ${g.D.toks.length} tokens sur ${g.D.span.toFixed(1)} min (${ms.toFixed(0)} ms). Résultat sur les mêmes données : fenêtre courte, sur-ajustement probable — ce n’est pas une prévision.</div>
+      <table><tr><th>variante</th><th>rendement</th><th>repli max</th><th>trades</th><th>réussite</th></tr>${g.out.slice(0, 6).map(row).join('')}<tr><td colspan="5" class="sub">préréglages par défaut</td></tr>${g.presets.map(row).join('')}<tr><td colspan="5" class="sub">pire variante</td></tr>${row(g.out[g.out.length - 1])}</table>`);
     this.P.querySelector('[data-a="apply"]').disabled = false;
-    this.lastTune = g;
   },
-  togglePanel(on) { const P = document.getElementById('panel'); const v = on === undefined ? !P.classList.contains('show') : on; P.classList.toggle('show', v); document.body.classList.toggle('panel-open', v); SimApp.layout(); },
+  togglePanel(on) { const P = document.getElementById('panel'); const v = on === undefined ? !P.classList.contains('show') : on; P.classList.toggle('show', v); document.body.classList.toggle('panel-open', v); SimApp.layout(); if (v) { this.renderFields(); this.refresh(); this.feedStatus(); } },
   banner(txt, on) { const b = document.getElementById('banner'); if (txt) b.textContent = txt; b.classList.toggle('show', on); },
-  recapHTML(x, theme) {
+  recapHTML(x) {
     const s = x.summary(), mul = (s.final / s.stake).toFixed(2);
-    const best = s.best ? `${VIS.av(s.best[0], 'sm')}<span>${U.esc(s.best[0])}</span><span class="${s.best[1] >= 0 ? 'pos' : 'neg'}">${U.sUsd(s.best[1])}</span>` : '<span class="g">n/a</span>';
-    const worst = s.worst ? `${VIS.av(s.worst[0], 'sm')}<span>${U.esc(s.worst[0])}</span><span class="${s.worst[1] >= 0 ? 'pos' : 'neg'}">${U.sUsd(s.worst[1])}</span>` : '<span class="g">n/a</span>';
-    return `${theme === 'dark' ? '' : '<div class="handle"></div>'}
-      <div class="rc-h">${VIS.logo()}<div><div class="rc-t">${s.minutes >= 60 ? (s.minutes / 60).toFixed(1) + 'h' : Math.round(s.minutes) + ' min'} paper recap</div><div class="rc-s">grok bot × ${x.mode === 'practice' ? 'SYNTHETIC prices' : 'DexScreener data'} · ${hhmmOf(s.start)} → ${hhmmOf(s.end)} · ${T2.presets[s.preset]}</div></div></div>
-      <div class="rc-l">put in</div><div class="rc-big">${U.usd(s.stake)}</div>
-      <div class="rc-l">now worth</div><div class="rc-now"><div class="rc-big ${s.pnl >= 0 ? '' : 'negv'}">${U.usd(s.final)}</div><span class="mulpill">${mul}×</span></div>
-      <div class="tiles"><div class="tilex"><div class="k">trades</div><div class="v">${s.trades}</div></div><div class="tilex"><div class="k">coins</div><div class="v">${s.coins}</div></div><div class="tilex"><div class="k">win rate</div><div class="v">${s.winRate === null ? 'n/a' : Math.round(s.winRate) + '%'}</div></div><div class="tilex"><div class="k">max DD</div><div class="v">${s.maxDD.toFixed(1)}%</div></div></div>
-      <div class="rc-lines"><div class="ln"><span class="g">best</span>${best}</div><div class="ln"><span class="g">worst</span>${worst}</div>
-      <div class="ln">P&amp;L ${U.sUsd(s.pnl)} (${fmtP(s.pnlPct)}) · stop -${x.cfg.stop}% on every trade</div><div class="ln g">fees ${U.usd(s.fees)} · slippage ${U.usd(s.slip)} · ${x.reason}</div></div>
-      <div class="cta" onclick="exportCSV(['${x.key}'])">export trades (CSV)</div>
-      <div class="demo-note">paper simulation — no wallet is connected, no real order was sent</div>`;
+    const tk = v => (v ? `<span>${U.esc(v[0])}</span><span class="${v[1] >= 0 ? 'pos' : 'neg'}">${U.sUsd(v[1])}</span>` : '<span>n.d.</span>');
+    return `<div class="rc-h">${VIS.logo()}<div><div class="rc-t">Bilan de la simulation · ${s.minutes >= 60 ? (s.minutes / 60).toFixed(1) + ' h' : Math.round(s.minutes) + ' min'}</div><div class="rc-s">${x.mode === 'practice' ? 'prix SYNTHÉTIQUES' : 'données DexScreener'} · ${hhmmOf(s.start)} → ${hhmmOf(s.end)} · ${T2.presets[s.preset]}</div></div></div>
+      <div class="rc-l">mise de départ</div><div class="rc-big">${U.usd(s.stake)}</div>
+      <div class="rc-l">valeur finale</div><div class="rc-now"><div class="rc-big ${s.pnl >= 0 ? '' : 'negv'}">${U.usd(s.final)}</div><span class="mulpill">${mul}×</span></div>
+      <div class="tiles"><div class="tilex"><div class="k">trades</div><div class="v">${s.trades}</div></div><div class="tilex"><div class="k">tokens</div><div class="v">${s.coins}</div></div><div class="tilex"><div class="k">réussite</div><div class="v">${s.winRate === null ? 'n.d.' : Math.round(s.winRate) + '%'}</div></div><div class="tilex"><div class="k">repli max</div><div class="v">${s.maxDD.toFixed(1)}%</div></div></div>
+      <div class="rc-lines"><div class="ln"><span class="g">meilleur</span>${tk(s.best)}</div><div class="ln"><span class="g">pire</span>${tk(s.worst)}</div>
+      <div class="ln">Résultat ${U.sUsd(s.pnl)} (${fmtP(s.pnlPct)}) · stop -${x.cfg.stop}% sur chaque trade</div><div class="ln g">frais ${U.usd(s.fees)} · slippage ${U.usd(s.slip)} · ${U.esc(x.reason)}</div></div>
+      <div class="rc-act"><div class="cta" data-rc="csv">exporter les trades (CSV)</div><div class="cta alt" data-rc="new">nouvelle session</div></div>
+      <div class="demo-note">simulation — aucun wallet connecté, aucun ordre réel envoyé · touche pour fermer</div>`;
   },
 };
 
-/* ========================= APP : routeur, cadrage, boucle unique ========================= */
+/* ========================= APP : moteur en arrière-plan + boucle d'affichage ========================= */
 const SimApp = {
-  scene: 'trading', last: 0, saveAt: 0, feedAt: 0,
+  scene: 'trading', last: 0, saveAt: 0, feedAt: 0, pk: 'A', eLast: 0, keys: { trading: 'A' },
   init() {
     Sim.init();
     const st = SimStore.load();
+    Prefs.load(st.prefs);
     if (st.feedMode === 'practice') Feed.mode = 'practice';
-    if (Array.isArray(st.history)) Sim.history = st.history;
-    if (st.sessions) Object.entries(st.sessions).forEach(([k, o]) => { if (Sim.s[k] && o && o.cfg) { try { Sim.s[k].restore(o); } catch (e) { Sim.s[k].reset(); } } });
-    this.views = { trading: SimA, gmgn: new SimPhone('B'), meme: new SimPhone('C') };
-    this.keys = { trading: 'A', gmgn: 'B', meme: 'C' };
-    SimA.build(document.getElementById('sceneA')); this.views.gmgn.build(document.getElementById('sceneB')); this.views.meme.build(document.getElementById('sceneC'));
-    Object.values(this.views).forEach(v => v.reset());
+    if (Array.isArray(st.history)) Sim.history = st.history.filter(h => h && h.key === 'A');
+    this.restoring = true;
+    if (st.sessions && st.sessions.A && st.sessions.A.cfg) { try { Sim.s.A.restore(st.sessions.A); } catch (e) { Sim.s.A.reset(); } }
+    this.restoring = false;
+    this.views = { trading: SimA };
+    Notify.init(); Tip.init();
+    SimA.build(document.getElementById('sceneA')); SimA.reset();
     SimUI.build();
-    const h = location.hash.slice(1); const start = this.keys[h] ? h : (this.keys[st.scene] ? st.scene : 'trading');
-    addEventListener('hashchange', () => { const n = location.hash.slice(1); if (this.keys[n] && n !== this.scene) this.setScene(n); });
+    document.getElementById('sceneA').classList.add('on'); document.body.dataset.scene = 'trading';
+    if (Sim.s.A.state === 'paused' && Sim.s.A.reason) Notify.show('Session restaurée', 'appuie sur Reprendre pour continuer là où tu t’étais arrêté', 'info');
     addEventListener('resize', () => this.layout());
-    addEventListener('keydown', e => { if (/INPUT|SELECT|TEXTAREA/.test(e.target.tagName)) return; if (e.code === 'Space') { e.preventDefault(); this.toggle(); } if (e.key === '1') location.hash = '#trading'; if (e.key === '2') location.hash = '#gmgn'; if (e.key === '3') location.hash = '#meme'; });
-    if (location.hash.slice(1) !== start) history.replaceState(null, '', '#' + start);
-    this.setScene(start);
-    SimUI.togglePanel(innerWidth >= 1000);
+    addEventListener('keydown', e => {
+      if (/INPUT|SELECT|TEXTAREA/.test(e.target.tagName)) return;
+      if (e.code === 'Space') { e.preventDefault(); this.toggle(); }
+      if (e.key === 'r' || e.key === 'R') SimUI.togglePanel();
+      if (e.key === 'Escape') { SimUI.togglePanel(false); Tip.hide(); }
+      const t = ['log', 'pos', 'tr', 'hist'][+e.key - 1]; if (t) { const b = SimA.r.tabs.querySelector(`[data-t="${t}"]`); if (b) b.click(); }
+    });
+    addEventListener('online', () => { if (Feed.offline) SimUI.banner('connexion rétablie — appuie sur Reprendre', true); });
+    addEventListener('offline', () => SimUI.banner('pas de connexion internet — le flux de prix va se couper', true));
+    this.layout(); SimUI.refresh();
+    SimUI.togglePanel(false);
+    this.engine();
     requestAnimationFrame(t => { this.last = t; requestAnimationFrame(n => this.loop(n)); });
   },
-  sess() { return Sim.s[this.keys[this.scene]]; },
-  view() { return this.views[this.scene]; },
-  toggle() { const x = this.sess(); if (x.state === 'running') x.pause(); else if (x.state !== 'ended') x.start(); SimUI.refresh(); },
-  setScene(n) {
-    this.scene = n; document.body.dataset.scene = n;
-    ['A', 'B', 'C'].forEach((k, i) => document.getElementById('scene' + k).classList.toggle('on', ['trading', 'gmgn', 'meme'][i] === n));
-    this.layout(); SimUI.renderFields(); SimUI.refresh(); SimStore.save();
+  sess() { return Sim.s.A; },
+  view() { return SimA; },
+  viewOf() { return SimA; },
+  resumeFeed() { if (Feed.offline && Feed.mode === 'live') { Feed.offline = false; Feed.fails = 0; Feed.backoffUntil = 0; SimUI.banner('', false); } },
+  toggle() {
+    const x = this.sess(); if (x.state === 'running') x.pause(); else if (x.state === 'ended') { x.reset(); SimA.reset(); x.start(); } else { this.resumeFeed(); x.start(); }
+    SimUI.refresh(); SimStore.save();
+  },
+  /* moteur indépendant de requestAnimationFrame : minuterie dans un Web Worker (moins bridée onglet caché), repli setInterval */
+  engine() {
+    const step = () => { const now = performance.now(); const dt = Math.min(70000, Math.max(0, now - (this.eLast || now))); this.eLast = now;
+      try { Sim.tick(dt); Feed.tick(now); if (now > this.saveAt) { this.saveAt = now + 5000; SimStore.save(); } } catch (err) { console.error(err); } };
+    this.eLast = performance.now();
+    try {
+      this.worker = new Worker(URL.createObjectURL(new Blob(['setInterval(()=>postMessage(0),200);'], { type: 'text/javascript' })));
+      this.worker.onmessage = step; this.worker.onerror = e => { if (e.preventDefault) e.preventDefault(); if (!this.iv) this.iv = setInterval(step, 200); };
+    } catch (e) { this.iv = setInterval(step, 200); }
   },
   layout() {
-    const vw = innerWidth, vh = innerHeight, mobile = vw < 600, panel = document.body.classList.contains('panel-open') && vw >= 1000;
+    const vw = innerWidth, vh = innerHeight, mobile = vw < 760, panel = document.body.classList.contains('panel-open') && vw >= 1000;
     document.body.classList.toggle('mobile', mobile);
-    let unit;
-    if (this.scene === 'trading') { unit = Math.min(vw - (panel ? 360 : 0), vh * 4 / 3) / 960; }
-    else {
-      const ip = this.scene === 'meme'; let fw, fh;
-      if (mobile) { fw = vw; fh = vh; } else { const ratio = ip ? 19.5 / 9 : 16 / 9; fh = Math.min(390 * ratio, vh - 48); fw = fh / ratio; }
-      const v = this.view(); v.r.phone.style.setProperty('--fw', fw + 'px'); v.r.phone.style.setProperty('--fh', fh + 'px'); v.tapeW = 0; unit = fw / 540;
-    }
-    document.querySelectorAll('.stage').forEach(s => { s.style.paddingRight = panel ? '360px' : '0'; });
+    const aw = vw - (panel ? 360 : 0);
+    const unit = mobile ? vw / 560 : Math.min((aw - 16) / 960, Math.max((vh - 40) / 958, .8));
+    document.getElementById('sceneA').style.paddingRight = panel ? '360px' : '0';
     document.documentElement.style.fontSize = unit + 'px'; document.documentElement.style.setProperty('--u', unit + 'px');
   },
-  /* une seule boucle requestAnimationFrame */
   loop(now) {
-    const dt = Math.min(250, Math.max(0, now - this.last)); this.last = now;
+    this.last = now;
     try {
-      Sim.tick(dt); Feed.tick(now);
-      this.view().render(now);
+      SimA.render(now);
       for (const n of Num.all) n.step(now);
-      if (now > this.feedAt) { this.feedAt = now + 500; SimUI.feedStatus(); SimUI.refresh(); }
-      if (now > this.saveAt) { this.saveAt = now + 5000; SimStore.save(); }
+      if (now > this.feedAt) { this.feedAt = now + 500; if (document.getElementById('panel').classList.contains('show')) SimUI.feedStatus(); SimUI.refresh(); }
     } catch (err) { console.error(err); }
     requestAnimationFrame(n => this.loop(n));
   },

@@ -1,8 +1,11 @@
-# Grok Bot — simulation de paper trading
+# Grok Bot — bot de trading en simulation
 
-- `index.html` : simulation interactive. Les données de marché publiques sont réelles (DexScreener, en lecture seule), le portefeuille est fictif, et aucun ordre réel n'est passé. Il n'y a ni wallet, ni clé.
-- `demo.html` : rejoue les 3 interfaces des vidéos de démonstration avec un scénario écrit d'avance.
+Application autonome (un seul fichier `index.html`) : un bot de trading à 6 agents IA qui collaborent, en **simulation** uniquement.
 
-Utilisation : ouvre la page, choisis une scène (A, B ou C), ouvre « Session panel », règle ta mise et le preset, puis clique sur Start.
+- Données de marché **réelles** et publiques (API DexScreener, lecture seule, paires Solana).
+- Portefeuille **fictif** : aucun wallet, aucune clé, aucun ordre réel.
+- Les gains et pertes viennent uniquement des vrais mouvements de prix, frais DEX, frais réseau et slippage compris.
+- Si le flux de données se coupe, la session se met en pause au lieu d'afficher de faux chiffres.
 
-Les résultats viennent uniquement des vrais mouvements de prix, frais et slippage compris. Ça peut perdre de l'argent fictif. Ce n'est pas un conseil financier.
+Ouvre `index.html` dans Chrome, Safari ou Firefox, puis appuie sur **Démarrer**.
+Raccourcis : Espace = démarrer/pause · R = réglages · Échap = fermer · 1–4 = onglets du journal.
