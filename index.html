@@ -897,6 +897,13 @@ body.mobile .a-vol{width:110rem}
 .a-empty{font-size:12.5rem;padding:0 50rem;z-index:3;background:rgba(12,15,27,.75);border-radius:12rem}
 /* téléphone : notifications compactes en bas, masquées quand le panneau d'activité est à l'écran */
 @media (max-width:759px){#toasts{top:auto!important;bottom:12px;left:50%;right:auto;transform:translateX(-50%);width:calc(100vw - 24px)}.toast2{padding:7px 10px}.toast2 .t2{display:none}#toasts .toast2:nth-last-child(n+2){display:none}}
+/* en-tête épuré : uniquement l'engrenage */
+.a-gear{width:46rem;height:46rem;padding:0!important;font-size:19rem!important;border-radius:50%!important;opacity:.8;transition:opacity .2s,transform .4s}
+.a-gear:hover{opacity:1;transform:rotate(45deg)}
+#panel .sec{margin-top:16px}
+#panel .pseg button.act{background:#5b3a9b;border-color:#b66dff}
+#panel .btns button{padding:8px 12px}
+@media (min-width:760px){body.panel-open #toasts{right:356px}}
 </style>
 </head>
 <body data-scene="trading">
@@ -1589,7 +1596,7 @@ function exportCSV(keys) {
   });
   if (rows.length < 2) return 0;
   const blob = new Blob([rows.join('\n')], { type: 'text/csv' });
-  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `grokbot-trades-${new Date().toISOString().slice(0, 19).replace(/:/g, '')}.csv`;
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `grokbot-trades-${(d => new Date(d - d.getTimezoneOffset() * 60000))(new Date()).toISOString().slice(0, 19).replace(/:/g, '')}.csv`;
   document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500);
   return rows.length - 1;
 }
@@ -1681,8 +1688,7 @@ const SimA = {
   <div class="a-head">
     <div class="a-brand"><div class="a-pill">${VIS.logo('', false)}<div class="a-word">GROK <b>BOT</b></div></div><div class="a-mode">6 AGENTS IA · DONNÉES DE MARCHÉ RÉELLES</div></div>
     <div class="a-right"><div class="a-ctl">
-      <div class="a-seg" data-r="seg" data-tip="Préréglage de stratégie. S’applique aux prochaines décisions ; les positions ouvertes gardent leurs règles de sortie.">${Object.keys(PRESETS).map(p => `<button data-preset="${p}">${T2.presets[p]}</button>`).join('')}</div>
-      <button class="a-btn pri" data-a="tog" data-r="btog">▶ Démarrer</button><button class="a-btn" data-a="stop" data-r="bstop" data-tip="Terminer la session : les positions ouvertes sont clôturées au dernier prix réel.">■ Arrêter</button><button class="a-btn" data-a="reset" data-tip="Réinitialiser la session (les sessions terminées restent dans l’historique).">↺</button><button class="a-btn" data-a="cfg" data-tip="Réglages : mise, durée, risque, coûts, filtres d’entrée, optimisation.">⚙</button><button class="a-btn" data-a="sound" data-r="bsnd" data-tip="Musique d’ambiance et sons des agents (activer / couper).">🔊</button><input type="range" class="a-vol" data-r="vol" min="0" max="100" value="55" aria-label="volume" data-tip="Volume"><button class="a-btn" data-a="csv" data-tip="Télécharger les trades de la session en CSV.">CSV</button>
+      <button class="a-btn a-gear" data-a="cfg" aria-label="réglages" data-tip="Réglages : démarrer / pause / arrêter, stratégie, son, export CSV, mise, risque, coûts.">⚙</button>
       </div>
     <div class="a-tasks" data-tip="À chaque relevé de prix réel, les six agents jugent le token. Ce compteur additionne ces évaluations depuis le début de la session."><span data-r="clock"></span> · <b data-r="tasks">0</b> <span>ÉVALUATIONS DES AGENTS</span></div></div>
   </div>
@@ -1704,7 +1710,7 @@ const SimA = {
         <text x="2" y="10" data-r="peak"></text><text x="${this.CW - 2}" y="${this.CH - 2}" text-anchor="end" data-r="floor"></text>
         <g data-r="end"><circle class="ring" r="4" fill="none" stroke="#34e8a0" stroke-width="1.5"/><circle r="4" fill="#34e8a0"/></g>
         <text class="cur" data-r="cur" text-anchor="end"></text>
-      </svg><div class="a-empty" data-r="cempty"><span>Appuie sur <b>Démarrer</b> — la courbe suit le solde, réévalué aux prix réels toutes les quelques secondes.</span></div></div>
+      </svg><div class="a-empty" data-r="cempty"><span>Ouvre les réglages <b>⚙</b> puis <b>Démarrer</b> (ou touche Espace) — la courbe suit le solde, réévalué aux prix réels toutes les quelques secondes.</span></div></div>
     <div class="glass a-card"><div class="a-ch"><div class="a-tabs" data-r="tabs"><button data-t="log" class="act">ACTIVITÉ</button><button data-t="pos">POSITIONS <span data-r="tpn">0</span></button><button data-t="tr">TRADES <span data-r="ttn">0</span></button><button data-t="hist">HISTORIQUE</button></div><span data-r="res" hidden></span></div>
       <div class="a-tlog" data-r="tlog"><div class="a-pipe" data-r="pipe"></div><div class="a-sep"></div><div class="a-feed" data-r="feed"></div></div>
       <div class="a-list" data-r="tpos" hidden></div><div class="a-list" data-r="ttr" hidden></div><div class="a-list" data-r="thist" hidden></div></div>
@@ -1725,7 +1731,6 @@ const SimA = {
     this.consBuild();
     this.tab = 'log';
     r.tabs.addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; this.tab = b.dataset.t; r.tabs.querySelectorAll('button').forEach(x => U.cls(x, 'act', x === b)); r.tlog.hidden = this.tab !== 'log'; r.tpos.hidden = this.tab !== 'pos'; r.ttr.hidden = this.tab !== 'tr'; r.thist.hidden = this.tab !== 'hist'; this.listAt = 0; });
-    r.vol.addEventListener('input', () => Sound.setVol(r.vol.value / 100));
     root.querySelector('.a-ctl').addEventListener('click', e => {
       const b = e.target.closest('button'); if (!b) return; const x = Sim.s.A;
       if (b.dataset.preset) { const keep = { stake: x.cfg.stake, dur: x.cfg.dur, target: x.cfg.target, feePct: x.cfg.feePct, netFee: x.cfg.netFee, baseSlip: x.cfg.baseSlip }; x.cfg = Object.assign(defaultCfg('A', b.dataset.preset), keep); if (x.state !== 'idle') x.emit({ kind: 'info', txt: `préréglage → ${T2.presets[b.dataset.preset]} (pour les prochaines décisions)` }); SimUI.renderFields(); }
@@ -1855,7 +1860,7 @@ const SimA = {
         const mk = a.k; if (fresh) { tk = tr.sym; d = `${tr.M[mk].ok ? '✓ VALIDÉ' : '✗ REFUSÉ'} · ${tr.M[mk].txt}`; } else { tk = ag.sym || '—'; d = ag.last ? (ag.lastOk ? '✓ ' : '✗ ') + ag.last : 'en attente des relevés'; }
         c = [['reçus', ag.n], ['✓', ag.ok, 'g'], ['✗', ag.no, 'r']];
       }
-      if (!run && !ag.n && !(ag.fills || ag.checks)) d = x.state === 'idle' ? 'en veille — appuie sur Démarrer ; chaque agent juge chaque relevé réel' : d;
+      if (!run && !ag.n && !(ag.fills || ag.checks)) d = x.state === 'idle' ? 'en veille — ⚙ Réglages → Démarrer ; chaque agent juge chaque relevé réel' : d;
       fadeText(r['tk' + i], tk); fadeText(r['d' + i], d);
       /* compteurs : nœuds réutilisés, seul le texte change */
       const cc = r['c' + i]; if (!cc._sp) { cc.innerHTML = ''; cc._sp = c.map(([, , cl]) => { const e = document.createElement('span'); if (cl) e.className = cl; cc.appendChild(e); return e; }); }
@@ -1873,7 +1878,7 @@ const SimA = {
     }
     this.consPatch(x, tr, F ? t : 1e9, run);
     if (slow) { const nw = CREW.filter(a => { const s2 = r['gn-' + a.n]._st; return s2 === 'working' || s2 === 'thinking'; }).length;
-      U.text(r.crewst, run ? `${nw}/6 ACTIFS · ${U.int(x.evals)} ÉVALUATIONS · ${Feed.watch.length} TOKENS SUIVIS` : x.state === 'paused' ? 'EN PAUSE · ' + (x.reason || '') : x.state === 'ended' ? 'SESSION TERMINÉE' : 'EN VEILLE · APPUIE SUR DÉMARRER'); }
+      U.text(r.crewst, run ? `${nw}/6 ACTIFS · ${U.int(x.evals)} ÉVALUATIONS · ${Feed.watch.length} TOKENS SUIVIS` : x.state === 'paused' ? 'EN PAUSE · ' + (x.reason || '') : x.state === 'ended' ? 'SESSION TERMINÉE' : 'EN VEILLE · ⚙ RÉGLAGES → DÉMARRER'); }
   },
   /* tableau de décision : nœuds construits une seule fois, puis seulement modifiés */
   consBuild() {
@@ -1889,7 +1894,7 @@ const SimA = {
   consPatch(x, tr, t, run) {
     const r = this.r;
     U.css(r.csE, 'opacity', tr ? '0' : '1'); U.css(r.csB, 'opacity', tr ? '1' : '0');
-    if (!tr) { U.html(r.csE, run ? '<span>En attente des premiers relevés de prix réels…</span>' : '<span>Le tableau de décision montre, token par token, comment les six agents votent sur des données réelles. Appuie sur <b>Démarrer</b> pour réveiller l’équipe.</span>'); return; }
+    if (!tr) { U.html(r.csE, run ? '<span>En attente des premiers relevés de prix réels…</span>' : '<span>Le tableau de décision montre, token par token, comment les six agents votent sur des données réelles. Ouvre <b>⚙</b> puis <b>Démarrer</b> pour réveiller l’équipe.</span>'); return; }
     const M = tr.M, V = this.verdict(tr), thr = x.cfg.f.minScore;
     if (r.csB._id !== tr.id) { r.csB._id = tr.id; fadeText(r.csSym, tr.sym); U.text(r.csT, `${hhmmOf(tr.ms)}:${U.pad(new Date(tr.ms).getSeconds())} · éval. n° ${U.int(tr.id)}`);
       [['ODEN', 'données paire · ' + M.scan.txt], ['VIRA', M.safety.txt], ['KESH', M.mom.txt], ['NOLU', M.flow.txt], ['TAMB', M.risk.txt]].forEach(([n, s2]) => fadeText(r['cst-' + n], s2));
@@ -1953,10 +1958,7 @@ const SimA = {
   },
   renderHead(x, now) {
     const r = this.r;
-    r.seg.querySelectorAll('button').forEach(b => U.cls(b, 'act', b.dataset.preset === x.cfg.preset));
-    U.text(r.btog, x.state === 'running' ? '❚❚ Pause' : x.state === 'paused' ? '▶ Reprendre' : x.state === 'ended' ? '↻ Nouvelle session' : '▶ Démarrer');
-    U.cls(r.btog, 'pri', x.state !== 'running'); r.bstop.disabled = !(x.state === 'running' || x.state === 'paused');
-    U.text(r.bsnd, Sound.P().on ? '🔊' : '🔇'); if (document.activeElement !== r.vol) r.vol.value = Math.round(Sound.P().vol * 100); U.text(r.clock, x.state === 'idle' ? 'PRÊT' : `${STFR[x.state]} · ${U.hms(x.elapsed / 1000)} / ${durTxt(x.cfg.dur * 60000)}`);
+    U.text(r.clock, x.state === 'idle' ? 'PRÊT' : `${STFR[x.state]} · ${U.hms(x.elapsed / 1000)} / ${durTxt(x.cfg.dur * 60000)}`);
     U.text(r.tpn, String(x.pos.length)); U.text(r.ttn, String(x.closed.length));
     if (this.tab === 'log' || now < (this.listAt || 0)) return; this.listAt = now + 700;
     if (this.tab === 'pos') {
@@ -2134,11 +2136,17 @@ const SimUI = {
   build() {
     const P = document.getElementById('panel');
     P.innerHTML = `<div class="ph"><b>Réglages de la session</b><span class="stchip" data-p="st"></span><button class="x" data-a="close" aria-label="fermer">✕</button></div>
+      <div class="sec">Contrôles de la session</div>
+      <div class="btns"><button data-a="start" class="pri">Démarrer</button><button data-a="pause">Pause</button><button data-a="stop">Arrêter</button><button data-a="reset">↺ Réinitialiser</button></div>
+      <div class="sec">Stratégie</div>
+      <div class="btns pseg" data-p="pseg">${Object.keys(PRESETS).map(p => `<button data-preset="${p}">${T2.presets[p]}</button>`).join('')}</div>
+      <div class="note">S’applique aux prochaines décisions ; les positions ouvertes gardent leurs règles de sortie.</div>
+      <div class="sec">Son</div><div class="btns"><button data-a="sound" data-p="sound"></button><button data-a="music" data-p="music"></button><button data-a="fx" data-p="fx"></button></div><label class="fl">Volume<input type="range" min="0" max="100" data-p="vol"></label>
+      <div class="sec">Export</div>
+      <div class="btns"><button data-a="csv">${T2.exportCsv}</button><button data-a="toasts" data-p="toasts"></button></div>
+      <div class="sec">Données</div>
       <div class="honest"></div>
       <label class="fl">Source des données<select data-p="src"><option value="live">En direct — API publique DexScreener (prix réels)</option><option value="practice">Entraînement hors ligne — prix synthétiques (NON réels)</option></select></label>
-      <div class="btns"><button data-a="start" class="pri">Démarrer</button><button data-a="pause">Pause</button><button data-a="stop">Arrêter</button><button data-a="reset">Réinitialiser</button></div>
-      <div class="btns"><button data-a="csv">${T2.exportCsv}</button><button data-a="toasts" data-p="toasts"></button></div>
-      <div class="sec">Son</div><div class="btns"><button data-a="sound" data-p="sound"></button><button data-a="music" data-p="music"></button><button data-a="fx" data-p="fx"></button></div><label class="fl">Volume<input type="range" min="0" max="100" data-p="vol"></label>
       <div class="feedst" data-p="feed"></div>
       <div data-p="fields"></div>
       <div class="sec">Optimisation (rejoue les règles sur les prix réels enregistrés pendant cette session)</div>
@@ -2150,6 +2158,7 @@ const SimUI = {
       const b = e.target.closest('button'); if (!b) return;
       const x = SimApp.sess(), a = b.dataset.a;
       if (a === 'close') this.togglePanel(false);
+      if (b.dataset.preset) { const keep = { stake: x.cfg.stake, dur: x.cfg.dur, target: x.cfg.target, feePct: x.cfg.feePct, netFee: x.cfg.netFee, baseSlip: x.cfg.baseSlip }; x.cfg = Object.assign(defaultCfg('A', b.dataset.preset), keep); if (x.state !== 'idle') x.emit({ kind: 'info', txt: `préréglage → ${T2.presets[b.dataset.preset]} (pour les prochaines décisions)` }); this.renderFields(); }
       if (a === 'start') { SimApp.resumeFeed(); if (x.state === 'ended') { x.reset(); SimA.reset(); } x.start(); if (innerWidth < 1500) this.togglePanel(false); }
       if (a === 'pause') { if (x.state === 'running') x.pause(); else if (x.state === 'paused') { SimApp.resumeFeed(); x.start(); } }
       if (a === 'stop') { if (x.pos.length && !confirm(`Arrêter la session ? ${x.pos.length} position(s) ouverte(s) seront clôturées au dernier prix réel.`)) return; x.stop(); }
@@ -2199,6 +2208,7 @@ const SimUI = {
     this.p.src.value = Feed.mode;
     const sb = this.P.querySelector('[data-a="start"]'); sb.textContent = x.state === 'paused' ? T2.resume : x.state === 'ended' ? 'Nouvelle session' : T2.start; sb.disabled = x.state === 'running';
     this.P.querySelector('[data-a="pause"]').disabled = x.state !== 'running';
+    this.p.pseg.querySelectorAll('button').forEach(b => U.cls(b, 'act', b.dataset.preset === x.cfg.preset));
     U.text(this.P.querySelector('.honest'), Feed.mode === 'practice' ? 'Entraînement hors ligne : prix synthétiques, pas des données de marché réelles.' : 'Prix réels DexScreener (lecture seule) · aucun wallet, aucune clé, aucun ordre réel.');
     this.P.querySelector('[data-a="stop"]').disabled = !(x.state === 'running' || x.state === 'paused');
     const au = Sound.P(); U.text(this.p.sound, au.on ? '🔊 Son activé' : '🔇 Son coupé'); U.text(this.p.music, 'Musique : ' + (au.music ? 'oui' : 'non')); U.text(this.p.fx, 'Effets : ' + (au.fx ? 'oui' : 'non')); if (document.activeElement !== this.p.vol) this.p.vol.value = Math.round(au.vol * 100); U.text(this.p.toasts, Prefs.v.toasts ? '🔔 Notifications' : '🔕 Notifications');
