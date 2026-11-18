@@ -1037,6 +1037,140 @@ body.fx-calm .rad .rsw{animation:none;opacity:.3}
 @media (max-height:980px){body.sides #sideR .sd-c:nth-child(2) .nx b{font-size:17px}body.sides .sd-c{padding:11px 14px}body.sides .side{gap:10px}.rad{max-width:220px}.mv{height:176px}}
 @media (max-height:900px){body.sides #sideR .sd-c:nth-child(4){display:none}}
 </style>
+<style id="gb-plus">
+/* ===== Grok Bot+ : barre flottante, analyse, finitions (ajouts uniquement) ===== */
+.gbd{position:fixed;left:50%;bottom:calc(14px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:60;display:flex;align-items:center;gap:6px;padding:6px 8px;border-radius:999px;background:rgba(14,18,32,.72);border:1px solid rgba(255,255,255,.12);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);box-shadow:0 10px 36px rgba(0,0,0,.45);font-family:var(--outfit);color:#f2f4fb;max-width:calc(100vw - 16px)}
+body.panel-open .gbd{left:calc(50% - 180px)}
+body.mobile.panel-open .gbd{display:none}
+.gbd button{all:unset;box-sizing:border-box;cursor:pointer;display:inline-flex;align-items:center;gap:6px;height:36px;padding:0 14px;border-radius:999px;font:600 13px var(--outfit);background:rgba(255,255,255,.07);color:#f2f4fb;white-space:nowrap;transition:background .15s,transform .1s}
+.gbd button:hover{background:rgba(255,255,255,.14)}
+.gbd button:active{transform:scale(.96)}
+.gbd button.go{background:linear-gradient(135deg,#34e8a0,#2dd4bf);color:#04130d}
+.gbd .st{display:flex;align-items:center;gap:7px;padding:0 10px 0 6px;font:500 11px var(--mono);letter-spacing:.06em;color:#9aa3b8;white-space:nowrap}
+.gbd .st i{width:8px;height:8px;border-radius:50%;background:#5d667c;flex:none}
+.gbd .st i.ok{background:#34e8a0;animation:pulse 1.6s ease-in-out infinite}
+.gbd .st i.warn{background:#f6b73c}
+.gbd .st i.bad{background:#ff5c75}
+@media(max-width:620px){.gbd .st span,.gbd button b{display:none}.gbd button{padding:0 13px}.gbd .st{padding:0 6px}}
+.gbp{position:fixed;top:0;left:0;height:3px;width:0;z-index:80;transition:width .8s ease,background .6s;pointer-events:none}
+.gba{position:fixed;inset:0;z-index:70;display:none;align-items:flex-end;justify-content:center;background:rgba(4,6,12,.6);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+.gba.on{display:flex}
+.gba .sh{width:min(720px,100%);max-height:88vh;overflow:auto;border-radius:22px 22px 0 0;padding:18px 18px calc(22px + env(safe-area-inset-bottom,0px));background:linear-gradient(180deg,rgba(24,29,48,.98),rgba(10,13,24,.98));border:1px solid rgba(255,255,255,.12);color:#f2f4fb;font-family:var(--outfit)}
+@media(min-width:760px){.gba{align-items:center}.gba .sh{border-radius:22px}}
+.gba h3{margin:0;font:700 18px var(--outfit)}
+.gba .hd{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.gba .x{all:unset;cursor:pointer;width:34px;height:34px;display:grid;place-items:center;border-radius:50%;background:rgba(255,255,255,.08)}
+.gba .kp{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin:10px 0}
+.gba .k{padding:10px 12px;border-radius:14px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.07)}
+.gba .k small{display:block;font:500 10px var(--mono);letter-spacing:.1em;color:#8c94a9;text-transform:uppercase;margin-bottom:2px}
+.gba .k b{font:700 18px var(--outfit);font-variant-numeric:tabular-nums}
+.gba .g{color:#34e8a0}.gba .r{color:#ff5c75}
+.gba h4{margin:16px 0 6px;font:600 11px var(--mono);letter-spacing:.12em;color:#8c94a9;text-transform:uppercase}
+.gba .br{display:grid;grid-template-columns:1fr auto;gap:3px 10px;font-size:13px;margin:7px 0;font-variant-numeric:tabular-nums}
+.gba .br .tr{grid-column:1/-1;height:7px;border-radius:6px;background:rgba(255,255,255,.07);overflow:hidden}
+.gba .br .tr i{display:block;height:100%;border-radius:6px}
+.gba .warn{margin:10px 0;padding:10px 12px;border-radius:12px;background:rgba(246,183,60,.12);border:1px solid rgba(246,183,60,.35);color:#f6d58a;font-size:13px;line-height:1.45}
+.gba .note,.gba .sub{color:#8c94a9;font-size:12px;margin:8px 0}
+.mono,.a-val,.a-sub,[data-r]{font-variant-numeric:tabular-nums}
+:focus-visible{outline:2px solid #8d8ef7;outline-offset:2px}
+*{scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.18) transparent}
+::selection{background:rgba(182,109,255,.35)}
+@media(prefers-reduced-motion:reduce){#sceneA .glow,.pulse{animation:none!important}}
+</style>
+<meta name="theme-color" content="#0a0d18">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%23b66dff'/%3E%3Cstop offset='1' stop-color='%234fa8ff'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='16' fill='%230a0d18'/%3E%3Cpath d='M14 42l12-14 8 8 16-20' fill='none' stroke='url(%23g)' stroke-width='6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<style id="gb-ui">
+/* ===== Grok Bot UI+ : style, actions, accueil, micro-animations (ajouts uniquement) ===== */
+html{-webkit-tap-highlight-color:transparent}
+button,[role=button]{touch-action:manipulation}
+.gba{z-index:1100}.gbd{z-index:999}.gbp{z-index:1100}
+@keyframes gbUp{from{opacity:0;transform:translateY(14px) scale(.98)}}
+@keyframes gbIn{from{opacity:0;transform:translate(-50%,24px)}}
+.gbd{animation:gbIn .6s cubic-bezier(.2,.9,.2,1) .3s backwards}
+.a-stats>*,.a-mid>*,.a-crew,.a-daily{animation:gbUp .7s cubic-bezier(.2,.8,.2,1) backwards}
+.a-stats>:nth-child(2){animation-delay:.06s}.a-stats>:nth-child(3){animation-delay:.12s}.a-stats>:nth-child(4){animation-delay:.18s}
+.a-mid>:nth-child(2){animation-delay:.1s}.a-crew{animation-delay:.2s}.a-daily{animation-delay:.28s}
+.glass.a-stat,.a-card,.sd-c{transition:transform .25s cubic-bezier(.2,.8,.2,1),border-color .25s,box-shadow .25s}
+.glass.a-stat:hover{transform:translateY(-2px);border-color:rgba(255,255,255,.22);box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 14px 32px rgba(0,0,0,.35)}
+.a-card:hover,.sd-c:hover{border-color:rgba(255,255,255,.17)}
+.l-r{transition:background .15s}.l-r:hover{background:rgba(255,255,255,.07)}
+.a-tabs button{transition:color .2s,background .2s}
+@media(prefers-reduced-motion:reduce){.a-stats>*,.a-mid>*,.a-crew,.a-daily,.gbd{animation:none}}
+/* accents pilotés par le studio de style */
+#sceneA .g1{background:radial-gradient(closest-side,var(--gb1,rgba(48,96,255,.28)),transparent)}
+#sceneA .g2{background:radial-gradient(closest-side,var(--gb2,rgba(200,50,90,.22)),transparent)}
+#sceneA .g3{background:radial-gradient(closest-side,var(--gb3,rgba(130,70,220,.20)),transparent)}
+#aLine stop:first-child{stop-color:var(--gbA,#8b7cf6)}#aLine stop:last-child{stop-color:var(--gbB,#4fa8ff)}
+#aArea stop:first-child{stop-color:var(--gbar,rgba(60,110,255,.35))}
+.glass{-webkit-backdrop-filter:blur(var(--gbb,14px));backdrop-filter:blur(var(--gbb,14px))}
+body.gb-calm #sceneA .glow,body.gb-calm .pulse{animation:none}
+body.gb-zen .side{display:none!important}
+/* feuilles : style, actions, accueil */
+.gba.pk{align-items:flex-start;padding-top:10vh}
+.gba.pk .sh{border-radius:22px;max-height:72vh}
+.gbo .sw{display:grid;grid-template-columns:repeat(auto-fit,minmax(104px,1fr));gap:8px}
+.gbo .sw button{all:unset;box-sizing:border-box;cursor:pointer;display:flex;align-items:center;gap:8px;padding:10px;border-radius:12px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);font:600 13px var(--outfit);transition:border-color .2s,background .2s}
+.gbo .sw button:hover{background:rgba(255,255,255,.09)}
+.gbo .sw button.on{border-color:var(--gbA,#8b7cf6);box-shadow:inset 0 0 0 1px var(--gbA,#8b7cf6)}
+.gbo .sw i{width:18px;height:18px;border-radius:50%;background:linear-gradient(135deg,var(--c1),var(--c2));flex:none}
+.gbo .sr{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:11px 0;border-top:1px solid rgba(255,255,255,.07);font-size:14px}
+.gbo input[type=range]{accent-color:var(--gbA,#8b7cf6);width:52%}
+.gbo .tg{all:unset;display:block;cursor:pointer;flex:none;width:44px;height:26px;border-radius:99px;background:rgba(255,255,255,.14);position:relative;transition:background .2s}
+.gbo .tg::after{content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;transition:transform .2s}
+.gbo .tg.on{background:var(--gbA,#8b7cf6)}.gbo .tg.on::after{transform:translateX(18px)}
+.gbo .q{all:unset;box-sizing:border-box;width:100%;padding:14px 16px;border-radius:14px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);font:500 16px var(--outfit);color:#f2f4fb;caret-color:var(--gbA,#8b7cf6)}
+.gbo .al{margin-top:8px}
+.gbo .ar{display:flex;align-items:center;gap:12px;padding:11px 12px;border-radius:12px;cursor:pointer;font-size:14px}
+.gbo .ar.on,.gbo .ar:hover{background:rgba(255,255,255,.08)}
+.gbo kbd{font:500 11px var(--mono);color:#c9cfe0;border:1px solid rgba(255,255,255,.16);border-radius:6px;padding:2px 6px;background:rgba(255,255,255,.05)}
+.gbo .ar kbd{margin-left:auto}
+.gbo .kb{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:8px 12px;font-size:13px;color:#aab2c6}
+.gbo .cta{all:unset;box-sizing:border-box;display:block;width:100%;text-align:center;cursor:pointer;margin-top:16px;padding:14px;border-radius:14px;font:700 15px var(--outfit);background:linear-gradient(135deg,var(--gbA,#34e8a0),var(--gbB,#2dd4bf));color:#06121a;transition:transform .1s,filter .2s}
+.gbo .cta:hover{filter:brightness(1.1)}.gbo .cta:active{transform:scale(.98)}
+</style>
+<style id="gb-motion">
+/* ===== Grok Bot Motion+ : animations (ajouts uniquement) ===== */
+@keyframes gbFade{from{opacity:0}}
+@keyframes gbSheet{from{opacity:0;transform:translateY(40px) scale(.98)}}
+@keyframes gbPop{from{opacity:0;transform:scale(.94)}}
+@keyframes gbSwap{from{opacity:0;transform:translateY(10px)}}
+@keyframes gbFlash{0%{opacity:0}18%{opacity:1}100%{opacity:0}}
+@keyframes gbRise{0%{opacity:0;transform:translate(-50%,0) scale(.8)}15%{opacity:1;transform:translate(-50%,-10px) scale(1.08)}100%{opacity:0;transform:translate(-50%,-64px) scale(1)}}
+@keyframes gbBreath{0%,100%{box-shadow:0 0 0 0 rgba(52,232,160,.45)}60%{box-shadow:0 0 0 10px rgba(52,232,160,0)}}
+@keyframes gbRing{0%{box-shadow:0 0 0 0 var(--gbar,rgba(60,110,255,.35))}70%,100%{box-shadow:0 0 0 14px rgba(0,0,0,0)}}
+@keyframes gbSweep{from{background-position:200% 0}to{background-position:-200% 0}}
+@keyframes gbFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+@keyframes gbToast{from{transform:scaleX(1)}to{transform:scaleX(0)}}
+@keyframes gbSplash{0%,70%{opacity:1}100%{opacity:0;visibility:hidden}}
+@keyframes gbLogo{from{opacity:0;transform:scale(.7) rotate(-10deg)}60%{transform:scale(1.06) rotate(2deg)}to{opacity:1;transform:none}}
+.gba.on{animation:gbFade .25s ease}
+.gba.on .sh{animation:gbSheet .4s cubic-bezier(.2,.9,.25,1)}
+@media(min-width:760px){.gba.on .sh{animation:gbPop .28s cubic-bezier(.2,.9,.25,1)}}
+.gb-swap{animation:gbSwap .35s cubic-bezier(.2,.8,.2,1)}
+.gbf{position:fixed;inset:0;z-index:1090;pointer-events:none;opacity:0;animation:gbFlash .9s ease-out}
+.gbpop{position:fixed;z-index:1095;pointer-events:none;font:700 22px var(--outfit);text-shadow:0 2px 14px rgba(0,0,0,.55);white-space:nowrap;animation:gbRise 1.4s ease-out forwards}
+.gbpt{position:fixed;z-index:1095;pointer-events:none;width:7px;height:7px;border-radius:2px}
+.gbd button.go.run{animation:gbBreath 2.4s ease-out infinite}
+body.gb-live .a-pill{animation:gbRing 2.8s ease-out infinite}
+.a-crew.gb-run::before{content:"";position:absolute;left:18px;right:18px;top:0;height:2px;border-radius:2px;pointer-events:none;background:linear-gradient(90deg,transparent,var(--gbA,#8b7cf6),var(--gbB,#4fa8ff),transparent);background-size:200% 100%;animation:gbSweep 2.6s linear infinite}
+.toast2{position:relative;overflow:hidden}
+.toast2::after{content:"";position:absolute;left:0;right:0;bottom:0;height:2px;background:var(--c,#8d8ef7);opacity:.7;transform-origin:left;animation:gbToast 4.2s linear forwards}
+.a-empty span{display:inline-block;animation:gbFloat 3.4s ease-in-out infinite}
+.a-pill .logo{transition:transform .4s cubic-bezier(.3,1.6,.5,1)}
+.a-pill:hover .logo{transform:rotate(-10deg) scale(1.1)}
+body.sides .sd-c{animation:gbUp .6s cubic-bezier(.2,.8,.2,1) backwards}
+body.sides .sd-c:nth-child(2){animation-delay:.08s}body.sides .sd-c:nth-child(3){animation-delay:.16s}body.sides .sd-c:nth-child(4){animation-delay:.24s}body.sides .sd-c:nth-child(5){animation-delay:.32s}
+.gbs{position:fixed;inset:0;z-index:2000;display:grid;place-items:center;background:radial-gradient(90vmax 70vmax at 50% 0%,#15172b,#070913);pointer-events:none;animation:gbSplash 1.5s ease forwards}
+.gbs div{display:flex;flex-direction:column;align-items:center;gap:14px}
+.gbs svg{width:84px;height:84px;animation:gbLogo .8s cubic-bezier(.2,.9,.25,1) backwards}
+.gbs b{font:700 22px var(--outfit);letter-spacing:.3em;color:#fff;animation:gbFade .8s .25s backwards}
+.gbs b i{font-style:normal;color:var(--a-brand,#b66dff)}
+body.gb-calm .gbd button.go.run,body.gb-calm .a-pill,body.gb-calm .a-crew::before,body.gb-calm .a-empty span,body.gb-calm .gbf,body.gb-calm .gbpop{animation:none}
+@media(prefers-reduced-motion:reduce){.gbd button.go.run,.a-pill,.a-crew::before,.a-empty span,.toast2::after,.gba.on,.gba.on .sh,.gb-swap,body.sides .sd-c,.gbs{animation:none}.gbs{display:none}}
+</style>
 </head>
 <body data-scene="trading">
 <!-- Simulation : données de marché publiques réelles, portefeuille fictif, aucun ordre réel, aucune clé -->
@@ -2685,6 +2819,210 @@ const SimApp = {
 };
 document.addEventListener('DOMContentLoaded', () => SimApp.init());
 
+</script>
+<script>
+/* ===== Grok Bot+ : ajouts (rien n'est retiré du code d'origine) ===== */
+(function(){
+'use strict';
+const $=(s,r=document)=>r.querySelector(s),X=()=>Sim.s.A;
+const usd=v=>'$'+Math.abs(v).toFixed(2),sg=v=>(v<0?'-':'+')+'$'+Math.abs(v).toFixed(2),pcs=v=>(v>=0?'+':'')+v.toFixed(1)+' %';
+const wilson=(w,n)=>{const z=1.96,p=w/n,d=1+z*z/n,c=p+z*z/(2*n),m=z*Math.sqrt(p*(1-p)/n+z*z/(4*n*n));return[(c-m)/d*100,(c+m)/d*100];};
+const CAT=[[/stop relevé/,'Stop relevé (point mort)'],[/stop loss/,'Stop loss'],[/TP suiveur/,'Profit suiveur'],[/prise de profit/,'Profit à l’objectif'],[/plat/,'Trade plat'],[/temporelle/,'Sortie temporelle'],[/liquidité retirée/,'Liquidité retirée'],[/fin de session/,'Fin de session']];
+const cat=w=>{for(const[r,l]of CAT)if(r.test(w||''))return l;return'Autre';};
+
+/* 1 · garde-fous : nouveaux champs dans le panneau de réglages */
+FIELDS.push(['#','Garde-fous'],['ddStop','Pause automatique si repli depuis le sommet ≥ (%) (0 = non)','num'],['stopAtTarget','Arrêter la session à l’objectif de capital','bool']);
+const dc=defaultCfg;
+defaultCfg=function(k,p){const c=dc(k,p),cur=Sim.s&&Sim.s[k]&&Sim.s[k].cfg;c.ddStop=(cur&&cur.ddStop)||0;c.stopAtTarget=!!(cur&&cur.stopAtTarget);return c;};
+function guard(x){if(x.state!=='running')return;const c=x.cfg,eq=x.equity();
+ if(c.ddStop>0&&x.peak>0&&(x.peak-eq)/x.peak*100>=c.ddStop){x.pause('garde-fou : repli de '+c.ddStop+' % atteint');x.peak=eq;Notify.show('Garde-fou déclenché','repli maximal atteint — session en pause','info');}
+ else if(c.stopAtTarget&&eq>=c.target){x.stop('objectif de capital atteint');}}
+
+/* 2 · validation hors échantillon de l'optimisation (70 % apprentissage / 30 % test) */
+const t0=SimUI.tune;
+SimUI.tune=function(){t0.call(this);try{
+ const D=Backtest.data(Feed.mode);if(D.snaps<50||!this.best||!D.ev.length)return;
+ const a=D.ev[0][0],b=D.ev[D.ev.length-1][0],cut=a+(b-a)*.7,tr=Backtest.run(this.best.cfg,D,{to:cut}),te=Backtest.run(this.best.cfg,D,{from:cut});
+ const row=(l,r)=>`<tr><td>${l}</td><td class="${r.ret>=0?'g':'r'}">${fmtP(r.ret)}</td><td>-${r.maxDD.toFixed(1)}%</td><td>${r.trades}</td><td>${r.winRate===null?'n.d.':Math.round(r.winRate)+'%'}</td></tr>`;
+ const el=document.createElement('div');el.className='note';
+ el.innerHTML=`<b>Validation hors échantillon</b> du meilleur réglage : appris sur les 70 % premiers relevés, testé sur les 30 % suivants.<table><tr><th>période</th><th>rendement</th><th>repli max</th><th>trades</th><th>réussite</th></tr>${row('apprentissage',tr)}${row('test',te)}</table>${te.ret<0||te.trades<3?'<span class="r">Le test ne confirme pas ce réglage (négatif ou trop peu de trades) : ne l’applique pas les yeux fermés.</span>':'<span class="g">Le test tient — mais la fenêtre reste courte.</span>'}`;
+ this.p.tune.appendChild(el);}catch(e){}};
+
+/* 3 · notifications navigateur quand l'onglet est en arrière-plan */
+const ot=Sim.onTrade;
+Sim.onTrade=function(x,ev){ot.call(this,x,ev);try{if(document.hidden&&ev.kind==='sell'&&window.Notification&&Notification.permission==='granted')new Notification('Grok Bot · '+ev.sym+' '+sg(ev.pnl),{body:ev.why});}catch(e){}};
+
+/* 4 · analyse de session */
+function stats(x){const c=x.closed,n=c.length,w=c.filter(t=>t.pnl>=0),l=c.filter(t=>t.pnl<0),sw=w.reduce((a,t)=>a+t.pnl,0),sl=-l.reduce((a,t)=>a+t.pnl,0);
+ const hold=c.map(t=>((t.closeMs||0)-(t.openMs||0))/60000).filter(v=>v>=0).sort((a,b)=>a-b),by={};
+ c.forEach(t=>{const k=cat(t.why),o=by[k]||(by[k]={n:0,s:0});o.n++;o.s+=t.pnl;});
+ return{n,wn:w.length,ln:l.length,exp:n?(sw-sl)/n:0,pf:sl?sw/sl:(sw?Infinity:0),aw:w.length?sw/w.length:0,al:l.length?sl/l.length:0,med:hold.length?hold[Math.floor(hold.length/2)]:0,by};}
+function spark(x){const h=x.hist;if(!h||h.length<2)return'';const W=640,H=70,x0=h[0][0],x1=h[h.length-1][0]||1,ys=h.map(p=>p[1]),lo=Math.min(...ys,x.cfg.stake),hi=Math.max(...ys,x.cfg.stake),dy=(hi-lo)||1,st=Math.ceil(h.length/200);
+ const pts=h.filter((_,i)=>i%st===0||i===h.length-1).map(p=>((p[0]-x0)/((x1-x0)||1)*W).toFixed(1)+','+(H-(p[1]-lo)/dy*H).toFixed(1)).join(' '),y0=(H-(x.cfg.stake-lo)/dy*H).toFixed(1);
+ return`<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" style="width:100%;height:70px"><line x1="0" x2="${W}" y1="${y0}" y2="${y0}" stroke="rgba(255,255,255,.2)" stroke-dasharray="4 4"/><polyline points="${pts}" fill="none" stroke="#8b7cf6" stroke-width="2" vector-effect="non-scaling-stroke"/></svg>`;}
+const A=document.createElement('div');A.className='gba';A.innerHTML='<div class="sh"></div>';
+function render(){const x=X(),s=stats(x),st=x.cfg.stake,pnl=x.equity()-st,sh=$('.sh',A),top=sh.scrollTop;
+ const k=(l,v,c)=>`<div class="k"><small>${l}</small><b class="${c||''}">${v}</b></div>`;
+ const bar=(l,v,c,p,col)=>`<div class="br"><span>${l}</span><b class="${c}">${v}</b><div class="tr"><i style="width:${p}%;background:${col}"></i></div></div>`;
+ const mx=Math.max(1e-9,...Object.values(s.by).map(o=>Math.abs(o.s)));
+ const rs=Object.entries(s.by).sort((a,b)=>b[1].s-a[1].s).map(([l,o])=>bar(`${U.esc(l)} · ${o.n}`,sg(o.s),o.s>=0?'g':'r',Math.max(3,Math.abs(o.s)/mx*100).toFixed(0),o.s>=0?'#34e8a0':'#ff5c75')).join('')||'<div class="sub">Aucun trade clôturé pour l’instant.</div>';
+ const ag=['scan','safety','flow','mom','analyst','risk'].map(q=>{const a=x.ag[q],r=a.n?a.no/a.n*100:0;return bar(`${AGN[q].toUpperCase()} · ${a.n} évalués`,r.toFixed(0)+' % refus','',r.toFixed(0),'#8d8ef7');}).join('');
+ const ci=s.n?wilson(s.wn,s.n):null,wr=ci?`Réussite ${Math.round(s.wn/s.n*100)} % (intervalle 95 % : ${ci[0].toFixed(0)}–${ci[1].toFixed(0)} %).`:'';
+ const note=s.n<30?`<div class="warn">${s.n} trade${s.n>1?'s':''} clôturé${s.n>1?'s':''} : trop peu pour conclure, la chance pèse encore beaucoup. Vise 30 trades ou plus avant de comparer deux réglages. ${wr}</div>`:`<div class="note">${wr}</div>`;
+ sh.innerHTML=`<div class="hd"><h3>Analyse de la session</h3><button class="x" aria-label="fermer">✕</button></div><div class="kp">${k('Résultat',sg(pnl)+' · '+pcs(pnl/st*100),pnl>=0?'g':'r')}${k('Trades',`${s.n} · ${s.wn} G / ${s.ln} P`)}${k('Espérance / trade',sg(s.exp),s.exp>=0?'g':'r')}${k('Profit factor',isFinite(s.pf)?s.pf.toFixed(2):'∞')}${k('Gain / perte moyens',`${sg(s.aw)} / -${usd(s.al)}`)}${k('Durée médiane',s.med.toFixed(1)+' min')}${k('Repli max','-'+x.maxDD.toFixed(1)+' %','r')}${k('Frais + slippage',usd(x.fees+x.slipCost))}</div>${note}<h4>Évolution du solde</h4>${spark(x)}<h4>P&amp;L par motif de sortie</h4>${rs}<h4>Sévérité des agents</h4>${ag}`;
+ sh.scrollTop=top;}
+const open=v=>{A.classList.toggle('on',v);if(v)render();};
+
+/* 5 · barre flottante + progression + titre d'onglet */
+function init(){try{
+ const c=X().cfg;if(c.ddStop===undefined)c.ddStop=0;if(c.stopAtTarget===undefined)c.stopAtTarget=false;
+ document.body.appendChild(A);
+ const pb=document.createElement('div');pb.className='gbp';document.body.appendChild(pb);
+ const d=document.createElement('div');d.className='gbd';
+ d.innerHTML='<button class="go" data-g="run"><span>▶</span><b>Démarrer</b></button><button data-g="ana"><span>📊</span><b>Analyse</b></button><button data-g="set"><span>⚙</span><b>Réglages</b></button><button data-g="bell" title="Notifications" aria-label="Notifications">🔔</button><div class="st"><i></i><span></span></div>';
+ document.body.appendChild(d);
+ d.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const g=b.dataset.g;
+  if(g==='run')SimApp.toggle();if(g==='ana')open(true);if(g==='set')SimUI.togglePanel();
+  if(g==='bell'){if(!window.Notification){Notify.show('Notifications','non disponibles sur ce navigateur','info');return;}Notification.requestPermission().then(p=>Notify.show('Notifications',p==='granted'?'actives quand l’onglet est en arrière-plan':'refusées par le navigateur','info'));}});
+ A.addEventListener('click',e=>{if(e.target===A||e.target.closest('.x'))open(false);});
+ addEventListener('keydown',e=>{if(/INPUT|SELECT|TEXTAREA/.test(e.target.tagName))return;if(e.key==='Escape')open(false);if(e.key==='a'||e.key==='A')open(!A.classList.contains('on'));});
+ const go=$('[data-g=run]',d),dot=$('.st i',d),tx=$('.st span',d);let tk=0;
+ setInterval(()=>{try{const x=X(),run=x.state==='running',pnl=x.equity()-x.cfg.stake;
+  go.children[0].textContent=run?'⏸':'▶';go.children[1].textContent=run?'Pause':x.state==='paused'?'Reprendre':x.state==='ended'?'Nouvelle session':'Démarrer';
+  tx.textContent=STFR[x.state]+' · '+(Feed.mode==='practice'?'synthétique':Feed.offline?'flux coupé':'flux '+(Feed.stats.lastOk?ago(Feed.stats.lastOk):'…'));
+  dot.className=Feed.offline?'bad':Feed.fails?'warn':run?'ok':'';
+  pb.style.width=Math.min(100,x.elapsed/(x.cfg.dur*60000)*100)+'%';pb.style.background='linear-gradient(90deg,#8b7cf6,'+(pnl>=0?'#34e8a0':'#ff5c75')+')';
+  if(++tk%4===0){document.title=(run?'▶ ':'')+sg(pnl)+' · Grok Bot';if(A.classList.contains('on'))render();}
+  guard(x);}catch(e){}},500);
+}catch(e){console.error(e);}}
+document.addEventListener('DOMContentLoaded',init);
+})();
+</script>
+<script>
+/* ===== Grok Bot UI+ ===== */
+(function(){
+'use strict';
+const $=(s,r=document)=>r.querySelector(s),X=()=>Sim.s.A,KEY='grokbot.ui';
+const UI={pal:'violet',blur:14,calm:false,vib:true,zen:false,seen:false};
+try{Object.assign(UI,JSON.parse(localStorage.getItem(KEY)||'{}'));}catch(e){}
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(UI));}catch(e){}};
+const PAL={
+ violet:{n:'Violet',a:'#b66dff',l1:'#8b7cf6',l2:'#4fa8ff',g1:'rgba(48,96,255,.28)',g2:'rgba(200,50,90,.22)',g3:'rgba(130,70,220,.20)',ar:'rgba(60,110,255,.35)'},
+ ocean:{n:'Océan',a:'#4fc3ff',l1:'#38bdf8',l2:'#2dd4bf',g1:'rgba(20,120,255,.30)',g2:'rgba(20,200,200,.18)',g3:'rgba(60,90,220,.20)',ar:'rgba(40,160,255,.35)'},
+ emeraude:{n:'Émeraude',a:'#34e8a0',l1:'#2dd4bf',l2:'#34e8a0',g1:'rgba(20,180,120,.26)',g2:'rgba(60,140,255,.18)',g3:'rgba(20,120,100,.24)',ar:'rgba(40,200,140,.32)'},
+ ambre:{n:'Ambre',a:'#f6b73c',l1:'#f59e0b',l2:'#fb7185',g1:'rgba(240,140,20,.26)',g2:'rgba(220,50,80,.20)',g3:'rgba(180,90,30,.22)',ar:'rgba(245,158,11,.32)'},
+ rose:{n:'Rose',a:'#ff6fae',l1:'#f472b6',l2:'#a78bfa',g1:'rgba(230,60,140,.26)',g2:'rgba(130,70,220,.22)',g3:'rgba(255,100,150,.18)',ar:'rgba(244,114,182,.32)'},
+ graphite:{n:'Graphite',a:'#cfd5e4',l1:'#9aa3b8',l2:'#e5e9f5',g1:'rgba(120,130,160,.22)',g2:'rgba(90,100,130,.18)',g3:'rgba(150,160,190,.16)',ar:'rgba(160,170,200,.28)'}
+};
+function apply(){const p=PAL[UI.pal]||PAL.violet,s=document.documentElement.style;
+ [['--a-brand',p.a],['--gb1',p.g1],['--gb2',p.g2],['--gb3',p.g3],['--gbA',p.l1],['--gbB',p.l2],['--gbar',p.ar],['--gbb',UI.blur+'px']].forEach(([k,v])=>s.setProperty(k,v));
+ document.body.classList.toggle('gb-calm',!!UI.calm);document.body.classList.toggle('gb-zen',!!UI.zen);}
+const O=document.createElement('div'),SH=document.createElement('div');SH.className='sh';O.appendChild(SH);O.className='gba gbo';
+const show=(h,c)=>{SH.innerHTML=h;O.className='gba gbo on '+(c||'');},hide=()=>O.classList.remove('on');
+const XB='<button class="x" aria-label="fermer">✕</button>';
+const pre=p=>{const b=SimUI.P&&SimUI.P.querySelector('[data-preset="'+p+'"]');if(b)b.click();};
+
+/* style de l'interface */
+function studio(){show(`<div class="hd"><h3>Style de l’interface</h3>${XB}</div>
+<h4>Couleur d’accent</h4><div class="sw">${Object.entries(PAL).map(([k,p])=>`<button data-pal="${k}" class="${k===UI.pal?'on':''}" style="--c1:${p.l1};--c2:${p.l2}"><i></i>${p.n}</button>`).join('')}</div>
+<h4>Verre</h4><div class="sr"><span>Flou des cartes</span><input type="range" min="0" max="30" value="${UI.blur}" data-k="blur" aria-label="Flou des cartes"></div>
+<h4>Confort</h4>${[['calm','Animations calmes (fond fixe)'],['vib','Vibrations à chaque trade (mobile)'],['zen','Mode focus : masquer les colonnes latérales']].map(([k,l])=>`<div class="sr"><span>${l}</span><button class="tg ${UI[k]?'on':''}" data-tg="${k}" role="switch" aria-checked="${!!UI[k]}" aria-label="${l}"></button></div>`).join('')}`);}
+
+/* accueil guidé */
+function welcome(){UI.seen=true;save();show(`<div class="hd"><h3>Bienvenue sur Grok Bot</h3>${XB}</div>
+<div class="note">Simulation sur prix réels DexScreener : argent fictif, aucune clé, aucun ordre réel.</div>
+<h4>1 · Choisis un profil</h4><div class="sw">${[['prudent','🛡 Prudent'],['equilibre','⚖ Équilibré'],['agressif','🔥 Agressif']].map(([k,l])=>`<button data-pre="${k}" class="${X().cfg.preset===k?'on':''}" style="--c1:var(--gbA,#8b7cf6);--c2:var(--gbB,#4fa8ff)">${l}</button>`).join('')}</div>
+<h4>2 · Lance la session</h4><div class="note">Six agents (ODEN, VIRA, NOLU, KESH, score, TAMB) évaluent chaque token et expliquent chaque décision.</div>
+<h4>3 · Suis et analyse</h4><div class="note">Journal, positions, trades, puis la feuille Analyse pour juger honnêtement le résultat.</div>
+<h4>Raccourcis</h4><div class="kb"><span><kbd>Espace</kbd> démarrer / pause</span><span><kbd>R</kbd> réglages</span><span><kbd>A</kbd> analyse</span><span><kbd>F</kbd> mode focus</span><span><kbd>⌘/Ctrl K</kbd> actions</span><span><kbd>1–4</kbd> onglets</span></div>
+<button class="cta" data-go="1">Lancer la simulation</button>`);}
+
+/* palette d'actions */
+let cur=[],sel=0;
+const ACTS=()=>[
+ ['▶','Démarrer / mettre en pause','Espace',()=>SimApp.toggle()],
+ ['📊','Analyse de la session','A',()=>{const b=$('.gbd [data-g=ana]');if(b)b.click();}],
+ ['⚙','Réglages de la session','R',()=>SimUI.togglePanel()],
+ ['🎨','Style de l’interface','',studio],
+ ['🧭','Aide et premiers pas','?',welcome],
+ ['🧘','Mode focus','F',()=>{UI.zen=!UI.zen;save();apply();}],
+ ['🛡','Profil Prudent','',()=>pre('prudent')],['⚖','Profil Équilibré','',()=>pre('equilibre')],['🔥','Profil Agressif','',()=>pre('agressif')],
+ ['⬇','Exporter les trades (CSV)','',()=>{if(!exportCSV(['A']))Notify.show('Aucun trade à exporter','le CSV se remplit dès que le bot a tradé','info');}],
+ ['🔊','Son : activer / couper','',()=>Sound.toggle()]
+];
+function draw(){$('.al',SH).innerHTML=cur.map((a,i)=>`<div class="ar ${i===sel?'on':''}" data-i="${i}"><span>${a[0]}</span>${a[1]}${a[2]?`<kbd>${a[2]}</kbd>`:''}</div>`).join('')||'<div class="sub">Aucune action.</div>';}
+function list(f){f=f.toLowerCase();cur=ACTS().filter(a=>a[1].toLowerCase().includes(f));sel=0;draw();}
+function run(i){const a=cur[i];if(!a)return;hide();setTimeout(a[3],30);}
+function palette(){show(`<div class="hd"><h3>Actions</h3>${XB}</div><input class="q" placeholder="Que veux-tu faire ?" aria-label="Rechercher une action"><div class="al"></div>`,'pk');list('');setTimeout(()=>{const q=$('.q',SH);if(q)q.focus();},60);}
+
+O.addEventListener('click',e=>{
+ if(e.target===O||e.target.closest('.x')){hide();return;}
+ const p=e.target.closest('[data-pal]');if(p){UI.pal=p.dataset.pal;save();apply();SH.querySelectorAll('[data-pal]').forEach(b=>b.classList.toggle('on',b===p));return;}
+ const t=e.target.closest('[data-tg]');if(t){const k=t.dataset.tg;UI[k]=!UI[k];save();apply();t.classList.toggle('on',UI[k]);t.setAttribute('aria-checked',String(!!UI[k]));if(k==='vib'&&UI.vib&&navigator.vibrate)navigator.vibrate(20);return;}
+ const a=e.target.closest('.ar');if(a){run(+a.dataset.i);return;}
+ const pr=e.target.closest('[data-pre]');if(pr){pre(pr.dataset.pre);SH.querySelectorAll('[data-pre]').forEach(b=>b.classList.toggle('on',b===pr));return;}
+ if(e.target.closest('[data-go]')){hide();if(X().state!=='running')SimApp.toggle();}
+});
+O.addEventListener('input',e=>{if(e.target.dataset.k==='blur'){UI.blur=+e.target.value;save();apply();}if(e.target.classList.contains('q'))list(e.target.value);});
+O.addEventListener('keydown',e=>{if(!O.classList.contains('pk'))return;
+ if(e.key==='ArrowDown'){sel=Math.min(cur.length-1,sel+1);draw();e.preventDefault();}
+ else if(e.key==='ArrowUp'){sel=Math.max(0,sel-1);draw();e.preventDefault();}
+ else if(e.key==='Enter')run(sel);});
+addEventListener('keydown',e=>{
+ if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='k'){e.preventDefault();palette();return;}
+ if(e.key==='Escape'){hide();return;}
+ if(/INPUT|SELECT|TEXTAREA/.test(e.target.tagName))return;
+ if(e.key==='?')welcome();
+ if(e.key==='f'||e.key==='F'){UI.zen=!UI.zen;save();apply();}
+});
+
+/* vibrations légères sur les trades (si le navigateur les gère) */
+const ov=Sim.onTrade;
+Sim.onTrade=function(x,ev){ov.call(this,x,ev);try{if(UI.vib&&navigator.vibrate&&!SimApp.restoring)navigator.vibrate(ev.kind==='buy'?15:(ev.pnl>=0?[20,40,20]:[70]));}catch(e){}};
+
+document.addEventListener('DOMContentLoaded',()=>{try{
+ apply();document.body.appendChild(O);
+ const d=$('.gbd'),st=d&&$('.st',d);
+ if(d&&st){const b=document.createElement('button');b.dataset.g='more';b.setAttribute('aria-label','Plus d’actions');b.innerHTML='<span>⋯</span><b>Plus</b>';d.insertBefore(b,st);b.addEventListener('click',palette);}
+ const x=X();if(!UI.seen&&x.state==='idle'&&!x.closed.length)setTimeout(welcome,900);
+}catch(e){console.error(e);}});
+})();
+</script>
+<script>
+/* ===== Grok Bot Motion+ ===== */
+(function(){
+'use strict';
+const $=(s,r=document)=>r.querySelector(s),X=()=>Sim.s.A;
+const rm=()=>matchMedia('(prefers-reduced-motion:reduce)').matches;
+const calm=()=>document.body.classList.contains('gb-calm')||rm();
+const sgn=v=>(v<0?'-':'+')+'$'+Math.abs(v).toFixed(2);
+/* intro : une fois par onglet */
+try{if(!sessionStorage.getItem('gb.splash')&&!rm()){sessionStorage.setItem('gb.splash','1');const s=document.createElement('div');s.className='gbs';let lg='';try{lg=VIS.logo();}catch(e){}s.innerHTML='<div>'+lg+'<b>GROK <i>BOT</i></b></div>';document.body.appendChild(s);setTimeout(()=>s.remove(),1700);}}catch(e){}
+const where=()=>{const e=$('[data-r=pnl]'),r=e&&e.getBoundingClientRect();return r&&r.width?{x:r.left+r.width/2,y:r.top+r.height/2}:{x:innerWidth/2,y:innerHeight*.3};};
+function flash(c){const f=document.createElement('div');f.className='gbf';f.style.boxShadow='inset 0 0 140px 8px '+c;document.body.appendChild(f);setTimeout(()=>f.remove(),950);}
+function pop(t,c,p){const e=document.createElement('div');e.className='gbpop';e.textContent=t;e.style.left=p.x+'px';e.style.top=p.y+'px';e.style.color=c;document.body.appendChild(e);setTimeout(()=>e.remove(),1450);}
+function burst(p,n,cols,spread){for(let i=0;i<n;i++){const e=document.createElement('i');e.className='gbpt';e.style.left=p.x+'px';e.style.top=p.y+'px';e.style.background=cols[i%cols.length];document.body.appendChild(e);
+ const a=Math.random()*Math.PI*2,d=30+Math.random()*spread;
+ e.animate([{transform:'translate(0,0) rotate(0)',opacity:1},{transform:`translate(${Math.cos(a)*d}px,${Math.sin(a)*d-20}px) rotate(${Math.random()*540}deg)`,opacity:0}],{duration:700+Math.random()*600,easing:'cubic-bezier(.15,.8,.3,1)'}).onfinish=()=>e.remove();}}
+function confetti(){const cols=['#34e8a0','#8b7cf6','#4fa8ff','#f6b73c','#ff6fae'];for(let i=0;i<70;i++){const e=document.createElement('i');e.className='gbpt';e.style.left=Math.random()*100+'vw';e.style.top='-12px';e.style.width=(6+Math.random()*6)+'px';e.style.height=(8+Math.random()*8)+'px';e.style.background=cols[i%5];document.body.appendChild(e);
+ e.animate([{transform:'translate(0,0) rotate(0)',opacity:1},{transform:`translate(${(Math.random()-.5)*160}px,${innerHeight+40}px) rotate(${360+Math.random()*540}deg)`,opacity:.9}],{duration:2200+Math.random()*1800,delay:Math.random()*500,easing:'cubic-bezier(.3,.6,.4,1)',fill:'backwards'}).onfinish=()=>e.remove();}}
+/* effets à chaque trade (limités à un toutes les 0,5 s) */
+const o=Sim.onTrade;let last=0;
+Sim.onTrade=function(x,ev){o.call(this,x,ev);try{if(calm()||SimApp.restoring||Date.now()-last<500)return;last=Date.now();
+ if(ev.kind==='buy')flash('rgba(90,165,255,.45)');
+ else if(ev.kind==='sell'){const w=ev.pnl>=0,p=where();flash(w?'rgba(52,232,160,.38)':'rgba(255,92,117,.38)');pop(sgn(ev.pnl)+' '+ev.sym,w?'#34e8a0':'#ff5c75',p);if(w)burst(p,Math.min(26,8+Math.round(Math.abs(ev.pnlPct||0))),['#34e8a0','#8b7cf6','#f6b73c'],90);}
+}catch(e){}};
+document.addEventListener('DOMContentLoaded',()=>{try{
+ let hit=false;
+ setInterval(()=>{try{const x=X(),run=x.state==='running',g=$('.gbd .go'),c=$('.a-crew');
+  document.body.classList.toggle('gb-live',run);if(g)g.classList.toggle('run',run);if(c)c.classList.toggle('gb-run',run);
+  if(x.state==='idle')hit=false;
+  else if(!hit&&run&&x.cfg.target>x.cfg.stake&&x.equity()>=x.cfg.target){hit=true;if(!calm())confetti();Notify.show('Objectif atteint','le capital cible est atteint','info');}
+ }catch(e){}},500);
+ const tabs=$('.a-tabs');
+ if(tabs)tabs.addEventListener('click',()=>{['tlog','tpos','ttr','thist'].forEach(k=>{const e=$('[data-r='+k+']');if(e&&!e.hidden){e.classList.remove('gb-swap');void e.offsetWidth;e.classList.add('gb-swap');}});});
+}catch(e){console.error(e);}});
+})();
 </script>
 </body>
 </html>
